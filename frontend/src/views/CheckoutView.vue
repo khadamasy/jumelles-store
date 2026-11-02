@@ -15,7 +15,30 @@
 
     <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-10">
       <!-- Checkout Form -->
-      <div class="lg:col-span-7 space-y-8">
+      <div class="lg:col-span-7 space-y-6">
+        <!-- Bandeau Mode Commande Rapide & Connexion Habituée -->
+        <div class="bg-gradient-to-r from-stone-900 via-stone-950 to-stone-900 text-white p-5 rounded-2xl border border-gold-500/30 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">⚡</span>
+            <div>
+              <p class="text-xs font-black text-gold-400 uppercase tracking-wider">Commande Express Sans Mot de Passe</p>
+              <p class="text-xs text-stone-300">Renseignez simplement vos coordonnées ci-dessous pour régler immédiatement avec Wave ou Orange Money.</p>
+            </div>
+          </div>
+          <div v-if="!authStore.isAuthenticated" class="shrink-0">
+            <button
+              type="button"
+              @click="handleQuickLogin"
+              class="px-4 py-2 bg-white/10 hover:bg-gold-500 hover:text-stone-950 border border-white/20 hover:border-gold-400 text-xs font-bold text-white rounded-xl transition-all shadow"
+            >
+              Déjà cliente ? Se connecter
+            </button>
+          </div>
+          <div v-else class="shrink-0 flex items-center gap-2 bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 px-3 py-1.5 rounded-xl text-xs font-bold">
+            <span>✓</span> Connectée : {{ authStore.userName }}
+          </div>
+        </div>
+
         <!-- 1. Coordonnées de Livraison -->
         <div class="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-sm space-y-6">
           <div class="flex items-center gap-3 border-b border-stone-100 pb-4">
@@ -207,7 +230,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '../stores/cart';
 import { useAuthStore } from '../stores/auth';
@@ -232,11 +255,28 @@ const form = reactive({
   shippingAddress: '',
 });
 
-onMounted(() => {
+const fillUserData = () => {
   if (authStore.user) {
-    form.customerName = authStore.user.name || '';
-    form.customerEmail = authStore.user.email || '';
+    if (authStore.user.name && !form.customerName) form.customerName = authStore.user.name;
+    if (authStore.user.email && !form.customerEmail) form.customerEmail = authStore.user.email;
   }
+};
+
+const handleQuickLogin = () => {
+  if (authStore.keycloakInstance?.authenticated) {
+    authStore.loginKeycloak();
+  } else {
+    authStore.loginAsDemoClient();
+  }
+  fillUserData();
+};
+
+watch(() => authStore.user, () => {
+  fillUserData();
+});
+
+onMounted(() => {
+  fillUserData();
 });
 
 const formatPrice = (price: number) => {
