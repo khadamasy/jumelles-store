@@ -161,7 +161,7 @@ const route = useRoute();
 const router = useRouter();
 
 const products = ref<any[]>([]);
-const shoeSizes = ref<string[]>(['36', '37', '38', '39', '40', '41', '42']);
+const shoeSizes = ref<string[]>(['37', '38', '39', '40', '41', '42']);
 const loading = ref(true);
 
 const searchQuery = ref('');

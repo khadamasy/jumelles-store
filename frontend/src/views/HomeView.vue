@@ -54,7 +54,7 @@
               <span>Commandes : +221 77 208 78 20</span>
             </a>
             <div class="flex items-center gap-2">
-              <span class="text-gold-400">✔</span> Pointures 36 à 45
+              <span class="text-gold-400">✔</span> Pointures 37 à 42
             </div>
             <div class="flex items-center gap-2">
               <span class="text-gold-400">✔</span> Paiements Wave & Orange Money
@@ -111,7 +111,7 @@
           <div class="relative z-10 space-y-2">
             <span class="text-xs uppercase tracking-widest text-gold-400 font-black">Souliers & Sandales</span>
             <h3 class="font-serif text-2xl sm:text-3xl font-extrabold">Escarpins, Sandales & Sneakers</h3>
-            <p class="text-sm text-stone-300 max-w-md font-light">Des pointures du 36 au 45 avec un confort de marche incomparable et un galbe parfait.</p>
+            <p class="text-sm text-stone-300 max-w-md font-light">Des pointures du 37 au 42 avec un confort de marche incomparable et un galbe parfait.</p>
             <span class="inline-flex items-center gap-2 text-xs font-bold text-gold-400 pt-2 group-hover:underline">
               Choisir ma pointure →
             </span>

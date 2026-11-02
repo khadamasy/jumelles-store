@@ -193,11 +193,12 @@ export const memoryStore = {
       isActive: true,
       isFeatured: false,
       variants: [
-        { id: 'var-12', productId: 'prod-shoe-2', sizeOrShoeSize: '36', color: 'Doré Antique', sku: 'SAND-GLD-36', stockQuantity: 4, priceAdjustment: 0 },
+        { id: 'var-12', productId: 'prod-shoe-2', sizeOrShoeSize: '41', color: 'Doré Antique', sku: 'SAND-GLD-41', stockQuantity: 4, priceAdjustment: 0 },
         { id: 'var-13', productId: 'prod-shoe-2', sizeOrShoeSize: '37', color: 'Doré Antique', sku: 'SAND-GLD-37', stockQuantity: 8, priceAdjustment: 0 },
         { id: 'var-14', productId: 'prod-shoe-2', sizeOrShoeSize: '38', color: 'Doré Antique', sku: 'SAND-GLD-38', stockQuantity: 10, priceAdjustment: 0 },
         { id: 'var-15', productId: 'prod-shoe-2', sizeOrShoeSize: '39', color: 'Doré Antique', sku: 'SAND-GLD-39', stockQuantity: 7, priceAdjustment: 0 },
-        { id: 'var-16', productId: 'prod-shoe-2', sizeOrShoeSize: '40', color: 'Doré Antique', sku: 'SAND-GLD-40', stockQuantity: 3, priceAdjustment: 0 }
+        { id: 'var-16', productId: 'prod-shoe-2', sizeOrShoeSize: '40', color: 'Doré Antique', sku: 'SAND-GLD-40', stockQuantity: 3, priceAdjustment: 0 },
+        { id: 'var-16b', productId: 'prod-shoe-2', sizeOrShoeSize: '42', color: 'Doré Antique', sku: 'SAND-GLD-42', stockQuantity: 5, priceAdjustment: 0 }
       ],
       images: [
         { id: 'img-5', productId: 'prod-shoe-2', minioUrl: 'https://images.unsplash.com/photo-1603808033192-082d6919d3e1?auto=format&fit=crop&w=800&q=80', altText: 'Sandales dorées Jumelles Store', isPrimary: true }

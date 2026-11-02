@@ -44,7 +44,7 @@
             <li><router-link to="/catalog?category=escarpins-talons" class="hover:text-gold-400 transition-colors">Escarpins Stiletto 10cm</router-link></li>
             <li><router-link to="/catalog?category=sandales-mules" class="hover:text-gold-400 transition-colors">Sandales Dorées & Nu-Pieds</router-link></li>
             <li><router-link to="/catalog?category=sneakers-femme" class="hover:text-gold-400 transition-colors">Sneakers Urbaines Métallisées</router-link></li>
-            <li><router-link to="/catalog?type=CHAUSSURE" class="hover:text-gold-400 transition-colors">Pointures disponibles : 36 à 45</router-link></li>
+            <li><router-link to="/catalog?type=CHAUSSURE" class="hover:text-gold-400 transition-colors">Pointures disponibles : 37 à 42</router-link></li>
           </ul>
         </div>
 
@@ -101,7 +101,7 @@
       <!-- Bottom Credits -->
       <div class="pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-stone-500 gap-4">
         <p>© 2026 Jumelles Store Dakar. Tous droits réservés.</p>
-        <p class="text-stone-400">Architecture : Vue.js 3 • Node.js • Keycloak • MinIO • PostgreSQL • Wave & OM</p>
+        <p class="text-stone-500">Maroquinerie d'exception & Souliers sur-mesure</p>
       </div>
     </div>
   </footer>

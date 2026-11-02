@@ -162,13 +162,28 @@
                 <h3 class="font-serif font-bold text-lg text-stone-900 mt-1">
                   {{ product.name }}
                 </h3>
-                <p class="text-xs text-stone-500">
-                  Prix de vente : <strong class="text-stone-900">{{ formatPrice(product.basePrice) }}</strong> • Total en stock : <strong>{{ getTotalStock(product) }} unité(s)</strong>
-                </p>
+                <div class="flex flex-wrap items-center gap-2 mt-1">
+                  <span class="text-xs text-stone-500">Prix actuel :</span>
+                  <span class="font-serif font-black text-stone-950 text-sm">{{ formatPrice(product.basePrice) }}</span>
+                  <button
+                    @click="openEditPriceModal(product)"
+                    class="text-[11px] text-gold-900 bg-gold-100/80 hover:bg-gold-200 border border-gold-300 font-bold px-2.5 py-0.5 rounded-lg transition-colors flex items-center gap-1 shadow-sm"
+                    title="Changer le prix de vente de cet article"
+                  >
+                    <span>✏️</span> Modifier prix
+                  </button>
+                  <span class="text-xs text-stone-400">• Total en stock : <strong>{{ getTotalStock(product) }} unité(s)</strong></span>
+                </div>
               </div>
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center gap-2.5">
+              <button
+                @click="openEditPriceModal(product)"
+                class="px-3.5 py-2 bg-gold-50 hover:bg-gold-100 text-gold-900 text-xs font-bold rounded-xl transition-all border border-gold-300 flex items-center gap-1.5 shadow-sm"
+              >
+                <span>💰</span> Modifier le prix
+              </button>
               <button
                 @click="openAddVariantModal(product)"
                 class="px-3.5 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold rounded-xl transition-all border border-stone-300"
@@ -179,7 +194,7 @@
                 @click="handleDeleteProduct(product.id)"
                 class="px-3.5 py-2 text-rosewood-600 hover:bg-rosewood-50 text-xs font-bold rounded-xl transition-all"
               >
-                Supprimer l'article
+                Supprimer
               </button>
             </div>
           </div>
@@ -466,12 +481,12 @@
         <form @submit.prevent="submitAddVariant" class="space-y-4">
           <div>
             <label class="block text-xs font-bold text-stone-700 mb-1">
-              {{ isShoe(selectedProductForVariant) ? 'Pointure de chaussure (ex: 37, 38, 41) *' : 'Taille / Format de sac *' }}
+              {{ isShoe(selectedProductForVariant) ? 'Pointure de chaussure (37 à 42) *' : 'Taille / Format de sac *' }}
             </label>
             <input
               v-model="newVariantData.sizeOrShoeSize"
               type="text"
-              placeholder="Ex: 39 ou Grand Format"
+              placeholder="Ex: 38 (entre 37 et 42)"
               class="w-full px-3 py-2.5 rounded-xl border border-stone-300 text-xs outline-none focus:ring-1 focus:ring-gold-500 font-bold"
               required
             />
@@ -512,6 +527,61 @@
               class="px-5 py-2.5 bg-stone-900 hover:bg-gold-600 text-white text-xs font-bold rounded-xl shadow transition-all"
             >
               Ajouter la variante
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Modal pour Modifier le Prix de Vente d'un Produit -->
+    <div v-if="selectedProductForPrice" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm">
+      <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl space-y-6">
+        <div class="flex items-center justify-between border-b border-stone-100 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">💰</span>
+            <h3 class="font-serif font-bold text-lg text-stone-900">
+              Modifier le Prix de Vente
+            </h3>
+          </div>
+          <button @click="selectedProductForPrice = null" class="text-stone-400 hover:text-stone-700 font-bold">✕</button>
+        </div>
+
+        <div>
+          <p class="text-xs text-stone-500">Article sélectionné :</p>
+          <p class="font-serif font-bold text-base text-stone-900">{{ selectedProductForPrice.name }}</p>
+          <p class="text-xs text-stone-400 mt-0.5">Prix actuel : <span class="line-through">{{ formatPrice(selectedProductForPrice.basePrice) }}</span></p>
+        </div>
+
+        <form @submit.prevent="submitUpdatePrice" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-stone-700 mb-1">
+              Nouveau Prix de Vente (FCFA) *
+            </label>
+            <input
+              v-model.number="editedPrice"
+              type="number"
+              step="500"
+              placeholder="Ex: 40000"
+              class="w-full px-4 py-3 rounded-xl border border-stone-300 text-lg font-black text-stone-950 outline-none focus:ring-2 focus:ring-gold-500"
+              required
+            />
+            <p class="text-[11px] text-stone-500 mt-1">
+              Ce tarif s'appliquera immédiatement sur tout le site (accueil, catalogue, panier des clients).
+            </p>
+          </div>
+
+          <div class="pt-3 flex justify-end gap-3">
+            <button
+              type="button"
+              @click="selectedProductForPrice = null"
+              class="px-4 py-2 text-xs font-bold text-stone-500 hover:bg-stone-100 rounded-xl"
+            >
+              Annuler
+            </button>
+            <button
+              type="submit"
+              class="px-5 py-2.5 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-stone-950 font-black text-xs rounded-xl shadow transition-all"
+            >
+              Enregistrer le nouveau prix
             </button>
           </div>
         </form>
@@ -560,6 +630,31 @@ const newVariantData = reactive({
   color: '',
   stockQuantity: 10,
 });
+
+const selectedProductForPrice = ref<any>(null);
+const editedPrice = ref<number>(0);
+
+const openEditPriceModal = (product: any) => {
+  selectedProductForPrice.value = product;
+  editedPrice.value = product.basePrice;
+};
+
+const submitUpdatePrice = async () => {
+  if (!selectedProductForPrice.value || !editedPrice.value || editedPrice.value <= 0) {
+    alert('Veuillez saisir un prix valide.');
+    return;
+  }
+  try {
+    await ProductService.update(selectedProductForPrice.value.id, {
+      basePrice: editedPrice.value,
+    });
+    showToast(`✅ Prix de "${selectedProductForPrice.value.name}" mis à jour : ${formatPrice(editedPrice.value)}`);
+    selectedProductForPrice.value = null;
+    loadData();
+  } catch (err: any) {
+    showToast('Erreur lors de la mise à jour du prix.', 'error');
+  }
+};
 
 const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
   toastMessage.value = msg;
@@ -697,7 +792,9 @@ const handleCreateProduct = async () => {
           { sizeOrShoeSize: '37', color: 'Noir', sku: `SKU-${Date.now()}-37`, stockQuantity: 6 },
           { sizeOrShoeSize: '38', color: 'Noir', sku: `SKU-${Date.now()}-38`, stockQuantity: 8 },
           { sizeOrShoeSize: '39', color: 'Noir', sku: `SKU-${Date.now()}-39`, stockQuantity: 5 },
-          { sizeOrShoeSize: '40', color: 'Noir', sku: `SKU-${Date.now()}-40`, stockQuantity: 4 },
+          { sizeOrShoeSize: '40', color: 'Noir', sku: `SKU-${Date.now()}-40`, stockQuantity: 5 },
+          { sizeOrShoeSize: '41', color: 'Noir', sku: `SKU-${Date.now()}-41`, stockQuantity: 4 },
+          { sizeOrShoeSize: '42', color: 'Noir', sku: `SKU-${Date.now()}-42`, stockQuantity: 4 },
         ]
       : [
           { sizeOrShoeSize: 'Standard', color: 'Noir', sku: `SKU-${Date.now()}-STD`, stockQuantity: 10 },

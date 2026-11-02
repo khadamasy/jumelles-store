@@ -51,7 +51,7 @@
       <div>
         <div class="flex items-center justify-between text-[11px] uppercase tracking-wider text-stone-400 font-bold mb-1">
           <span>{{ categoryName }}</span>
-          <span v-if="isShoe" class="text-gold-700 font-extrabold">Pointures 36-45</span>
+          <span v-if="isShoe" class="text-gold-700 font-extrabold">Pointures 37-42</span>
         </div>
 
         <router-link :to="`/product/${product.slug || product.id}`">

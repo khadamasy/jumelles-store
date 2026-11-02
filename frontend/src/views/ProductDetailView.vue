@@ -94,7 +94,7 @@
         <div class="space-y-3 pt-2">
           <div class="flex items-center justify-between">
             <label class="text-xs font-bold uppercase tracking-wider text-stone-600 block">
-              {{ isShoe ? 'Pointure disponible (36-45) :' : 'Taille / Format :' }}
+              {{ isShoe ? 'Pointure disponible (37-42) :' : 'Taille / Format :' }}
               <span class="text-stone-950 font-black ml-1">{{ selectedVariant?.sizeOrShoeSize }}</span>
             </label>
             <span v-if="isShoe" class="text-xs text-gold-700 font-bold hover:underline cursor-pointer">
