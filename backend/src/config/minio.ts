@@ -37,3 +37,4 @@ export async function initMinioBuckets() {
     console.warn(`[MinIO] Connexion au serveur MinIO non disponible immédiatement: ${error.message}`);
   }
 }
+

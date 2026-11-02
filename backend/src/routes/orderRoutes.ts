@@ -24,3 +24,4 @@ router.get('/admin/dashboard-stats', requireAuth, requireRole('ROLE_ADMIN'), get
 router.patch('/admin/:id/status', requireAuth, requireRole('ROLE_ADMIN'), updateOrderStatus);
 
 export default router;
+

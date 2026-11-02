@@ -18,3 +18,4 @@ app.listen(PORT, async () => {
   // Initialisation asynchrone des buckets MinIO
   await initMinioBuckets();
 });
+

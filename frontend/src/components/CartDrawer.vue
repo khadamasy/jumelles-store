@@ -125,3 +125,4 @@ const formatPrice = (price: number) => {
   }).format(price);
 };
 </script>
+

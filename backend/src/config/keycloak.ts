@@ -23,3 +23,4 @@ export function getKey(header: jwt.JwtHeader, callback: jwt.SigningKeyCallback) 
     callback(null, signingKey);
   });
 }
+

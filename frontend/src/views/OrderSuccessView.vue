@@ -131,3 +131,4 @@ const simulatePayment = async () => {
   }
 };
 </script>
+

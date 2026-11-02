@@ -40,7 +40,7 @@
               <input
                 v-model="form.customerPhone"
                 type="tel"
-                placeholder="+221 77 000 00 00"
+                placeholder="+221 77 208 78 20"
                 class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 outline-none"
                 required
               />
@@ -186,6 +186,14 @@
           <p class="text-[11px] text-stone-400 text-center">
             En validant votre commande, vous acceptez les conditions de vente de Jumelles Store.
           </p>
+
+          <!-- Assistance direct commande téléphonique -->
+          <div class="pt-2 border-t border-stone-100 text-center">
+            <p class="text-xs text-stone-500 font-medium">Besoin d'aide pour finaliser ?</p>
+            <a href="tel:+221772087820" class="text-xs font-bold text-stone-900 hover:text-gold-700 underline block mt-0.5">
+              📞 Appelez le service client : +221 77 208 78 20
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -285,3 +293,4 @@ const handleCheckout = async () => {
   }
 };
 </script>
+

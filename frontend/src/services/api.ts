@@ -27,6 +27,10 @@ export const ProductService = {
   create: (data: any) => apiClient.post('/products', data),
   update: (id: string, data: any) => apiClient.put(`/products/${id}`, data),
   delete: (id: string) => apiClient.delete(`/products/${id}`),
+  replenishStock: (data: { productId: string; variantId: string; quantityToAdd?: number; newStockQuantity?: number }) =>
+    apiClient.post('/products/stock/replenish', data),
+  addVariant: (productId: string, data: any) =>
+    apiClient.post(`/products/${productId}/variants`, data),
 };
 
 // Services Catégories
@@ -69,3 +73,4 @@ export const UploadService = {
     });
   },
 };
+

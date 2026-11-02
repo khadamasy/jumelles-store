@@ -51,3 +51,4 @@ export class OrangeMoneyService {
     return payload.status === 'SUCCESS' || payload.status === 'SUCCESSFUL' || payload.status === 'INITIATED';
   }
 }
+

@@ -221,6 +221,86 @@ export const updateProduct = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Renouveler / Réapprovisionner le stock d'une variante
+ */
+export const replenishStock = async (req: Request, res: Response) => {
+  try {
+    const { productId, variantId, quantityToAdd, newStockQuantity } = req.body;
+
+    if (!productId || !variantId) {
+      return res.status(400).json({
+        success: false,
+        message: 'productId et variantId sont requis.',
+      });
+    }
+
+    const product = memoryStore.products.find((p) => p.id === productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Produit introuvable.' });
+    }
+
+    const variant = product.variants.find((v) => v.id === variantId);
+    if (!variant) {
+      return res.status(404).json({ success: false, message: 'Variante introuvable.' });
+    }
+
+    if (quantityToAdd !== undefined) {
+      variant.stockQuantity += parseInt(quantityToAdd, 10);
+    } else if (newStockQuantity !== undefined) {
+      variant.stockQuantity = Math.max(0, parseInt(newStockQuantity, 10));
+    }
+
+    res.json({
+      success: true,
+      message: `Stock renouvelé avec succès pour ${product.name} (${variant.color} / ${variant.sizeOrShoeSize}). Nouveau stock : ${variant.stockQuantity}`,
+      data: {
+        productId: product.id,
+        variantId: variant.id,
+        variantName: `${variant.color} / ${variant.sizeOrShoeSize}`,
+        newStockQuantity: variant.stockQuantity,
+      },
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * Ajouter une nouvelle variante (ex: nouvelle pointure ou couleur) à un produit existant
+ */
+export const addVariantToProduct = async (req: Request, res: Response) => {
+  try {
+    const { productId } = req.params;
+    const { sizeOrShoeSize, color, stockQuantity, priceAdjustment } = req.body;
+
+    const product = memoryStore.products.find((p) => p.id === productId);
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Produit introuvable.' });
+    }
+
+    const newVariant: ProductVariant = {
+      id: `var-${uuidv4().substring(0, 8)}`,
+      productId,
+      sizeOrShoeSize: sizeOrShoeSize || 'Standard',
+      color: color || 'Noir',
+      sku: `SKU-${product.slug.toUpperCase()}-${sizeOrShoeSize || 'STD'}-${Date.now().toString().slice(-4)}`,
+      stockQuantity: stockQuantity !== undefined ? parseInt(stockQuantity, 10) : 10,
+      priceAdjustment: priceAdjustment ? parseFloat(priceAdjustment) : 0,
+    };
+
+    product.variants.push(newVariant);
+
+    res.status(201).json({
+      success: true,
+      message: 'Nouvelle variante ajoutée au produit.',
+      data: newVariant,
+    });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export const deleteProduct = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -236,3 +316,4 @@ export const deleteProduct = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+

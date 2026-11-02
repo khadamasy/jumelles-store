@@ -102,6 +102,26 @@
             </button>
           </div>
         </div>
+
+        <!-- Assistance Commande Téléphonique -->
+        <div class="pt-4 border-t border-stone-100 bg-stone-50 p-4 rounded-xl space-y-2">
+          <p class="text-xs font-bold text-stone-900 flex items-center gap-1.5">
+            <span>📞</span> Conseil & Commande :
+          </p>
+          <a
+            href="tel:+221772087820"
+            class="text-xs font-black text-gold-800 hover:underline block"
+          >
+            +221 77 208 78 20
+          </a>
+          <a
+            href="https://wa.me/221772087820?text=Bonjour%20Jumelles%20Store%2C%20j%27aimerais%20de%20l%27aide%20pour%20choisir%20une%20pointure%20ou%20un%20sac"
+            target="_blank"
+            class="inline-block text-[11px] font-bold text-emerald-700 bg-emerald-100/70 border border-emerald-300 px-2 py-0.5 rounded-md"
+          >
+            💬 Aide WhatsApp
+          </a>
+        </div>
       </aside>
 
       <!-- Products Grid -->
@@ -229,3 +249,4 @@ onMounted(() => {
   loadProducts();
 });
 </script>
+

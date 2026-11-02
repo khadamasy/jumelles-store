@@ -96,3 +96,4 @@ CREATE INDEX IF NOT EXISTS idx_product_variants_product ON product_variants(prod
 CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
 CREATE INDEX IF NOT EXISTS idx_orders_customer_email ON orders(customer_email);
 CREATE INDEX IF NOT EXISTS idx_payment_transactions_order ON payment_transactions(order_id);
+

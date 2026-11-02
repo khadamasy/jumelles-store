@@ -24,17 +24,36 @@ export const useAuthStore = defineStore('auth', {
   },
 
   actions: {
-    // Initialisation OIDC Keycloak
+    // Initialisation OIDC Keycloak sécurisée et non-bloquante
     async initKeycloak() {
       try {
+        const kcUrl = import.meta.env.VITE_KEYCLOAK_URL || 'http://localhost:8080';
+        
+        // Vérifier si Keycloak est accessible avant d'initialiser pour éviter toute redirection
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1200);
+
+        try {
+          await fetch(`${kcUrl}/realms/jumelles-store`, {
+            method: 'HEAD',
+            signal: controller.signal,
+            mode: 'no-cors'
+          });
+        } catch (pingErr) {
+          console.info('[Keycloak] Serveur Keycloak (port 8080) non actif localement. Mode démo actif.');
+          return;
+        } finally {
+          clearTimeout(timeoutId);
+        }
+
         const kc = new Keycloak({
-          url: import.meta.env.VITE_KEYCLOAK_URL || 'http://localhost:8080',
+          url: kcUrl,
           realm: 'jumelles-store',
           clientId: 'jumelles-frontend',
         });
 
+        // Ne JAMAIS utiliser 'check-sso' sans iframe pour éviter les redirections forcées intempestives
         const authenticated = await kc.init({
-          onLoad: 'check-sso',
           checkLoginIframe: false,
           pkceMethod: 'S256',
         });
@@ -50,7 +69,7 @@ export const useAuthStore = defineStore('auth', {
           });
         }
       } catch (err) {
-        console.warn('[Keycloak SSO] Keycloak n\'est pas encore joignable ou initialisé :', err);
+        console.info('[Keycloak SSO] Keycloak en attente de démarrage :', err);
       }
     },
 
@@ -58,7 +77,7 @@ export const useAuthStore = defineStore('auth', {
       if (this.keycloakInstance) {
         this.keycloakInstance.login({ redirectUri: window.location.origin });
       } else {
-        alert('Keycloak démarre... Vous pouvez aussi utiliser les boutons de connexion rapide ci-dessous !');
+        alert('Le serveur Keycloak (port 8080) n\'est pas encore démarré.\n\nVous pouvez utiliser la connexion rapide démo en 1 clic dans le menu ("Démo Client" ou "Démo Admin") pour tester toute la boutique immédiatement !');
       }
     },
 
@@ -103,3 +122,4 @@ export const useAuthStore = defineStore('auth', {
     },
   },
 });
+
