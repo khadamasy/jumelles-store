@@ -40,6 +40,7 @@ export interface Product {
   slug: string;
   description: string;
   basePrice: number;
+  originalPrice?: number; // Prix avant réduction (barré pour affichage promotion)
   isActive: boolean;
   isFeatured: boolean;
   variants: ProductVariant[];

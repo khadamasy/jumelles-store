@@ -12,9 +12,18 @@
       <!-- Overlay gradient on hover -->
       <div class="absolute inset-0 bg-gradient-to-t from-stone-950/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
+      <!-- Badge Réduction Promo si prix d'origine supérieur -->
+      <span
+        v-if="product.originalPrice && product.originalPrice > product.basePrice"
+        class="absolute top-3.5 left-3.5 bg-rosewood-600 text-white text-[10px] tracking-wider uppercase font-black px-2.5 py-1 rounded-full shadow-md flex items-center gap-1 z-10"
+      >
+        <span>🔥</span>
+        <span>-{{ Math.round((1 - product.basePrice / product.originalPrice) * 100) }}%</span>
+      </span>
+
       <!-- Badge Coup de Coeur -->
       <span
-        v-if="product.isFeatured"
+        v-else-if="product.isFeatured"
         class="absolute top-3.5 left-3.5 bg-stone-950/90 text-gold-400 backdrop-blur-md text-[10px] tracking-widest uppercase font-black px-3 py-1 rounded-full border border-gold-500/40 shadow-sm"
       >
         ★ Coup de Cœur
@@ -63,7 +72,13 @@
 
       <div class="pt-3 border-t border-stone-100 flex items-center justify-between">
         <div>
-          <span class="text-[10px] uppercase tracking-wider text-stone-400 font-bold block">Prix boutique</span>
+          <div v-if="product.originalPrice && product.originalPrice > product.basePrice" class="flex items-center gap-1.5">
+            <span class="text-[10px] text-rosewood-600 font-bold uppercase">Promo</span>
+            <span class="text-xs text-stone-400 line-through font-semibold">
+              {{ currencyStore.isEur ? currencyStore.toEurOnly(product.originalPrice) : currencyStore.toXofOnly(product.originalPrice) }}
+            </span>
+          </div>
+          <span v-else class="text-[10px] uppercase tracking-wider text-stone-400 font-bold block">Prix boutique</span>
           <span class="font-serif font-black text-lg text-stone-950 block">
             {{ currencyStore.isEur ? currencyStore.toEurOnly(product.basePrice) : currencyStore.toXofOnly(product.basePrice) }}
           </span>

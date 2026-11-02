@@ -62,6 +62,18 @@
             <span class="font-serif text-3xl sm:text-4xl font-black text-stone-950">
               {{ currencyStore.isEur ? currencyStore.toEurOnly(currentPrice) : currencyStore.toXofOnly(currentPrice) }}
             </span>
+            <span
+              v-if="product.originalPrice && product.originalPrice > product.basePrice"
+              class="text-lg text-stone-400 line-through font-bold"
+            >
+              {{ currencyStore.isEur ? currencyStore.toEurOnly(product.originalPrice) : currencyStore.toXofOnly(product.originalPrice) }}
+            </span>
+            <span
+              v-if="product.originalPrice && product.originalPrice > product.basePrice"
+              class="text-xs bg-rosewood-600 text-white font-extrabold px-2.5 py-1 rounded-full shadow"
+            >
+              -{{ Math.round((1 - product.basePrice / product.originalPrice) * 100) }}% PROMO
+            </span>
             <span class="text-sm font-extrabold text-gold-800 bg-gold-50 border border-gold-200 px-3 py-1 rounded-xl shadow-sm">
               {{ currencyStore.isEur ? currencyStore.toXofOnly(currentPrice) : '≈ ' + currencyStore.toEurOnly(currentPrice) }}
             </span>

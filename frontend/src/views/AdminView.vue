@@ -165,6 +165,12 @@
                 <div class="flex flex-wrap items-center gap-2 mt-1">
                   <span class="text-xs text-stone-500">Prix actuel :</span>
                   <span class="font-serif font-black text-stone-950 text-sm">{{ formatPrice(product.basePrice) }}</span>
+                  <span
+                    v-if="product.originalPrice && product.originalPrice > product.basePrice"
+                    class="text-[11px] text-rosewood-600 bg-rosewood-50 border border-rosewood-200 px-2 py-0.5 rounded-md font-bold"
+                  >
+                    Barré : {{ formatPrice(product.originalPrice) }} (-{{ Math.round((1 - product.basePrice / product.originalPrice) * 100) }}%)
+                  </span>
                   <button
                     @click="openEditPriceModal(product)"
                     class="text-[11px] text-gold-900 bg-gold-100/80 hover:bg-gold-200 border border-gold-300 font-bold px-2.5 py-0.5 rounded-lg transition-colors flex items-center gap-1 shadow-sm"
@@ -554,19 +560,46 @@
         <form @submit.prevent="submitUpdatePrice" class="space-y-4">
           <div>
             <label class="block text-xs font-bold text-stone-700 mb-1">
-              Nouveau Prix de Vente (FCFA) *
+              Prix de Vente Effectif (FCFA) *
             </label>
             <input
               v-model.number="editedPrice"
               type="number"
               step="500"
-              placeholder="Ex: 40000"
+              placeholder="Ex: 12000"
               class="w-full px-4 py-3 rounded-xl border border-stone-300 text-lg font-black text-stone-950 outline-none focus:ring-2 focus:ring-gold-500"
               required
             />
             <p class="text-[11px] text-stone-500 mt-1">
-              Ce tarif s'appliquera immédiatement sur tout le site (accueil, catalogue, panier des clients).
+              C'est le montant exact qui sera facturé et débité au client sur Wave ou Orange Money.
             </p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-stone-700 mb-1">
+              Prix d'origine avant réduction / Prix barré (Optionnel)
+            </label>
+            <input
+              v-model.number="editedOriginalPrice"
+              type="number"
+              step="500"
+              placeholder="Ex: 15000 (pour afficher une promotion)"
+              class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm font-bold text-stone-600 outline-none focus:ring-2 focus:ring-gold-500"
+            />
+            <p class="text-[11px] text-stone-500 mt-1">
+              Si renseigné, il apparaîtra barré avec un badge de réduction rouge automatique (ex: -20%).
+            </p>
+          </div>
+
+          <!-- Aperçu réduction en direct -->
+          <div
+            v-if="editedOriginalPrice && editedOriginalPrice > editedPrice"
+            class="p-3 bg-rosewood-50 border border-rosewood-200 rounded-xl flex items-center justify-between text-xs"
+          >
+            <span class="font-bold text-rosewood-900">🎉 Remise commerciale :</span>
+            <span class="font-extrabold text-rosewood-700 bg-rosewood-100 px-2 py-0.5 rounded-lg">
+              -{{ Math.round((1 - editedPrice / editedOriginalPrice) * 100) }}% de réduction
+            </span>
           </div>
 
           <div class="pt-3 flex justify-end gap-3">
@@ -581,7 +614,7 @@
               type="submit"
               class="px-5 py-2.5 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-stone-950 font-black text-xs rounded-xl shadow transition-all"
             >
-              Enregistrer le nouveau prix
+              Enregistrer le tarif
             </button>
           </div>
         </form>
@@ -633,10 +666,12 @@ const newVariantData = reactive({
 
 const selectedProductForPrice = ref<any>(null);
 const editedPrice = ref<number>(0);
+const editedOriginalPrice = ref<number | null>(null);
 
 const openEditPriceModal = (product: any) => {
   selectedProductForPrice.value = product;
   editedPrice.value = product.basePrice;
+  editedOriginalPrice.value = product.originalPrice || null;
 };
 
 const submitUpdatePrice = async () => {
@@ -645,9 +680,14 @@ const submitUpdatePrice = async () => {
     return;
   }
   try {
-    await ProductService.update(selectedProductForPrice.value.id, {
+    const payload: any = {
       basePrice: editedPrice.value,
-    });
+      originalPrice:
+        editedOriginalPrice.value && editedOriginalPrice.value > editedPrice.value
+          ? editedOriginalPrice.value
+          : null,
+    };
+    await ProductService.update(selectedProductForPrice.value.id, payload);
     showToast(`✅ Prix de "${selectedProductForPrice.value.name}" mis à jour : ${formatPrice(editedPrice.value)}`);
     selectedProductForPrice.value = null;
     loadData();
