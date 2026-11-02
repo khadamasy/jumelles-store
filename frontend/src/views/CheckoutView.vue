@@ -193,9 +193,12 @@
           <!-- Assistance direct commande téléphonique -->
           <div class="pt-2 border-t border-stone-100 text-center">
             <p class="text-xs text-stone-500 font-medium">Besoin d'aide pour finaliser ?</p>
-            <a href="tel:+221772087820" class="text-xs font-bold text-stone-900 hover:text-gold-700 underline block mt-0.5">
-              📞 Appelez le service client : +221 77 208 78 20
-            </a>
+            <button
+              @click="phoneStore.openModal('Finalisation Commande')"
+              class="text-xs font-bold text-stone-900 hover:text-gold-700 underline block mt-0.5 mx-auto cursor-pointer"
+            >
+              📞 Service Téléphonique & WhatsApp : +221 77 208 78 20
+            </button>
           </div>
         </div>
       </div>
@@ -209,12 +212,14 @@ import { useRouter } from 'vue-router';
 import { useCartStore } from '../stores/cart';
 import { useAuthStore } from '../stores/auth';
 import { useCurrencyStore } from '../stores/currency';
+import { usePhoneStore } from '../stores/phone';
 import { OrderService, PaymentService } from '../services/api';
 
 const router = useRouter();
 const cartStore = useCartStore();
 const authStore = useAuthStore();
 const currencyStore = useCurrencyStore();
+const phoneStore = usePhoneStore();
 
 const selectedProvider = ref<'WAVE' | 'ORANGE_MONEY'>('WAVE');
 const isSubmitting = ref(false);

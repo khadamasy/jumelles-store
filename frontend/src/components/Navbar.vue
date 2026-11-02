@@ -10,21 +10,21 @@
         </div>
 
         <div class="flex items-center gap-4 text-[11px]">
-          <a
-            href="tel:+221772087820"
-            class="flex items-center gap-1.5 text-stone-300 hover:text-gold-400 transition-colors font-medium"
+          <button
+            @click="phoneStore.openModal()"
+            class="flex items-center gap-1.5 text-stone-300 hover:text-gold-400 transition-colors font-medium cursor-pointer"
+            title="Ouvrir le service téléphonique Jumelles Store"
           >
             <span>📞</span>
             <span>+221 77 208 78 20</span>
-          </a>
+          </button>
 
-          <a
-            href="https://wa.me/221772087820?text=Bonjour%20Jumelles%20Store%2C%20je%20souhaite%20des%20informations"
-            target="_blank"
-            class="hidden md:flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-bold bg-emerald-950/60 border border-emerald-500/40 px-2.5 py-0.5 rounded-full transition-colors"
+          <button
+            @click="phoneStore.openWhatsApp()"
+            class="hidden md:flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-bold bg-emerald-950/60 border border-emerald-500/40 px-2.5 py-0.5 rounded-full transition-colors cursor-pointer"
           >
             <span>💬</span> WhatsApp Direct
-          </a>
+          </button>
 
           <span class="hidden lg:inline text-gold-500 font-semibold">• Paiements Wave & Orange Money</span>
         </div>
@@ -203,8 +203,10 @@
 import { useCartStore } from '../stores/cart';
 import { useAuthStore } from '../stores/auth';
 import { useCurrencyStore } from '../stores/currency';
+import { usePhoneStore } from '../stores/phone';
 
 const cartStore = useCartStore();
 const authStore = useAuthStore();
 const currencyStore = useCurrencyStore();
+const phoneStore = usePhoneStore();
 </script>

@@ -113,6 +113,14 @@
           >
             Valider et Commander
           </router-link>
+
+          <button
+            @click="orderCartByPhone"
+            class="w-full py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer"
+          >
+            <span>📞</span>
+            <span>Commander ce panier par Téléphone / WhatsApp</span>
+          </button>
         </div>
       </div>
     </div>
@@ -122,9 +130,19 @@
 <script setup lang="ts">
 import { useCartStore } from '../stores/cart';
 import { useCurrencyStore } from '../stores/currency';
+import { usePhoneStore } from '../stores/phone';
 
 const cartStore = useCartStore();
 const currencyStore = useCurrencyStore();
+const phoneStore = usePhoneStore();
+
+const orderCartByPhone = () => {
+  const summary = cartStore.items
+    .map((i) => `${i.productName} (${i.color} / ${i.sizeOrShoeSize} x${i.quantity})`)
+    .join(', ');
+  cartStore.toggleDrawer(false);
+  phoneStore.openModal(`Panier Jumelles Store: ${summary} - Total: ${cartStore.formattedSubtotal}`);
+};
 
 const formatPrice = (price: number) => {
   return currencyStore.formatPrice(price);

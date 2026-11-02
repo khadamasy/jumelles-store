@@ -74,3 +74,13 @@ export const UploadService = {
   },
 };
 
+// Services Téléphonie & Assistance Directe
+export const PhoneService = {
+  getInfo: () => apiClient.get('/phone/info'),
+  requestCallback: (data: { customerName?: string; customerPhone: string; productInterest?: string; notes?: string }) =>
+    apiClient.post('/phone/callback-request', data),
+  getCallbacks: () => apiClient.get('/phone/admin/callbacks'),
+  updateCallbackStatus: (id: string, status: 'PENDING' | 'CALLED') =>
+    apiClient.patch(`/phone/admin/callbacks/${id}/status`, { status }),
+};
+

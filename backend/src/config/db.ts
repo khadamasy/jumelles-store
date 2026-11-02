@@ -85,6 +85,16 @@ export interface PaymentTransaction {
   createdAt: string;
 }
 
+export interface PhoneCallbackRequest {
+  id: string;
+  customerName: string;
+  customerPhone: string;
+  productInterest?: string;
+  notes?: string;
+  status: 'PENDING' | 'CALLED';
+  createdAt: string;
+}
+
 // Données réelles Jumelles Store basées sur vos articles
 export const memoryStore = {
   categories: [
@@ -510,5 +520,17 @@ export const memoryStore = {
       paymentUrl: 'https://pay.wave.com/c/mock-jumelles-001',
       createdAt: new Date().toISOString()
     }
-  ] as PaymentTransaction[]
+  ] as PaymentTransaction[],
+
+  phoneCallbacks: [
+    {
+      id: 'call-1',
+      customerName: 'Aissatou Sow',
+      customerPhone: '+221 77 555 44 33',
+      productInterest: 'Sac à Main Prestige Cuir Epsom',
+      notes: 'Souhaite confirmation de livraison à Mermoz cet après-midi',
+      status: 'PENDING',
+      createdAt: new Date().toISOString()
+    }
+  ] as PhoneCallbackRequest[]
 };

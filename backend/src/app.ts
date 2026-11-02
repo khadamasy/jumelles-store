@@ -5,6 +5,7 @@ import productRoutes from './routes/productRoutes';
 import orderRoutes from './routes/orderRoutes';
 import paymentRoutes from './routes/paymentRoutes';
 import uploadRoutes from './routes/uploadRoutes';
+import phoneRoutes from './routes/phoneRoutes';
 
 const app: Application = express();
 
@@ -67,6 +68,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/phone', phoneRoutes);
 
 // Gestionnaire 404
 app.use((req: Request, res: Response) => {

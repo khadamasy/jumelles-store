@@ -196,22 +196,37 @@
             </button>
           </div>
 
-          <!-- Bouton Commande Directe par WhatsApp (+221 77 208 78 20) -->
-          <a
-            :href="whatsappOrderUrl"
-            target="_blank"
-            class="w-full py-3.5 px-6 rounded-2xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow flex items-center justify-center gap-2"
-          >
-            <span>💬</span>
-            <span>Commander directement par WhatsApp au +221 77 208 78 20</span>
-          </a>
+          <!-- Bouton Commande Directe par Téléphone et WhatsApp (+221 77 208 78 20) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <button
+              @click="phoneStore.openModal(product.name + ' - ' + (selectedVariant ? selectedVariant.color + ' / ' + selectedVariant.sizeOrShoeSize : ''))"
+              class="w-full py-3.5 px-4 rounded-2xl text-xs font-bold bg-stone-950 hover:bg-gold-600 text-white transition-all shadow flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>📞</span>
+              <span>Commander par Téléphone</span>
+            </button>
+
+            <a
+              :href="whatsappOrderUrl"
+              target="_blank"
+              class="w-full py-3.5 px-4 rounded-2xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow flex items-center justify-center gap-2"
+            >
+              <span>💬</span>
+              <span>WhatsApp (77 208 78 20)</span>
+            </a>
+          </div>
         </div>
 
         <!-- Reassurance & Contact Card -->
         <div class="bg-stone-100/70 border border-stone-200/90 rounded-2xl p-5 space-y-3 text-xs text-stone-700">
           <div class="flex items-center justify-between font-bold text-stone-900 pb-2 border-b border-stone-200">
-            <span>📞 Service Client Direct :</span>
-            <a href="tel:+221772087820" class="text-gold-800 underline font-black">+221 77 208 78 20</a>
+            <span>📞 Service Client & Commandes :</span>
+            <button
+              @click="phoneStore.openModal(product.name)"
+              class="text-gold-800 underline font-black hover:text-stone-950 transition-colors cursor-pointer"
+            >
+              +221 77 208 78 20
+            </button>
           </div>
           <div class="grid grid-cols-2 gap-2 text-[11px] text-stone-600">
             <p>✔ Livraison rapide à Dakar en 24h</p>
@@ -231,11 +246,13 @@ import { useRoute, useRouter } from 'vue-router';
 import { ProductService } from '../services/api';
 import { useCartStore } from '../stores/cart';
 import { useCurrencyStore } from '../stores/currency';
+import { usePhoneStore } from '../stores/phone';
 
 const route = useRoute();
 const router = useRouter();
 const cartStore = useCartStore();
 const currencyStore = useCurrencyStore();
+const phoneStore = usePhoneStore();
 
 const product = ref<any>(null);
 const loading = ref(true);

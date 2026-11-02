@@ -98,6 +98,14 @@
       >
         <span>📦</span> Traitement des Commandes ({{ orders.length }})
       </button>
+
+      <button
+        @click="activeTab = 'phone-calls'"
+        class="pb-4 border-b-2 transition-all flex items-center gap-2"
+        :class="activeTab === 'phone-calls' ? 'border-gold-600 text-stone-950 font-black' : 'border-transparent text-stone-400 hover:text-stone-700'"
+      >
+        <span>📞</span> Téléphonie & Rappels ({{ pendingCallsCount }})
+      </button>
     </div>
 
     <!-- ============================================================== -->
@@ -470,6 +478,94 @@
       </div>
     </div>
 
+    <!-- ============================================================== -->
+    <!-- TAB 4 : DEMANDES DE RAPPEL TÉLÉPHONIQUE & COMMANDES EXPRESS     -->
+    <!-- ============================================================== -->
+    <div v-if="activeTab === 'phone-calls'" class="space-y-6">
+      <div class="bg-white rounded-3xl border border-stone-200/80 shadow-sm overflow-hidden">
+        <div class="p-6 border-b border-stone-100 flex items-center justify-between">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xl">📞</span>
+              <h3 class="font-serif text-lg font-bold text-stone-900">Demandes de Rappel Téléphonique</h3>
+            </div>
+            <p class="text-xs text-stone-400 mt-0.5">Clientes ayant demandé à être rappelées au <strong>+221 77 208 78 20</strong></p>
+          </div>
+          <span class="text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300 px-3 py-1 rounded-full">
+            {{ pendingCallsCount }} appel(s) en attente
+          </span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-stone-50 text-stone-500 text-xs uppercase tracking-wider border-b border-stone-100">
+              <tr>
+                <th class="px-6 py-4">Nom de la cliente</th>
+                <th class="px-6 py-4">Téléphone</th>
+                <th class="px-6 py-4">Article d'intérêt</th>
+                <th class="px-6 py-4">Date & Heure</th>
+                <th class="px-6 py-4">Statut</th>
+                <th class="px-6 py-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-stone-100">
+              <tr v-for="call in phoneCallbacks" :key="call.id" class="hover:bg-stone-50/50">
+                <td class="px-6 py-4 font-bold text-stone-900">
+                  {{ call.customerName }}
+                </td>
+                <td class="px-6 py-4 font-mono font-bold text-stone-950">
+                  <a :href="'tel:' + call.customerPhone" class="text-blue-600 hover:underline flex items-center gap-1.5 font-bold">
+                    <span>📞</span>
+                    <span>{{ call.customerPhone }}</span>
+                  </a>
+                </td>
+                <td class="px-6 py-4 text-xs text-stone-600">
+                  {{ call.productInterest || 'Commande d\'articles' }}
+                </td>
+                <td class="px-6 py-4 text-xs text-stone-400">
+                  {{ new Date(call.createdAt).toLocaleString('fr-FR') }}
+                </td>
+                <td class="px-6 py-4">
+                  <span
+                    class="px-2.5 py-1 rounded-full text-xs font-bold"
+                    :class="call.status === 'PENDING' ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'"
+                  >
+                    {{ call.status === 'PENDING' ? '⏳ À rappeler' : '✓ Contactée' }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <div class="inline-flex items-center gap-2">
+                    <a
+                      :href="'https://wa.me/' + call.customerPhone.replace(/[^0-9]/g, '') + '?text=Bonjour%20' + encodeURIComponent(call.customerName) + '%2C%20c%27est%20Jumelles%20Store%20suite%20%C3%A0%20votre%20demande%20de%20contact'"
+                      target="_blank"
+                      class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm transition-colors flex items-center gap-1"
+                      title="Écrire sur WhatsApp"
+                    >
+                      <span>💬</span> WhatsApp
+                    </a>
+                    <button
+                      v-if="call.status === 'PENDING'"
+                      @click="handleCallStatus(call.id, 'CALLED')"
+                      class="px-3 py-1.5 bg-stone-900 hover:bg-gold-600 text-white rounded-lg text-xs font-bold shadow-sm transition-colors cursor-pointer"
+                    >
+                      Marquer appelée
+                    </button>
+                    <button
+                      v-else
+                      @click="handleCallStatus(call.id, 'PENDING')"
+                      class="px-2 py-1.5 text-stone-400 hover:text-stone-700 text-xs cursor-pointer"
+                    >
+                      Remettre en attente
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- Modal pour ajouter une nouvelle variante (Pointure ou Couleur) -->
     <div v-if="selectedProductForVariant" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm">
       <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl space-y-6">
@@ -626,10 +722,10 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useAuthStore } from '../stores/auth';
-import { ProductService, OrderService, UploadService } from '../services/api';
+import { ProductService, OrderService, UploadService, PhoneService } from '../services/api';
 
 const authStore = useAuthStore();
-const activeTab = ref<'replenish' | 'new-product' | 'orders'>('replenish');
+const activeTab = ref<'replenish' | 'new-product' | 'orders' | 'phone-calls'>('replenish');
 const stockFilter = ref<'ALL' | 'LOW' | 'OUT'>('ALL');
 
 const toastMessage = ref('');
@@ -644,7 +740,12 @@ const stats = reactive({
 
 const products = ref<any[]>([]);
 const orders = ref<any[]>([]);
+const phoneCallbacks = ref<any[]>([]);
 const variantInputs = reactive<Record<string, number>>({});
+
+const pendingCallsCount = computed(() => {
+  return phoneCallbacks.value.filter((c) => c.status === 'PENDING').length;
+});
 
 const isCreating = ref(false);
 const uploadedImageUrl = ref('');
@@ -714,8 +815,21 @@ const loadData = async () => {
 
     const ordersRes = await OrderService.getAllAdmin();
     orders.value = ordersRes.data.data;
+
+    const callsRes = await PhoneService.getCallbacks();
+    phoneCallbacks.value = callsRes.data.data;
   } catch (error) {
     console.error('Erreur chargement données admin:', error);
+  }
+};
+
+const handleCallStatus = async (id: string, status: 'PENDING' | 'CALLED') => {
+  try {
+    await PhoneService.updateCallbackStatus(id, status);
+    showToast(status === 'CALLED' ? 'Appel client marqué comme effectué.' : 'Appel remis en attente.');
+    loadData();
+  } catch (error) {
+    showToast('Erreur mise à jour appel.', 'error');
   }
 };
 
