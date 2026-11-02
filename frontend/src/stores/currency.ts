@@ -79,3 +79,4 @@ export const useCurrencyStore = defineStore('currency', {
     },
   },
 });
+

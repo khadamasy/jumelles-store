@@ -203,7 +203,8 @@ export const memoryStore = {
       images: [
         { id: 'img-mono-1', productId: 'prod-sac-4', minioUrl: '/products/sac-cabas-monogramme-luxe.jpg', altText: 'Sac cabas monogramme luxe', isPrimary: true },
         { id: 'img-mono-2', productId: 'prod-sac-4', minioUrl: '/products/sac-cabas-monogramme-portemodele.jpg', altText: 'Sac cabas porté épaule', isPrimary: false },
-        { id: 'img-mono-3', productId: 'prod-sac-4', minioUrl: '/products/sac-alma-damier-ebene.jpg', altText: 'Sac dôme damier ébène', isPrimary: false }
+        { id: 'img-mono-3', productId: 'prod-sac-4', minioUrl: '/products/sac-alma-damier-ebene.jpg', altText: 'Sac dôme damier ébène', isPrimary: false },
+        { id: 'img-mono-4', productId: 'prod-sac-4', minioUrl: '/products/sac-alma-damier-ebene-portemodele.jpg', altText: 'Sac dôme damier ébène porté mannequin', isPrimary: false }
       ]
     },
 
@@ -317,6 +318,112 @@ export const memoryStore = {
         { id: 'img-tng-2', productId: 'prod-shoe-4', minioUrl: '/products/tongs-cuir-bijou-noir.jpg', altText: 'Tongs cuir noir boîte luxe', isPrimary: false },
         { id: 'img-tng-3', productId: 'prod-shoe-4', minioUrl: '/products/tongs-cuir-bijou-bordeaux.jpg', altText: 'Tongs cuir bordeaux', isPrimary: false },
         { id: 'img-tng-4', productId: 'prod-shoe-4', minioUrl: '/products/claquettes-noeud-bijou-collection.jpg', altText: 'Claquettes noeud bijou', isPrimary: false }
+      ]
+    },
+
+    // 9. SAC BOWLER « PRESTIGE WEB & DOUBLE G »
+    {
+      id: 'prod-sac-5',
+      categoryId: 'cat-sac-1',
+      name: 'Sac Bowler « Prestige Web & Double G »',
+      slug: 'sac-bowler-prestige-web-double-g',
+      description: 'Sublime sac Boston / Bowler à double anse rigide et bandoulière en cuir amovible. Finitions exclusives avec bande web bicolore rouge et verte, médaillon double G doré et fermeture zippée double curseur.',
+      basePrice: 15000,
+      isActive: true,
+      isFeatured: true,
+      variants: [
+        { id: 'var-bwl-1', productId: 'prod-sac-5', sizeOrShoeSize: 'Format Médium (28cm)', color: 'Monogramme Suprême GG', sku: 'BWL-MONO-28', stockQuantity: 9, priceAdjustment: 0 },
+        { id: 'var-bwl-2', productId: 'prod-sac-5', sizeOrShoeSize: 'Format Médium (28cm)', color: 'Cuir Noir Embossé GG', sku: 'BWL-BLK-28', stockQuantity: 7, priceAdjustment: 0 }
+      ],
+      images: [
+        { id: 'img-bwl-1', productId: 'prod-sac-5', minioUrl: '/products/sac-bowler-monogramme-bande-web.jpg', altText: 'Sac bowler monogramme bande web avec boîte luxe', isPrimary: true },
+        { id: 'img-bwl-2', productId: 'prod-sac-5', minioUrl: '/products/sac-bowler-bande-web-noir.jpg', altText: 'Sac bowler cuir noir embossé bande web', isPrimary: false }
+      ]
+    },
+
+    // 10. GRAND CABAS TRAPÈZE CUIR GRAINÉ & POCHETTE
+    {
+      id: 'prod-sac-6',
+      categoryId: 'cat-sac-1',
+      name: 'Grand Cabas Trapèze Cuir Grainé & Pochette Zippée',
+      slug: 'grand-cabas-trapeze-cuir-graine-pochette',
+      description: 'Cabas trapèze sculptural inspiré de la haute maroquinerie parisienne. Confectionné en cuir de veau pleine fleur grainé, double anse épaule et pochette intérieure amovible coordonnée avec mousqueton.',
+      basePrice: 15000,
+      isActive: true,
+      isFeatured: true,
+      variants: [
+        { id: 'var-cbt-1', productId: 'prod-sac-6', sizeOrShoeSize: 'Grand Format Cabas', color: 'Terracotta / Brique', sku: 'CBT-TERRA-01', stockQuantity: 8, priceAdjustment: 0 },
+        { id: 'var-cbt-2', productId: 'prod-sac-6', sizeOrShoeSize: 'Grand Format Cabas', color: 'Bordeaux Impérial', sku: 'CBT-BUR-02', stockQuantity: 6, priceAdjustment: 0 }
+      ],
+      images: [
+        { id: 'img-cbt-1', productId: 'prod-sac-6', minioUrl: '/products/sac-cabas-cuir-graine-terracotta.jpg', altText: 'Grand cabas trapèze cuir grainé terracotta', isPrimary: true },
+        { id: 'img-cbt-2', productId: 'prod-sac-6', minioUrl: '/products/sac-cabas-cuir-graine-bordeaux.jpg', altText: 'Grand cabas trapèze cuir bordeaux', isPrimary: false }
+      ]
+    },
+
+    // 11. MINI SAC RABAT CHEVRON « HAUTE COUTURE » POIGNÉE RIGIDE
+    {
+      id: 'prod-sac-7',
+      categoryId: 'cat-sac-2',
+      name: 'Mini Sac Rabat Chevron « Haute Couture » Poignée Rigide',
+      slug: 'mini-sac-rabat-chevron-haute-couture-poignee-rigide',
+      description: 'L\'élégance miniature par excellence. Cuir d\'agneau matelassé en chevrons avec poignée rigide supérieure, fermoir tourniquet bijou doré et bandoulière chaîne entrelacée. Livré dans son coffret avec certificat.',
+      basePrice: 15000,
+      isActive: true,
+      isFeatured: true,
+      variants: [
+        { id: 'var-chv-1', productId: 'prod-sac-7', sizeOrShoeSize: 'Format Mini (20cm)', color: 'Noir Onyx', sku: 'CHV-BLK-20', stockQuantity: 8, priceAdjustment: 0 },
+        { id: 'var-chv-2', productId: 'prod-sac-7', sizeOrShoeSize: 'Format Mini (20cm)', color: 'Bordeaux Cerise', sku: 'CHV-BUR-20', stockQuantity: 7, priceAdjustment: 0 },
+        { id: 'var-chv-3', productId: 'prod-sac-7', sizeOrShoeSize: 'Format Mini (20cm)', color: 'Blanc Albâtre', sku: 'CHV-WHT-20', stockQuantity: 8, priceAdjustment: 0 },
+        { id: 'var-chv-4', productId: 'prod-sac-7', sizeOrShoeSize: 'Format Mini (20cm)', color: 'Rose Poudré', sku: 'CHV-PNK-20', stockQuantity: 6, priceAdjustment: 0 },
+        { id: 'var-chv-5', productId: 'prod-sac-7', sizeOrShoeSize: 'Format Mini (20cm)', color: 'Bleu Pastel Ciel', sku: 'CHV-BLU-20', stockQuantity: 5, priceAdjustment: 0 },
+        { id: 'var-chv-6', productId: 'prod-sac-7', sizeOrShoeSize: 'Format Mini (20cm)', color: 'Doré Métallisé', sku: 'CHV-GLD-20', stockQuantity: 6, priceAdjustment: 0 },
+        { id: 'var-chv-7', productId: 'prod-sac-7', sizeOrShoeSize: 'Format Mini (20cm)', color: 'Argent Miroir', sku: 'CHV-SLV-20', stockQuantity: 5, priceAdjustment: 0 }
+      ],
+      images: [
+        { id: 'img-chv-1', productId: 'prod-sac-7', minioUrl: '/products/sac-mini-chevron-poignee-collection.jpg', altText: 'Collection mini sacs rabat chevron poignée rigide', isPrimary: true }
+      ]
+    },
+
+    // 12. BESACE TRAPÈZE BI-MATIÈRE CUIR SUÉDÉ & GRAINÉ
+    {
+      id: 'prod-sac-8',
+      categoryId: 'cat-sac-1',
+      name: 'Besace Trapèze Bi-Matière Cuir Suédé & Grainé',
+      slug: 'besace-trapeze-bi-matiere-cuir-suede-graine',
+      description: 'Allure chic décontractée et ultra moderne. Rabat asymétrique en velours de daim suédé doux au toucher associé à un cuir grainé texturé, poignée supérieure sellier et bandoulière réglable.',
+      basePrice: 15000,
+      isActive: true,
+      isFeatured: false,
+      variants: [
+        { id: 'var-bsc-1', productId: 'prod-sac-8', sizeOrShoeSize: 'Format Standard (26cm)', color: 'Chocolat Profond', sku: 'BSC-CHOC-26', stockQuantity: 8, priceAdjustment: 0 },
+        { id: 'var-bsc-2', productId: 'prod-sac-8', sizeOrShoeSize: 'Format Standard (26cm)', color: 'Cognac Caramel', sku: 'BSC-COG-26', stockQuantity: 7, priceAdjustment: 0 }
+      ],
+      images: [
+        { id: 'img-bsc-1', productId: 'prod-sac-8', minioUrl: '/products/sac-besace-daim-suede-cognac-chocolat.jpg', altText: 'Besace trapèze cuir suédé et cuir grainé chocolat et cognac', isPrimary: true }
+      ]
+    },
+
+    // 13. MULES NU-PIEDS H JACQUARD & SEMELLE CUIR COFFRET PRESTIGE
+    {
+      id: 'prod-shoe-5',
+      categoryId: 'cat-shoe-2',
+      name: 'Mules Nu-Pieds H Jacquard Bordeaux & Semelle Cuir Coffret',
+      slug: 'mules-nu-pieds-h-jacquard-bordeaux-coffret',
+      description: 'Mules plates d\'exception en découpe H signature habillées d\'un velours jacquard bordeaux brodé de motifs floraux ton sur ton. Semelle cousue en cuir naturel, livrées dans leur coffret orange de luxe avec pochons et certificat.',
+      basePrice: 12000,
+      isActive: true,
+      isFeatured: true,
+      variants: [
+        { id: 'var-oran-37', productId: 'prod-shoe-5', sizeOrShoeSize: '37', color: 'Bordeaux Jacquard', sku: 'ORAN-BUR-37', stockQuantity: 6, priceAdjustment: 0 },
+        { id: 'var-oran-38', productId: 'prod-shoe-5', sizeOrShoeSize: '38', color: 'Bordeaux Jacquard', sku: 'ORAN-BUR-38', stockQuantity: 8, priceAdjustment: 0 },
+        { id: 'var-oran-39', productId: 'prod-shoe-5', sizeOrShoeSize: '39', color: 'Bordeaux Jacquard', sku: 'ORAN-BUR-39', stockQuantity: 7, priceAdjustment: 0 },
+        { id: 'var-oran-40', productId: 'prod-shoe-5', sizeOrShoeSize: '40', color: 'Bordeaux Jacquard', sku: 'ORAN-BUR-40', stockQuantity: 5, priceAdjustment: 0 },
+        { id: 'var-oran-41', productId: 'prod-shoe-5', sizeOrShoeSize: '41', color: 'Bordeaux Jacquard', sku: 'ORAN-BUR-41', stockQuantity: 4, priceAdjustment: 0 },
+        { id: 'var-oran-42', productId: 'prod-shoe-5', sizeOrShoeSize: '42', color: 'Bordeaux Jacquard', sku: 'ORAN-BUR-42', stockQuantity: 3, priceAdjustment: 0 }
+      ],
+      images: [
+        { id: 'img-oran-1', productId: 'prod-shoe-5', minioUrl: '/products/mules-h-jacquard-bordeaux-coffret.jpg', altText: 'Mules H jacquard bordeaux dans leur boîte prestige', isPrimary: true }
       ]
     }
   ] as Product[],
