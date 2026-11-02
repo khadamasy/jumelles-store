@@ -204,7 +204,8 @@ export const memoryStore = {
         { id: 'img-mono-1', productId: 'prod-sac-4', minioUrl: '/products/sac-cabas-monogramme-luxe.jpg', altText: 'Sac cabas monogramme luxe', isPrimary: true },
         { id: 'img-mono-2', productId: 'prod-sac-4', minioUrl: '/products/sac-cabas-monogramme-portemodele.jpg', altText: 'Sac cabas porté épaule', isPrimary: false },
         { id: 'img-mono-3', productId: 'prod-sac-4', minioUrl: '/products/sac-alma-damier-ebene.jpg', altText: 'Sac dôme damier ébène', isPrimary: false },
-        { id: 'img-mono-4', productId: 'prod-sac-4', minioUrl: '/products/sac-alma-damier-ebene-portemodele.jpg', altText: 'Sac dôme damier ébène porté mannequin', isPrimary: false }
+        { id: 'img-mono-4', productId: 'prod-sac-4', minioUrl: '/products/sac-alma-damier-ebene-portemodele.jpg', altText: 'Sac dôme damier ébène porté mannequin', isPrimary: false },
+        { id: 'img-mono-5', productId: 'prod-sac-4', minioUrl: '/products/sac-alma-damier-ebene-lifestyle.jpg', altText: 'Sac dôme damier ébène style chic', isPrimary: false }
       ]
     },
 
@@ -288,7 +289,8 @@ export const memoryStore = {
         { id: 'var-pl-blk-38', productId: 'prod-shoe-3', sizeOrShoeSize: '38', color: 'Noir Intense', sku: 'PLAT-BLK-38', stockQuantity: 8, priceAdjustment: 0 }
       ],
       images: [
-        { id: 'img-pl-1', productId: 'prod-shoe-3', minioUrl: '/products/sandales-plates-croisees-collection.jpg', altText: 'Sandales plates croisées collection', isPrimary: true },
+        { id: 'img-pl-zara', productId: 'prod-shoe-3', minioUrl: '/products/sandales-plates-verni-zara-collection.jpg', altText: 'Collection sandales plates cuir verni croisé avec boîtes', isPrimary: true },
+        { id: 'img-pl-1', productId: 'prod-shoe-3', minioUrl: '/products/sandales-plates-croisees-collection.jpg', altText: 'Sandales plates croisées collection', isPrimary: false },
         { id: 'img-pl-2', productId: 'prod-shoe-3', minioUrl: '/products/sandales-plates-bordeaux-detail.jpg', altText: 'Détail sandales bordeaux', isPrimary: false }
       ]
     },
@@ -353,11 +355,17 @@ export const memoryStore = {
       isFeatured: true,
       variants: [
         { id: 'var-cbt-1', productId: 'prod-sac-6', sizeOrShoeSize: 'Grand Format Cabas', color: 'Terracotta / Brique', sku: 'CBT-TERRA-01', stockQuantity: 8, priceAdjustment: 0 },
-        { id: 'var-cbt-2', productId: 'prod-sac-6', sizeOrShoeSize: 'Grand Format Cabas', color: 'Bordeaux Impérial', sku: 'CBT-BUR-02', stockQuantity: 6, priceAdjustment: 0 }
+        { id: 'var-cbt-2', productId: 'prod-sac-6', sizeOrShoeSize: 'Grand Format Cabas', color: 'Bordeaux Impérial', sku: 'CBT-BUR-02', stockQuantity: 6, priceAdjustment: 0 },
+        { id: 'var-cbt-3', productId: 'prod-sac-6', sizeOrShoeSize: 'Grand Format Cabas', color: 'Camel Caramel', sku: 'CBT-CAM-03', stockQuantity: 9, priceAdjustment: 0 },
+        { id: 'var-cbt-4', productId: 'prod-sac-6', sizeOrShoeSize: 'Grand Format Cabas', color: 'Taupe Éléphant', sku: 'CBT-TAU-04', stockQuantity: 7, priceAdjustment: 0 },
+        { id: 'var-cbt-5', productId: 'prod-sac-6', sizeOrShoeSize: 'Grand Format Cabas', color: 'Noir Onyx', sku: 'CBT-BLK-05', stockQuantity: 10, priceAdjustment: 0 }
       ],
       images: [
         { id: 'img-cbt-1', productId: 'prod-sac-6', minioUrl: '/products/sac-cabas-cuir-graine-terracotta.jpg', altText: 'Grand cabas trapèze cuir grainé terracotta', isPrimary: true },
-        { id: 'img-cbt-2', productId: 'prod-sac-6', minioUrl: '/products/sac-cabas-cuir-graine-bordeaux.jpg', altText: 'Grand cabas trapèze cuir bordeaux', isPrimary: false }
+        { id: 'img-cbt-2', productId: 'prod-sac-6', minioUrl: '/products/sac-cabas-cuir-graine-camel.jpg', altText: 'Grand cabas trapèze cuir camel caramel', isPrimary: false },
+        { id: 'img-cbt-3', productId: 'prod-sac-6', minioUrl: '/products/sac-cabas-cuir-graine-taupe.jpg', altText: 'Grand cabas trapèze cuir taupe éléphant', isPrimary: false },
+        { id: 'img-cbt-4', productId: 'prod-sac-6', minioUrl: '/products/sac-cabas-cuir-graine-noir.jpg', altText: 'Grand cabas trapèze cuir noir onyx', isPrimary: false },
+        { id: 'img-cbt-5', productId: 'prod-sac-6', minioUrl: '/products/sac-cabas-cuir-graine-bordeaux.jpg', altText: 'Grand cabas trapèze cuir bordeaux', isPrimary: false }
       ]
     },
 
@@ -408,22 +416,55 @@ export const memoryStore = {
     {
       id: 'prod-shoe-5',
       categoryId: 'cat-shoe-2',
-      name: 'Mules Nu-Pieds H Jacquard Bordeaux & Semelle Cuir Coffret',
-      slug: 'mules-nu-pieds-h-jacquard-bordeaux-coffret',
-      description: 'Mules plates d\'exception en découpe H signature habillées d\'un velours jacquard bordeaux brodé de motifs floraux ton sur ton. Semelle cousue en cuir naturel, livrées dans leur coffret orange de luxe avec pochons et certificat.',
+      name: 'Mules Nu-Pieds H Jacquard Brodé & Semelle Cuir Coffret',
+      slug: 'mules-nu-pieds-h-jacquard-brode-coffret',
+      description: 'Mules plates d\'exception en découpe H signature habillées d\'un velours jacquard brodé de motifs floraux ton sur ton. Semelle cousue en cuir naturel, livrées dans leur coffret orange de luxe avec pochons et certificat. Déclinées en 5 coloris irrésistibles : Bordeaux, Rose Poudré, Blanc Craie, Bronze Caramel et Noir Ébène.',
       basePrice: 12000,
       isActive: true,
       isFeatured: true,
       variants: [
-        { id: 'var-oran-37', productId: 'prod-shoe-5', sizeOrShoeSize: '37', color: 'Bordeaux Jacquard', sku: 'ORAN-BUR-37', stockQuantity: 6, priceAdjustment: 0 },
-        { id: 'var-oran-38', productId: 'prod-shoe-5', sizeOrShoeSize: '38', color: 'Bordeaux Jacquard', sku: 'ORAN-BUR-38', stockQuantity: 8, priceAdjustment: 0 },
-        { id: 'var-oran-39', productId: 'prod-shoe-5', sizeOrShoeSize: '39', color: 'Bordeaux Jacquard', sku: 'ORAN-BUR-39', stockQuantity: 7, priceAdjustment: 0 },
-        { id: 'var-oran-40', productId: 'prod-shoe-5', sizeOrShoeSize: '40', color: 'Bordeaux Jacquard', sku: 'ORAN-BUR-40', stockQuantity: 5, priceAdjustment: 0 },
-        { id: 'var-oran-41', productId: 'prod-shoe-5', sizeOrShoeSize: '41', color: 'Bordeaux Jacquard', sku: 'ORAN-BUR-41', stockQuantity: 4, priceAdjustment: 0 },
-        { id: 'var-oran-42', productId: 'prod-shoe-5', sizeOrShoeSize: '42', color: 'Bordeaux Jacquard', sku: 'ORAN-BUR-42', stockQuantity: 3, priceAdjustment: 0 }
+        // Bordeaux
+        { id: 'var-oran-bur-37', productId: 'prod-shoe-5', sizeOrShoeSize: '37', color: 'Bordeaux Jacquard', sku: 'ORAN-BUR-37', stockQuantity: 6, priceAdjustment: 0 },
+        { id: 'var-oran-bur-38', productId: 'prod-shoe-5', sizeOrShoeSize: '38', color: 'Bordeaux Jacquard', sku: 'ORAN-BUR-38', stockQuantity: 8, priceAdjustment: 0 },
+        { id: 'var-oran-bur-39', productId: 'prod-shoe-5', sizeOrShoeSize: '39', color: 'Bordeaux Jacquard', sku: 'ORAN-BUR-39', stockQuantity: 7, priceAdjustment: 0 },
+        { id: 'var-oran-bur-40', productId: 'prod-shoe-5', sizeOrShoeSize: '40', color: 'Bordeaux Jacquard', sku: 'ORAN-BUR-40', stockQuantity: 5, priceAdjustment: 0 },
+        { id: 'var-oran-bur-41', productId: 'prod-shoe-5', sizeOrShoeSize: '41', color: 'Bordeaux Jacquard', sku: 'ORAN-BUR-41', stockQuantity: 4, priceAdjustment: 0 },
+        { id: 'var-oran-bur-42', productId: 'prod-shoe-5', sizeOrShoeSize: '42', color: 'Bordeaux Jacquard', sku: 'ORAN-BUR-42', stockQuantity: 3, priceAdjustment: 0 },
+        // Rose Poudré
+        { id: 'var-oran-pnk-37', productId: 'prod-shoe-5', sizeOrShoeSize: '37', color: 'Rose Poudré Jacquard', sku: 'ORAN-PNK-37', stockQuantity: 5, priceAdjustment: 0 },
+        { id: 'var-oran-pnk-38', productId: 'prod-shoe-5', sizeOrShoeSize: '38', color: 'Rose Poudré Jacquard', sku: 'ORAN-PNK-38', stockQuantity: 8, priceAdjustment: 0 },
+        { id: 'var-oran-pnk-39', productId: 'prod-shoe-5', sizeOrShoeSize: '39', color: 'Rose Poudré Jacquard', sku: 'ORAN-PNK-39', stockQuantity: 6, priceAdjustment: 0 },
+        { id: 'var-oran-pnk-40', productId: 'prod-shoe-5', sizeOrShoeSize: '40', color: 'Rose Poudré Jacquard', sku: 'ORAN-PNK-40', stockQuantity: 4, priceAdjustment: 0 },
+        { id: 'var-oran-pnk-41', productId: 'prod-shoe-5', sizeOrShoeSize: '41', color: 'Rose Poudré Jacquard', sku: 'ORAN-PNK-41', stockQuantity: 4, priceAdjustment: 0 },
+        { id: 'var-oran-pnk-42', productId: 'prod-shoe-5', sizeOrShoeSize: '42', color: 'Rose Poudré Jacquard', sku: 'ORAN-PNK-42', stockQuantity: 3, priceAdjustment: 0 },
+        // Blanc Craie
+        { id: 'var-oran-wht-37', productId: 'prod-shoe-5', sizeOrShoeSize: '37', color: 'Blanc Craie Jacquard', sku: 'ORAN-WHT-37', stockQuantity: 6, priceAdjustment: 0 },
+        { id: 'var-oran-wht-38', productId: 'prod-shoe-5', sizeOrShoeSize: '38', color: 'Blanc Craie Jacquard', sku: 'ORAN-WHT-38', stockQuantity: 9, priceAdjustment: 0 },
+        { id: 'var-oran-wht-39', productId: 'prod-shoe-5', sizeOrShoeSize: '39', color: 'Blanc Craie Jacquard', sku: 'ORAN-WHT-39', stockQuantity: 7, priceAdjustment: 0 },
+        { id: 'var-oran-wht-40', productId: 'prod-shoe-5', sizeOrShoeSize: '40', color: 'Blanc Craie Jacquard', sku: 'ORAN-WHT-40', stockQuantity: 5, priceAdjustment: 0 },
+        { id: 'var-oran-wht-41', productId: 'prod-shoe-5', sizeOrShoeSize: '41', color: 'Blanc Craie Jacquard', sku: 'ORAN-WHT-41', stockQuantity: 4, priceAdjustment: 0 },
+        { id: 'var-oran-wht-42', productId: 'prod-shoe-5', sizeOrShoeSize: '42', color: 'Blanc Craie Jacquard', sku: 'ORAN-WHT-42', stockQuantity: 3, priceAdjustment: 0 },
+        // Bronze Caramel
+        { id: 'var-oran-brz-37', productId: 'prod-shoe-5', sizeOrShoeSize: '37', color: 'Bronze Caramel Jacquard', sku: 'ORAN-BRZ-37', stockQuantity: 5, priceAdjustment: 0 },
+        { id: 'var-oran-brz-38', productId: 'prod-shoe-5', sizeOrShoeSize: '38', color: 'Bronze Caramel Jacquard', sku: 'ORAN-BRZ-38', stockQuantity: 8, priceAdjustment: 0 },
+        { id: 'var-oran-brz-39', productId: 'prod-shoe-5', sizeOrShoeSize: '39', color: 'Bronze Caramel Jacquard', sku: 'ORAN-BRZ-39', stockQuantity: 6, priceAdjustment: 0 },
+        { id: 'var-oran-brz-40', productId: 'prod-shoe-5', sizeOrShoeSize: '40', color: 'Bronze Caramel Jacquard', sku: 'ORAN-BRZ-40', stockQuantity: 5, priceAdjustment: 0 },
+        { id: 'var-oran-brz-41', productId: 'prod-shoe-5', sizeOrShoeSize: '41', color: 'Bronze Caramel Jacquard', sku: 'ORAN-BRZ-41', stockQuantity: 3, priceAdjustment: 0 },
+        { id: 'var-oran-brz-42', productId: 'prod-shoe-5', sizeOrShoeSize: '42', color: 'Bronze Caramel Jacquard', sku: 'ORAN-BRZ-42', stockQuantity: 3, priceAdjustment: 0 },
+        // Noir Ébène
+        { id: 'var-oran-blk-37', productId: 'prod-shoe-5', sizeOrShoeSize: '37', color: 'Noir Ébène Jacquard', sku: 'ORAN-BLK-37', stockQuantity: 6, priceAdjustment: 0 },
+        { id: 'var-oran-blk-38', productId: 'prod-shoe-5', sizeOrShoeSize: '38', color: 'Noir Ébène Jacquard', sku: 'ORAN-BLK-38', stockQuantity: 9, priceAdjustment: 0 },
+        { id: 'var-oran-blk-39', productId: 'prod-shoe-5', sizeOrShoeSize: '39', color: 'Noir Ébène Jacquard', sku: 'ORAN-BLK-39', stockQuantity: 7, priceAdjustment: 0 },
+        { id: 'var-oran-blk-40', productId: 'prod-shoe-5', sizeOrShoeSize: '40', color: 'Noir Ébène Jacquard', sku: 'ORAN-BLK-40', stockQuantity: 5, priceAdjustment: 0 },
+        { id: 'var-oran-blk-41', productId: 'prod-shoe-5', sizeOrShoeSize: '41', color: 'Noir Ébène Jacquard', sku: 'ORAN-BLK-41', stockQuantity: 4, priceAdjustment: 0 },
+        { id: 'var-oran-blk-42', productId: 'prod-shoe-5', sizeOrShoeSize: '42', color: 'Noir Ébène Jacquard', sku: 'ORAN-BLK-42', stockQuantity: 3, priceAdjustment: 0 }
       ],
       images: [
-        { id: 'img-oran-1', productId: 'prod-shoe-5', minioUrl: '/products/mules-h-jacquard-bordeaux-coffret.jpg', altText: 'Mules H jacquard bordeaux dans leur boîte prestige', isPrimary: true }
+        { id: 'img-oran-1', productId: 'prod-shoe-5', minioUrl: '/products/mules-h-jacquard-bordeaux-coffret.jpg', altText: 'Mules H jacquard bordeaux dans leur boîte prestige', isPrimary: true },
+        { id: 'img-oran-2', productId: 'prod-shoe-5', minioUrl: '/products/mules-h-jacquard-rose-coffret.jpg', altText: 'Mules H jacquard rose poudré dans leur boîte prestige', isPrimary: false },
+        { id: 'img-oran-3', productId: 'prod-shoe-5', minioUrl: '/products/mules-h-jacquard-blanc-coffret.jpg', altText: 'Mules H jacquard blanc craie dans leur boîte prestige', isPrimary: false },
+        { id: 'img-oran-4', productId: 'prod-shoe-5', minioUrl: '/products/mules-h-jacquard-bronze-coffret.jpg', altText: 'Mules H jacquard bronze caramel dans leur boîte prestige', isPrimary: false },
+        { id: 'img-oran-5', productId: 'prod-shoe-5', minioUrl: '/products/mules-h-jacquard-noir-coffret.jpg', altText: 'Mules H jacquard noir ébène dans leur boîte prestige', isPrimary: false }
       ]
     }
   ] as Product[],
