@@ -1,0 +1,81 @@
+{
+  "id": "jumelles-store",
+  "realm": "jumelles-store",
+  "displayName": "Jumelles Store",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "ROLE_ADMIN",
+        "description": "Administrateur de la boutique Jumelles Store"
+      },
+      {
+        "name": "ROLE_CLIENT",
+        "description": "Client acheteur Jumelles Store"
+      }
+    ]
+  },
+  "defaultRoles": ["ROLE_CLIENT"],
+  "clients": [
+    {
+      "clientId": "jumelles-frontend",
+      "name": "Jumelles Store Frontend (Vue.js)",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "http://localhost:5173/*"
+      ],
+      "webOrigins": [
+        "*"
+      ]
+    },
+    {
+      "clientId": "jumelles-backend",
+      "name": "Jumelles Store Backend API (Node.js)",
+      "enabled": true,
+      "bearerOnly": true
+    }
+  ],
+  "users": [
+    {
+      "username": "admin@jumelles.com",
+      "email": "admin@jumelles.com",
+      "firstName": "Directrice",
+      "lastName": "Jumelles",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Admin@2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["ROLE_ADMIN", "ROLE_CLIENT"]
+    },
+    {
+      "username": "client@jumelles.com",
+      "email": "client@jumelles.com",
+      "firstName": "Awa",
+      "lastName": "Diop",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Client@2026",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["ROLE_CLIENT"]
+    }
+  ]
+}

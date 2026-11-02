@@ -1,0 +1,145 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # 1. Base de données PostgreSQL
+  # ==========================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: jumelles-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-jumelles_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-jumelles_secure_password_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-jumelles_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/prisma/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - jumelles-network
+
+  # ==========================================
+  # 2. Stockage d'objets MinIO (Images & Médias)
+  # ==========================================
+  minio:
+    image: minio/minio:latest
+    container_name: jumelles-minio
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin_secure_2026}
+    ports:
+      - "9000:9000"   # API S3
+      - "9001:9001"   # Console Web
+    volumes:
+      - minio_data:/data
+    networks:
+      - jumelles-network
+
+  # Script d'initialisation des buckets MinIO
+  minio-init:
+    image: minio/mc:latest
+    container_name: jumelles-minio-init
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      sleep 3;
+      /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASSWORD:-minioadmin_secure_2026};
+      /usr/bin/mc mb myminio/jumelles-products --ignore-existing;
+      /usr/bin/mc mb myminio/jumelles-invoices --ignore-existing;
+      /usr/bin/mc anonymous set download myminio/jumelles-products;
+      exit 0;
+      "
+    networks:
+      - jumelles-network
+
+  # ==========================================
+  # 3. Serveur d'authentification Keycloak (IAM)
+  # ==========================================
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.5
+    container_name: jumelles-keycloak
+    restart: always
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin_secure_2026}
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_PORT: 5432
+      KC_DB_URL_DATABASE: ${POSTGRES_DB:-jumelles_db}
+      KC_DB_SCHEMA: keycloak
+      KC_DB_USERNAME: ${POSTGRES_USER:-jumelles_admin}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-jumelles_secure_password_2026}
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm.json:ro
+    depends_on:
+      - postgres
+    networks:
+      - jumelles-network
+
+  # ==========================================
+  # 4. API Backend Node.js / Express
+  # ==========================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: jumelles-backend
+    restart: always
+    environment:
+      PORT: 4000
+      NODE_ENV: development
+      DATABASE_URL: postgresql://${POSTGRES_USER:-jumelles_admin}:${POSTGRES_PASSWORD:-jumelles_secure_password_2026}@postgres:5432/${POSTGRES_DB:-jumelles_db}?schema=public
+      KEYCLOAK_AUTH_SERVER_URL: http://keycloak:8080
+      KEYCLOAK_REALM: jumelles-store
+      KEYCLOAK_CLIENT_ID: jumelles-backend
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_USE_SSL: "false"
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin_secure_2026}
+      MINIO_BUCKET_PRODUCTS: jumelles-products
+      WAVE_API_KEY: ${WAVE_API_KEY:-wave_test_secret_key_jumelles}
+      WAVE_WEBHOOK_SECRET: ${WAVE_WEBHOOK_SECRET:-wave_whsec_jumelles}
+      ORANGE_MONEY_CLIENT_ID: ${ORANGE_MONEY_CLIENT_ID:-om_client_id}
+      ORANGE_MONEY_CLIENT_SECRET: ${ORANGE_MONEY_CLIENT_SECRET:-om_secret}
+    ports:
+      - "4000:4000"
+    depends_on:
+      - postgres
+      - minio
+      - keycloak
+    networks:
+      - jumelles-network
+
+  # ==========================================
+  # 5. Application Frontend Vue.js 3
+  # ==========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: jumelles-frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - jumelles-network
+
+networks:
+  jumelles-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  minio_data:
