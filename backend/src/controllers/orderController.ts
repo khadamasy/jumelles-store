@@ -56,7 +56,13 @@ export const createOrder = async (req: Request, res: Response) => {
         });
       }
 
-      const requestedQty = parseInt(item.quantity, 10) || 1;
+      const requestedQty = parseInt(item.quantity, 10);
+      if (isNaN(requestedQty) || requestedQty <= 0 || requestedQty > 50) {
+        return res.status(400).json({
+          success: false,
+          message: `Quantité invalide (${item.quantity}) pour ${parentProduct.name}. La quantité commandée doit être comprise entre 1 et 50.`,
+        });
+      }
 
       // Contrôle des stocks
       if (foundVariant.stockQuantity < requestedQty) {
@@ -138,14 +144,35 @@ export const getOrderByIdOrNumber = async (req: Request, res: Response) => {
 
 export const getMyOrders = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const email = req.user?.email || (req.query.email as string);
+    const email = req.user?.email;
+    const queryEmail = req.query.email as string;
+    const queryPhone = req.query.phone as string;
 
-    if (!email) {
-      return res.status(400).json({ success: false, message: 'Adresse e-mail requise.' });
+    // Si utilisateur connecté, on utilise l'email certifié de son token
+    if (email) {
+      const clientOrders = memoryStore.orders.filter(
+        (o) => o.customerEmail.toLowerCase() === email.toLowerCase()
+      );
+      return res.json({
+        success: true,
+        count: clientOrders.length,
+        data: clientOrders,
+      });
     }
 
+    // Protection anti-énumération / IDOR pour les invités : exige la double correspondance email + téléphone
+    if (!queryEmail || !queryPhone) {
+      return res.status(400).json({
+        success: false,
+        message: 'Accès sécurisé : veuillez renseigner votre e-mail et votre numéro de téléphone pour consulter vos commandes.',
+      });
+    }
+
+    const cleanPhone = queryPhone.replace(/[\s\-\+\(\)]/g, '');
     const clientOrders = memoryStore.orders.filter(
-      (o) => o.customerEmail.toLowerCase() === email.toLowerCase()
+      (o) =>
+        o.customerEmail.toLowerCase() === queryEmail.toLowerCase() &&
+        o.customerPhone.replace(/[\s\-\+\(\)]/g, '').endsWith(cleanPhone.slice(-8))
     );
 
     res.json({

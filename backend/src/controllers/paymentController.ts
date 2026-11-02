@@ -139,7 +139,8 @@ export const orangeMoneyWebhook = async (req: Request, res: Response) => {
     const payload = req.body;
     console.log('[Orange Money IPN Reçu]', payload);
 
-    if (OrangeMoneyService.verifyIpnPayload(payload)) {
+    const authHeader = req.headers.authorization as string;
+    if (OrangeMoneyService.verifyIpnPayload(payload, authHeader)) {
       const ref = payload.order_id || payload.transaction_reference;
       const txn = memoryStore.transactions.find(
         (t) => t.transactionReference === ref || t.operatorTransactionId === payload.payment_token
@@ -167,6 +168,14 @@ export const orangeMoneyWebhook = async (req: Request, res: Response) => {
  */
 export const mockSimulatePaymentSuccess = async (req: Request, res: Response) => {
   try {
+    // Sécurité : désactivation immédiate en production
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(403).json({
+        success: false,
+        message: 'Sécurité : la simulation de paiement est strictement interdite et désactivée en production.',
+      });
+    }
+
     const { orderId } = req.body;
     const order = memoryStore.orders.find((o) => o.id === orderId);
 

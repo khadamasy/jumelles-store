@@ -46,9 +46,19 @@ export class OrangeMoneyService {
   /**
    * Vérification du statut IPN Orange Money
    */
-  static verifyIpnPayload(payload: any): boolean {
+  static verifyIpnPayload(payload: any, authHeader?: string): boolean {
     if (!payload) return false;
-    return payload.status === 'SUCCESS' || payload.status === 'SUCCESSFUL' || payload.status === 'INITIATED';
+
+    // En production, vérifier le secret de notification partagé
+    if (process.env.NODE_ENV === 'production') {
+      const omSecret = process.env.ORANGE_MONEY_WEBHOOK_SECRET || process.env.ORANGE_MONEY_CLIENT_SECRET;
+      if (omSecret && authHeader !== omSecret && payload.notif_token !== omSecret) {
+        return false;
+      }
+    }
+
+    // Seul un statut confirmé doit valider la commande (pas 'INITIATED')
+    return payload.status === 'SUCCESS' || payload.status === 'SUCCESSFUL';
   }
 }
 

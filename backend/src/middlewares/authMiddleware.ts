@@ -52,21 +52,23 @@ export const requireAuth = (req: AuthenticatedRequest, res: Response, next: Next
     },
     (err, decoded) => {
       if (err) {
-        // Décodage de secours en développement sans vérification stricte JWKS si Keycloak démarre
-        try {
-          const fallbackDecoded = jwt.decode(token) as AuthenticatedUser;
-          if (fallbackDecoded) {
-            req.user = fallbackDecoded;
-            return next();
+        // Décodage de secours strictement restreint au développement local
+        if (process.env.NODE_ENV === 'development') {
+          try {
+            const fallbackDecoded = jwt.decode(token) as AuthenticatedUser;
+            if (fallbackDecoded && fallbackDecoded.sub) {
+              req.user = fallbackDecoded;
+              return next();
+            }
+          } catch (e) {
+            // ignore
           }
-        } catch (e) {
-          // ignore
         }
 
         return res.status(401).json({
           success: false,
-          message: 'Session expirée ou Token invalide.',
-          error: err.message,
+          message: 'Session expirée ou Token JWT invalide.',
+          error: process.env.NODE_ENV === 'production' ? undefined : err.message,
         });
       }
 

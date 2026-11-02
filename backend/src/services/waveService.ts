@@ -48,11 +48,20 @@ export class WaveService {
    * Vérifier la signature cryptographique du Webhook Wave
    */
   static verifyWebhookSignature(payload: string, signatureHeader: string): boolean {
-    if (!signatureHeader || !WAVE_WEBHOOK_SECRET) return true; // Permissif en dev
+    // En développement, tolérant si la clé secrète n'a pas encore été renseignée
+    if (process.env.NODE_ENV !== 'production' && (!signatureHeader || !WAVE_WEBHOOK_SECRET)) {
+      return true;
+    }
+    if (!signatureHeader || !WAVE_WEBHOOK_SECRET) {
+      return false;
+    }
     try {
       const hmac = crypto.createHmac('sha256', WAVE_WEBHOOK_SECRET);
       const computedSignature = hmac.update(payload).digest('hex');
-      return crypto.timingSafeEqual(Buffer.from(signatureHeader), Buffer.from(computedSignature));
+      const sigBuffer = Buffer.from(signatureHeader);
+      const compBuffer = Buffer.from(computedSignature);
+      if (sigBuffer.length !== compBuffer.length) return false;
+      return crypto.timingSafeEqual(sigBuffer, compBuffer);
     } catch {
       return false;
     }
