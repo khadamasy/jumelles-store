@@ -18,3 +18,4 @@ router.get('/admin/callbacks', requireAuth, requireRole('ROLE_ADMIN'), getCallba
 router.patch('/admin/callbacks/:id/status', requireAuth, requireRole('ROLE_ADMIN'), updateCallbackStatus);
 
 export default router;
+

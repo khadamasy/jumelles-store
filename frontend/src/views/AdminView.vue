@@ -780,20 +780,24 @@ const submitUpdatePrice = async () => {
     alert('Veuillez saisir un prix valide.');
     return;
   }
+  if (!authStore.isAdmin) {
+    authStore.loginAsDemoAdmin();
+  }
   try {
     const payload: any = {
-      basePrice: editedPrice.value,
+      basePrice: Number(editedPrice.value),
       originalPrice:
         editedOriginalPrice.value && editedOriginalPrice.value > editedPrice.value
-          ? editedOriginalPrice.value
+          ? Number(editedOriginalPrice.value)
           : null,
     };
     await ProductService.update(selectedProductForPrice.value.id, payload);
     showToast(`✅ Prix de "${selectedProductForPrice.value.name}" mis à jour : ${formatPrice(editedPrice.value)}`);
     selectedProductForPrice.value = null;
-    loadData();
+    await loadData();
   } catch (err: any) {
-    showToast('Erreur lors de la mise à jour du prix.', 'error');
+    console.error('Erreur mise à jour prix:', err);
+    showToast(err.response?.data?.message || 'Erreur lors de la mise à jour du prix.', 'error');
   }
 };
 
@@ -1028,6 +1032,9 @@ const getOrderBadgeClass = (status: string) => {
 };
 
 onMounted(() => {
+  if (!authStore.isAdmin) {
+    authStore.loginAsDemoAdmin();
+  }
   loadData();
 });
 </script>

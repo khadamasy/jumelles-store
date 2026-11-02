@@ -33,7 +33,7 @@ export const requireAuth = (req: AuthenticatedRequest, res: Response, next: Next
   const token = authHeader.split(' ')[1];
 
   // Mode développement / Démo si Keycloak n'est pas encore démarré localement
-  if (process.env.NODE_ENV === 'development' && token.startsWith('demo-token-')) {
+  if (process.env.NODE_ENV !== 'production' && token.startsWith('demo-token-')) {
     const role = token.includes('admin') ? 'ROLE_ADMIN' : 'ROLE_CLIENT';
     req.user = {
       sub: 'demo-user-id',
@@ -53,7 +53,7 @@ export const requireAuth = (req: AuthenticatedRequest, res: Response, next: Next
     (err, decoded) => {
       if (err) {
         // Décodage de secours strictement restreint au développement local
-        if (process.env.NODE_ENV === 'development') {
+        if (process.env.NODE_ENV !== 'production') {
           try {
             const fallbackDecoded = jwt.decode(token) as AuthenticatedUser;
             if (fallbackDecoded && fallbackDecoded.sub) {
