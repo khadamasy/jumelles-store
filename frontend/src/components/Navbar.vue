@@ -94,7 +94,28 @@
         </nav>
 
         <!-- Actions (Search, Account, Cart) -->
-        <div class="flex items-center space-x-3 sm:space-x-4">
+        <div class="flex items-center space-x-2 sm:space-x-4">
+          <!-- Convertisseur de Devise (FCFA / EUR €) pour les clients de la diaspora & internationaux -->
+          <div class="flex items-center bg-stone-100 p-1 rounded-xl border border-stone-200/90 shadow-inner">
+            <button
+              @click="currencyStore.setCurrency('XOF')"
+              class="px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition-all"
+              :class="currencyStore.isXof ? 'bg-stone-900 text-gold-400 shadow' : 'text-stone-500 hover:text-stone-900'"
+              title="Afficher les prix en Franc CFA (FCFA)"
+            >
+              FCFA
+            </button>
+            <button
+              @click="currencyStore.setCurrency('EUR')"
+              class="px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition-all flex items-center gap-1"
+              :class="currencyStore.isEur ? 'bg-gold-600 text-white shadow' : 'text-stone-500 hover:text-stone-900'"
+              title="Convertir automatiquement les prix en Euros (€)"
+            >
+              <span>€</span>
+              <span>EUR</span>
+            </button>
+          </div>
+
           <!-- User / Auth Dropdown -->
           <div class="relative group">
             <button class="flex items-center gap-2 text-stone-700 hover:text-stone-950 p-2.5 rounded-2xl hover:bg-stone-100 transition-all border border-stone-200/60">
@@ -181,7 +202,9 @@
 <script setup lang="ts">
 import { useCartStore } from '../stores/cart';
 import { useAuthStore } from '../stores/auth';
+import { useCurrencyStore } from '../stores/currency';
 
 const cartStore = useCartStore();
 const authStore = useAuthStore();
+const currencyStore = useCurrencyStore();
 </script>

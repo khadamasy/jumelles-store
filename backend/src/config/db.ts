@@ -125,7 +125,7 @@ export const memoryStore = {
       name: 'Sac à Main Prestige Cuir Epsom & Cadenas Métallique',
       slug: 'sac-prestige-cuir-epsom-cadenas',
       description: 'Confectionné en cuir Epsom texturé avec piqures sellier blanches et serrure métallique à cadenas tournant argenté. Format élégant porté main, finitions de haute maroquinerie.',
-      basePrice: 65000,
+      basePrice: 15000,
       isActive: true,
       isFeatured: true,
       variants: [
@@ -149,7 +149,7 @@ export const memoryStore = {
       name: 'Sac Matelassé Rabat « Iconique Jumelles » Chaîne Dorée',
       slug: 'sac-matelasse-rabat-iconique-chaine',
       description: 'L\'incontournable sac à rabat matelassé en losanges avec fermoir pivotant et bandoulière chaîne dorée entrelacée de cuir. Disponible dans une palette de coloris somptueux.',
-      basePrice: 48000,
+      basePrice: 15000,
       isActive: true,
       isFeatured: true,
       variants: [
@@ -172,7 +172,7 @@ export const memoryStore = {
       name: 'Sac Cabas Cuir Perforé Losanges & Chaîne Gourmette (34x27)',
       slug: 'sac-cabas-cuir-perfore-chaine-gourmette',
       description: 'Grand sac seau/cabas en cuir souple finement perforé façon dentelle de cuir. Chaîne dorée d\'épaule, cordon de serrage avec médaillon siglé. Dimensions spacieuses : 34 x 27 cm.',
-      basePrice: 55000,
+      basePrice: 15000,
       isActive: true,
       isFeatured: true,
       variants: [
@@ -193,7 +193,7 @@ export const memoryStore = {
       name: 'Sac Cabas Monogramme Prestige & Bandoulière Cuir',
       slug: 'sac-cabas-monogramme-prestige-bandouliere',
       description: 'Toile enduite monogrammée ultra-robuste avec garnitures en cuir naturel surpiqué, double anse rigide et bandoulière amovible. L\'incontournable de la garde-robe d\'affaires et de cérémonie.',
-      basePrice: 58000,
+      basePrice: 15000,
       isActive: true,
       isFeatured: false,
       variants: [
@@ -214,7 +214,7 @@ export const memoryStore = {
       name: 'Mules Stiletto à Brides & Cœur Diamant Strass',
       slug: 'mules-stiletto-brides-coeur-diamant-strass',
       description: 'Mules vertigineuses à talon évasé 9 cm grand confort, bout carré contemporain et fines brides tubulaires sublimées par un cœur bijou étincelant en cristaux strass.',
-      basePrice: 38000,
+      basePrice: 12000,
       isActive: true,
       isFeatured: true,
       variants: [
@@ -244,7 +244,7 @@ export const memoryStore = {
       name: 'Mules à Petit Talon Bobine Confort « Modèle 290-1 »',
       slug: 'mules-talon-bobine-confort-290-1',
       description: 'Mules élégantes à bout ouvert avec talon bobine 6 cm ultra-stable. Semelle intérieure rembourrée avec coussinet confort pour marcher toute la journée en toute sérénité.',
-      basePrice: 32000,
+      basePrice: 12000,
       isActive: true,
       isFeatured: true,
       variants: [
@@ -271,7 +271,7 @@ export const memoryStore = {
       name: 'Sandales Plates Nu-Pieds en Cuir Verni Croisé',
       slug: 'sandales-plates-cuir-verni-croise',
       description: 'Sandales estivales plates confectionnées en cuir verni premium avec empiècements à brides croisées sur le cou-de-pied. Semelle avec surpiqûre dorée et boîte griffée.',
-      basePrice: 26000,
+      basePrice: 12000,
       isActive: true,
       isFeatured: false,
       variants: [
@@ -299,7 +299,7 @@ export const memoryStore = {
       name: 'Tongs Chics en Cuir & Médaillon Logo Doré',
       slug: 'tongs-chics-cuir-medaillon-logo-dore',
       description: 'L\'élégance décontractée à son zénith. Entredoigt en cuir véritable souple orné d\'un médaillon bijou doré poli. Semelle gravée, livrée dans son coffret luxe avec ruban de soie.',
-      basePrice: 29000,
+      basePrice: 12000,
       isActive: true,
       isFeatured: true,
       variants: [
@@ -330,7 +330,7 @@ export const memoryStore = {
       customerPhone: '+221 77 208 78 20',
       shippingAddress: 'Almadies, Villa 42 en face pharmacie',
       shippingCity: 'Dakar',
-      totalAmount: 65000,
+      totalAmount: 15000,
       status: 'PAID',
       items: [
         {
@@ -340,8 +340,8 @@ export const memoryStore = {
           productName: 'Sac à Main Prestige Cuir Epsom & Cadenas Métallique',
           variantDetails: 'Camel Caramel / Format Médium (30cm)',
           quantity: 1,
-          unitPrice: 65000,
-          totalPrice: 65000
+          unitPrice: 15000,
+          totalPrice: 15000
         }
       ],
       createdAt: new Date().toISOString()
@@ -355,7 +355,7 @@ export const memoryStore = {
       provider: 'WAVE',
       transactionReference: 'WAVE-REF-JUM-9841',
       operatorTransactionId: 'WV_TXN_88492048',
-      amount: 65000,
+      amount: 15000,
       currency: 'XOF',
       status: 'SUCCESSFUL',
       paymentUrl: 'https://pay.wave.com/c/mock-jumelles-001',

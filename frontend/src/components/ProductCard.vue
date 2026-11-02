@@ -64,8 +64,11 @@
       <div class="pt-3 border-t border-stone-100 flex items-center justify-between">
         <div>
           <span class="text-[10px] uppercase tracking-wider text-stone-400 font-bold block">Prix boutique</span>
-          <span class="font-serif font-black text-lg text-stone-950">
-            {{ formatPrice(product.basePrice) }}
+          <span class="font-serif font-black text-lg text-stone-950 block">
+            {{ currencyStore.isEur ? currencyStore.toEurOnly(product.basePrice) : currencyStore.toXofOnly(product.basePrice) }}
+          </span>
+          <span class="text-[11px] text-stone-500 font-semibold block">
+            {{ currencyStore.isEur ? currencyStore.toXofOnly(product.basePrice) : '≈ ' + currencyStore.toEurOnly(product.basePrice) }}
           </span>
         </div>
 
@@ -82,6 +85,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useCurrencyStore } from '../stores/currency';
+
+const currencyStore = useCurrencyStore();
 
 const props = defineProps<{
   product: any;

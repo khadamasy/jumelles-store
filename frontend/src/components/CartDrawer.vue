@@ -93,11 +93,18 @@
 
         <!-- Drawer Footer -->
         <div v-if="cartStore.items.length > 0" class="p-6 border-t border-stone-200 bg-stone-50 space-y-4">
-          <div class="flex justify-between text-base font-semibold text-stone-900">
+          <div class="flex justify-between items-baseline text-base font-semibold text-stone-900">
             <span>Sous-total estimé :</span>
-            <span class="font-serif text-lg text-gold-700">{{ cartStore.formattedSubtotal }}</span>
+            <div class="text-right">
+              <span class="font-serif text-xl font-black text-stone-950 block">
+                {{ currencyStore.isEur ? currencyStore.toEurOnly(cartStore.subtotal) : currencyStore.toXofOnly(cartStore.subtotal) }}
+              </span>
+              <span class="text-xs text-stone-500 font-bold block">
+                {{ currencyStore.isEur ? currencyStore.toXofOnly(cartStore.subtotal) : '≈ ' + currencyStore.toEurOnly(cartStore.subtotal) }}
+              </span>
+            </div>
           </div>
-          <p class="text-xs text-stone-500">Livraison calculée lors de la validation. Paiements Wave & Orange Money acceptés.</p>
+          <p class="text-xs text-stone-500">Paiements Wave & Orange Money acceptés. Conversion en Euros affichée pour les clients internationaux.</p>
 
           <router-link
             to="/checkout"
@@ -114,15 +121,13 @@
 
 <script setup lang="ts">
 import { useCartStore } from '../stores/cart';
+import { useCurrencyStore } from '../stores/currency';
 
 const cartStore = useCartStore();
+const currencyStore = useCurrencyStore();
 
 const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'XOF',
-    maximumFractionDigits: 0,
-  }).format(price);
+  return currencyStore.formatPrice(price);
 };
 </script>
 

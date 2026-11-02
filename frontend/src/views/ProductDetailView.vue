@@ -58,9 +58,12 @@
           <h1 class="font-serif text-3xl sm:text-4xl font-extrabold text-stone-950 leading-tight">
             {{ product.name }}
           </h1>
-          <div class="mt-4 flex items-baseline gap-4">
+          <div class="mt-4 flex flex-wrap items-baseline gap-3">
             <span class="font-serif text-3xl sm:text-4xl font-black text-stone-950">
-              {{ formatPrice(currentPrice) }}
+              {{ currencyStore.isEur ? currencyStore.toEurOnly(currentPrice) : currencyStore.toXofOnly(currentPrice) }}
+            </span>
+            <span class="text-sm font-extrabold text-gold-800 bg-gold-50 border border-gold-200 px-3 py-1 rounded-xl shadow-sm">
+              {{ currencyStore.isEur ? currencyStore.toXofOnly(currentPrice) : '≈ ' + currencyStore.toEurOnly(currentPrice) }}
             </span>
             <span class="text-xs text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
               Paiement Wave & OM disponible
@@ -215,10 +218,12 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ProductService } from '../services/api';
 import { useCartStore } from '../stores/cart';
+import { useCurrencyStore } from '../stores/currency';
 
 const route = useRoute();
 const router = useRouter();
 const cartStore = useCartStore();
+const currencyStore = useCurrencyStore();
 
 const product = ref<any>(null);
 const loading = ref(true);
@@ -267,7 +272,7 @@ const whatsappOrderUrl = computed(() => {
     return 'https://wa.me/221772087820';
   }
   const text = encodeURIComponent(
-    `Bonjour Jumelles Store, je souhaite commander l'article "${product.value.name}" en ${selectedVariant.value.color} (Taille/Pointure: ${selectedVariant.value.sizeOrShoeSize}) au prix de ${formatPrice(currentPrice.value)}. Mon numéro est disponible.`
+    `Bonjour Jumelles Store, je souhaite commander l'article "${product.value.name}" en ${selectedVariant.value.color} (Taille/Pointure: ${selectedVariant.value.sizeOrShoeSize}) au prix de ${currencyStore.toXofOnly(currentPrice.value)} (~${currencyStore.toEurOnly(currentPrice.value)}). Mon numéro est disponible.`
   );
   return `https://wa.me/221772087820?text=${text}`;
 });

@@ -88,7 +88,10 @@
           />
           <div class="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent"></div>
           <div class="relative z-10 space-y-2">
-            <span class="text-xs uppercase tracking-widest text-gold-400 font-black">Maroquinerie & Cabas</span>
+            <div class="flex items-center gap-2">
+              <span class="text-xs uppercase tracking-widest text-gold-400 font-black">Maroquinerie & Cabas</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-gold-500 text-stone-950 font-black text-xs shadow">15 000 FCFA (≈ 22,87 €)</span>
+            </div>
             <h3 class="font-serif text-2xl sm:text-3xl font-extrabold">Sacs à Main, Cabas & Pochettes</h3>
             <p class="text-sm text-stone-300 max-w-md font-light">Cuir grainé effet crocodile, bouclerie dorée luxueuse et chaînettes amovibles.</p>
             <span class="inline-flex items-center gap-2 text-xs font-bold text-gold-400 pt-2 group-hover:underline">
@@ -109,11 +112,14 @@
           />
           <div class="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent"></div>
           <div class="relative z-10 space-y-2">
-            <span class="text-xs uppercase tracking-widest text-gold-400 font-black">Souliers & Sandales</span>
-            <h3 class="font-serif text-2xl sm:text-3xl font-extrabold">Escarpins, Sandales & Sneakers</h3>
+            <div class="flex items-center gap-2">
+              <span class="text-xs uppercase tracking-widest text-gold-400 font-black">Souliers & Sandales</span>
+              <span class="px-2.5 py-0.5 rounded-full bg-gold-500 text-stone-950 font-black text-xs shadow">12 000 FCFA (≈ 18,29 €)</span>
+            </div>
+            <h3 class="font-serif text-2xl sm:text-3xl font-extrabold">Escarpins, Sandales & Mules</h3>
             <p class="text-sm text-stone-300 max-w-md font-light">Des pointures du 37 au 42 avec un confort de marche incomparable et un galbe parfait.</p>
             <span class="inline-flex items-center gap-2 text-xs font-bold text-gold-400 pt-2 group-hover:underline">
-              Choisir ma pointure →
+              Choisir ma pointure (37 à 42) →
             </span>
           </div>
         </router-link>

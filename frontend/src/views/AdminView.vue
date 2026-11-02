@@ -618,8 +618,8 @@ const uploadedImageUrl = ref('');
 
 const newProduct = reactive({
   name: '',
-  categoryId: 'cat-shoe-1',
-  basePrice: 38000,
+  categoryId: 'cat-sac-1',
+  basePrice: 15000,
   description: '',
   isFeatured: true,
 });

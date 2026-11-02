@@ -160,9 +160,12 @@
               <span>Frais de livraison :</span>
               <span class="text-emerald-600 font-semibold">Gratuit (Offre Lancement)</span>
             </div>
-            <div class="border-t border-stone-200 pt-3 flex justify-between font-bold text-stone-950 text-base">
+            <div class="border-t border-stone-200 pt-3 flex justify-between items-baseline font-bold text-stone-950 text-base">
               <span>Total à payer :</span>
-              <span class="font-serif text-xl text-gold-700">{{ cartStore.formattedSubtotal }}</span>
+              <div class="text-right">
+                <span class="font-serif text-2xl text-gold-700 block">{{ currencyStore.toXofOnly(cartStore.subtotal) }}</span>
+                <span class="text-xs text-stone-500 font-bold block">≈ {{ currencyStore.toEurOnly(cartStore.subtotal) }}</span>
+              </div>
             </div>
           </div>
 
@@ -205,11 +208,13 @@ import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useCartStore } from '../stores/cart';
 import { useAuthStore } from '../stores/auth';
+import { useCurrencyStore } from '../stores/currency';
 import { OrderService, PaymentService } from '../services/api';
 
 const router = useRouter();
 const cartStore = useCartStore();
 const authStore = useAuthStore();
+const currencyStore = useCurrencyStore();
 
 const selectedProvider = ref<'WAVE' | 'ORANGE_MONEY'>('WAVE');
 const isSubmitting = ref(false);
@@ -230,11 +235,7 @@ onMounted(() => {
 });
 
 const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'XOF',
-    maximumFractionDigits: 0,
-  }).format(price);
+  return currencyStore.formatPrice(price);
 };
 
 const handleCheckout = async () => {
