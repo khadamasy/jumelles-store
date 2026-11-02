@@ -82,7 +82,7 @@
           class="group relative h-[420px] rounded-3xl overflow-hidden shadow-xl flex items-end p-8 text-white transition-all hover:-translate-y-1 border border-stone-200"
         >
           <img
-            src="https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=1000&q=80"
+            src="/products/sac-birkin-camel.jpg"
             alt="Collection Sacs Jumelles Store"
             class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
           />
@@ -103,7 +103,7 @@
           class="group relative h-[420px] rounded-3xl overflow-hidden shadow-xl flex items-end p-8 text-white transition-all hover:-translate-y-1 border border-stone-200"
         >
           <img
-            src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=1000&q=80"
+            src="/products/mules-talon-coeur-noir.jpg"
             alt="Collection Chaussures Jumelles Store"
             class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
           />

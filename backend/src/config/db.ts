@@ -7,7 +7,6 @@ export const pool = new Pool({
   connectionString: process.env.DATABASE_URL || 'postgresql://jumelles_admin:jumelles_secure_password_2026@localhost:5432/jumelles_db?schema=public',
 });
 
-// Mock in-memory data store for testing and when PostgreSQL is offline
 export interface Category {
   id: string;
   name: string;
@@ -19,7 +18,7 @@ export interface Category {
 export interface ProductVariant {
   id: string;
   productId: string;
-  sizeOrShoeSize: string; // Ex: '37', '38', '39' ou 'Unique'
+  sizeOrShoeSize: string; // '37', '38', '39', '40', '41', '42' ou 'Standard'
   color: string;
   sku: string;
   stockQuantity: number;
@@ -85,7 +84,7 @@ export interface PaymentTransaction {
   createdAt: string;
 }
 
-// Jeu de données initial complet pour Jumelles Store
+// Données réelles Jumelles Store basées sur vos articles
 export const memoryStore = {
   categories: [
     {
@@ -93,134 +92,231 @@ export const memoryStore = {
       name: 'Sacs à Main & Cabas',
       slug: 'sacs-a-main',
       type: 'SAC' as const,
-      description: 'Sacs à main en cuir de luxe, élégants et polyvalents pour le quotidien et les grandes occasions.'
+      description: 'Sacs à main en cuir de luxe, sacs Birkin et cabas monogrammes pour sublimer vos tenues.'
     },
     {
       id: 'cat-sac-2',
-      name: 'Pochettes & Bandoulières',
-      slug: 'pochettes-bandoulieres',
+      name: 'Pochettes & Sacs Matelassés',
+      slug: 'pochettes-matelassees',
       type: 'SAC' as const,
-      description: 'Pochettes de soirée scintillantes et sacs bandoulière compacts et raffinés.'
+      description: 'Sacs à rabat matelassé avec chaînes dorées et pochettes de soirée étincelantes.'
     },
     {
       id: 'cat-shoe-1',
-      name: 'Escarpins & Talons Hauts',
-      slug: 'escarpins-talons',
+      name: 'Mules & Escarpins à Talons',
+      slug: 'mules-escarpins',
       type: 'CHAUSSURE' as const,
-      description: 'Escarpins glamour, talons aiguilles et carrés pour sublimer votre démarche.'
+      description: 'Mules stiletto bijou à talons aiguilles et talons bobines confortables (pointures 37 à 42).'
     },
     {
       id: 'cat-shoe-2',
-      name: 'Sandales & Mules d\'Été',
-      slug: 'sandales-mules',
+      name: 'Sandales Plates & Tongs de Luxe',
+      slug: 'sandales-plates',
       type: 'CHAUSSURE' as const,
-      description: 'Sandales légères dorées, argentées et mules chics au confort exceptionnel.'
-    },
-    {
-      id: 'cat-shoe-3',
-      name: 'Baskets & Sneakers Chic',
-      slug: 'sneakers-femme',
-      type: 'CHAUSSURE' as const,
-      description: 'Sneakers tendances blanches et métallisées alliant streetwear et élégance.'
+      description: 'Nu-pieds en cuir verni croisé et tongs bijou à médaillon doré (pointures 37 à 42).'
     }
   ] as Category[],
 
   products: [
+    // 1. SAC BIRKIN PRESTIGE
     {
       id: 'prod-sac-1',
       categoryId: 'cat-sac-1',
-      name: 'Sac Cabas Royal Croco « Jumelles Élégance »',
-      slug: 'sac-cabas-royal-croco',
-      description: 'Confectionné dans un cuir grainé effet crocodile premium. Spacieux, finitions dorées luxueuses et bandoulière amovible.',
-      basePrice: 45000,
+      name: 'Sac à Main Prestige Cuir Epsom & Cadenas Métallique',
+      slug: 'sac-prestige-cuir-epsom-cadenas',
+      description: 'Confectionné en cuir Epsom texturé avec piqures sellier blanches et serrure métallique à cadenas tournant argenté. Format élégant porté main, finitions de haute maroquinerie.',
+      basePrice: 65000,
       isActive: true,
       isFeatured: true,
       variants: [
-        { id: 'var-1', productId: 'prod-sac-1', sizeOrShoeSize: 'Taille Standard', color: 'Noir Onyx', sku: 'SAC-CROCO-BLK', stockQuantity: 12, priceAdjustment: 0 },
-        { id: 'var-2', productId: 'prod-sac-1', sizeOrShoeSize: 'Taille Standard', color: 'Marron Havane', sku: 'SAC-CROCO-BRN', stockQuantity: 8, priceAdjustment: 0 },
-        { id: 'var-3', productId: 'prod-sac-1', sizeOrShoeSize: 'Taille Standard', color: 'Bordeaux Impérial', sku: 'SAC-CROCO-BUR', stockQuantity: 5, priceAdjustment: 2000 }
+        { id: 'var-birk-1', productId: 'prod-sac-1', sizeOrShoeSize: 'Format Médium (30cm)', color: 'Camel Caramel', sku: 'BIRK-CAMEL-30', stockQuantity: 8, priceAdjustment: 0 },
+        { id: 'var-birk-2', productId: 'prod-sac-1', sizeOrShoeSize: 'Format Médium (30cm)', color: 'Chocolat Ébène', sku: 'BIRK-CHOC-30', stockQuantity: 6, priceAdjustment: 0 },
+        { id: 'var-birk-3', productId: 'prod-sac-1', sizeOrShoeSize: 'Format Médium (30cm)', color: 'Orange H', sku: 'BIRK-ORANGE-30', stockQuantity: 5, priceAdjustment: 0 },
+        { id: 'var-birk-4', productId: 'prod-sac-1', sizeOrShoeSize: 'Format Médium (30cm)', color: 'Rose Poudré', sku: 'BIRK-ROSE-30', stockQuantity: 7, priceAdjustment: 0 }
       ],
       images: [
-        { id: 'img-1', productId: 'prod-sac-1', minioUrl: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80', altText: 'Sac cabas croco noir Jumelles Store', isPrimary: true },
-        { id: 'img-2', productId: 'prod-sac-1', minioUrl: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?auto=format&fit=crop&w=800&q=80', altText: 'Détail finitions dorées sac Jumelles', isPrimary: false }
+        { id: 'img-birk-1', productId: 'prod-sac-1', minioUrl: '/products/sac-birkin-camel.jpg', altText: 'Sac prestige camel Jumelles Store', isPrimary: true },
+        { id: 'img-birk-2', productId: 'prod-sac-1', minioUrl: '/products/sac-birkin-rose-poudre.jpg', altText: 'Sac prestige rose poudré', isPrimary: false },
+        { id: 'img-birk-3', productId: 'prod-sac-1', minioUrl: '/products/sac-birkin-chocolat.jpg', altText: 'Sac prestige chocolat', isPrimary: false },
+        { id: 'img-birk-4', productId: 'prod-sac-1', minioUrl: '/products/sac-birkin-orange.jpg', altText: 'Sac prestige orange', isPrimary: false }
       ]
     },
+
+    // 2. SAC MATELASSÉ RABAT CHAÎNE
     {
       id: 'prod-sac-2',
       categoryId: 'cat-sac-2',
-      name: 'Pochette de Soirée « Diamant Doré »',
-      slug: 'pochette-soiree-diamant-dore',
-      description: 'L\'accessoire idéal pour vos mariages, galas et soirées de fête. Fermoir bijou et chaînette dorée.',
-      basePrice: 28000,
+      name: 'Sac Matelassé Rabat « Iconique Jumelles » Chaîne Dorée',
+      slug: 'sac-matelasse-rabat-iconique-chaine',
+      description: 'L\'incontournable sac à rabat matelassé en losanges avec fermoir pivotant et bandoulière chaîne dorée entrelacée de cuir. Disponible dans une palette de coloris somptueux.',
+      basePrice: 48000,
       isActive: true,
       isFeatured: true,
       variants: [
-        { id: 'var-4', productId: 'prod-sac-2', sizeOrShoeSize: 'Format Soirée', color: 'Or Scintillant', sku: 'POCH-GLD-01', stockQuantity: 15, priceAdjustment: 0 },
-        { id: 'var-5', productId: 'prod-sac-2', sizeOrShoeSize: 'Format Soirée', color: 'Argent Miroir', sku: 'POCH-SLV-02', stockQuantity: 9, priceAdjustment: 0 }
+        { id: 'var-mat-1', productId: 'prod-sac-2', sizeOrShoeSize: 'Format Classique', color: 'Noir Onyx', sku: 'MAT-BLK-01', stockQuantity: 12, priceAdjustment: 0 },
+        { id: 'var-mat-2', productId: 'prod-sac-2', sizeOrShoeSize: 'Format Classique', color: 'Doré Métallisé', sku: 'MAT-GLD-02', stockQuantity: 9, priceAdjustment: 0 },
+        { id: 'var-mat-3', productId: 'prod-sac-2', sizeOrShoeSize: 'Format Classique', color: 'Argent Miroir', sku: 'MAT-SLV-03', stockQuantity: 6, priceAdjustment: 0 },
+        { id: 'var-mat-4', productId: 'prod-sac-2', sizeOrShoeSize: 'Format Classique', color: 'Blanc Pur', sku: 'MAT-WHT-04', stockQuantity: 8, priceAdjustment: 0 },
+        { id: 'var-mat-5', productId: 'prod-sac-2', sizeOrShoeSize: 'Format Classique', color: 'Bordeaux Cerise', sku: 'MAT-BUR-05', stockQuantity: 7, priceAdjustment: 0 },
+        { id: 'var-mat-6', productId: 'prod-sac-2', sizeOrShoeSize: 'Format Classique', color: 'Camel Havane', sku: 'MAT-CAM-06', stockQuantity: 10, priceAdjustment: 0 }
       ],
       images: [
-        { id: 'img-3', productId: 'prod-sac-2', minioUrl: 'https://images.unsplash.com/photo-1566150905458-1bf1fc113f0d?auto=format&fit=crop&w=800&q=80', altText: 'Pochette dorée étincelante', isPrimary: true }
+        { id: 'img-mat-1', productId: 'prod-sac-2', minioUrl: '/products/sac-matelasse-chaine-collection.jpg', altText: 'Collection sacs matelassés rabat chaîne', isPrimary: true }
       ]
     },
+
+    // 3. SAC CABAS CUIR PERFORÉ
+    {
+      id: 'prod-sac-3',
+      categoryId: 'cat-sac-1',
+      name: 'Sac Cabas Cuir Perforé Losanges & Chaîne Gourmette (34x27)',
+      slug: 'sac-cabas-cuir-perfore-chaine-gourmette',
+      description: 'Grand sac seau/cabas en cuir souple finement perforé façon dentelle de cuir. Chaîne dorée d\'épaule, cordon de serrage avec médaillon siglé. Dimensions spacieuses : 34 x 27 cm.',
+      basePrice: 55000,
+      isActive: true,
+      isFeatured: true,
+      variants: [
+        { id: 'var-perf-1', productId: 'prod-sac-3', sizeOrShoeSize: '34 x 27 cm', color: 'Bordeaux Royal', sku: 'PERF-BUR-34', stockQuantity: 8, priceAdjustment: 0 },
+        { id: 'var-perf-2', productId: 'prod-sac-3', sizeOrShoeSize: '34 x 27 cm', color: 'Rose Pastel', sku: 'PERF-PNK-34', stockQuantity: 6, priceAdjustment: 0 }
+      ],
+      images: [
+        { id: 'img-perf-1', productId: 'prod-sac-3', minioUrl: '/products/sac-perfore-chaine-bordeaux-fauteuil.jpg', altText: 'Sac perforé chaîne bordeaux', isPrimary: true },
+        { id: 'img-perf-2', productId: 'prod-sac-3', minioUrl: '/products/sac-perfore-chaine-rose.jpg', altText: 'Sac perforé rose poudré', isPrimary: false },
+        { id: 'img-perf-3', productId: 'prod-sac-3', minioUrl: '/products/sac-perfore-chaine-bordeaux-face.jpg', altText: 'Détail médaillon chaîne dorée', isPrimary: false }
+      ]
+    },
+
+    // 4. SAC CABAS MONOGRAMME DE LUXE
+    {
+      id: 'prod-sac-4',
+      categoryId: 'cat-sac-1',
+      name: 'Sac Cabas Monogramme Prestige & Bandoulière Cuir',
+      slug: 'sac-cabas-monogramme-prestige-bandouliere',
+      description: 'Toile enduite monogrammée ultra-robuste avec garnitures en cuir naturel surpiqué, double anse rigide et bandoulière amovible. L\'incontournable de la garde-robe d\'affaires et de cérémonie.',
+      basePrice: 58000,
+      isActive: true,
+      isFeatured: false,
+      variants: [
+        { id: 'var-mono-1', productId: 'prod-sac-4', sizeOrShoeSize: 'Grand Format Cabas', color: 'Monogramme Havane', sku: 'MONO-CAB-01', stockQuantity: 7, priceAdjustment: 0 },
+        { id: 'var-mono-2', productId: 'prod-sac-4', sizeOrShoeSize: 'Format Dôme Alma BB', color: 'Damier Ébène', sku: 'DAM-ALMA-02', stockQuantity: 5, priceAdjustment: 0 }
+      ],
+      images: [
+        { id: 'img-mono-1', productId: 'prod-sac-4', minioUrl: '/products/sac-cabas-monogramme-luxe.jpg', altText: 'Sac cabas monogramme luxe', isPrimary: true },
+        { id: 'img-mono-2', productId: 'prod-sac-4', minioUrl: '/products/sac-cabas-monogramme-portemodele.jpg', altText: 'Sac cabas porté épaule', isPrimary: false },
+        { id: 'img-mono-3', productId: 'prod-sac-4', minioUrl: '/products/sac-alma-damier-ebene.jpg', altText: 'Sac dôme damier ébène', isPrimary: false }
+      ]
+    },
+
+    // 5. MULES TALONS AIGUILLES COEUR STRASS (Chaussures)
     {
       id: 'prod-shoe-1',
       categoryId: 'cat-shoe-1',
-      name: 'Escarpins Stiletto « Reine de Saba »',
-      slug: 'escarpins-stiletto-reine-de-saba',
-      description: 'Escarpins vertigineux talon 10 cm, cambrure parfaite et semelle rembourrée grand confort.',
+      name: 'Mules Stiletto à Brides & Cœur Diamant Strass',
+      slug: 'mules-stiletto-brides-coeur-diamant-strass',
+      description: 'Mules vertigineuses à talon évasé 9 cm grand confort, bout carré contemporain et fines brides tubulaires sublimées par un cœur bijou étincelant en cristaux strass.',
       basePrice: 38000,
       isActive: true,
       isFeatured: true,
       variants: [
-        { id: 'var-6', productId: 'prod-shoe-1', sizeOrShoeSize: '37', color: 'Noir Verni', sku: 'STIL-BLK-37', stockQuantity: 4, priceAdjustment: 0 },
-        { id: 'var-7', productId: 'prod-shoe-1', sizeOrShoeSize: '38', color: 'Noir Verni', sku: 'STIL-BLK-38', stockQuantity: 6, priceAdjustment: 0 },
-        { id: 'var-8', productId: 'prod-shoe-1', sizeOrShoeSize: '39', color: 'Noir Verni', sku: 'STIL-BLK-39', stockQuantity: 5, priceAdjustment: 0 },
-        { id: 'var-9', productId: 'prod-shoe-1', sizeOrShoeSize: '40', color: 'Noir Verni', sku: 'STIL-BLK-40', stockQuantity: 3, priceAdjustment: 0 },
-        { id: 'var-10', productId: 'prod-shoe-1', sizeOrShoeSize: '38', color: 'Rouge Passion', sku: 'STIL-RED-38', stockQuantity: 4, priceAdjustment: 1500 },
-        { id: 'var-11', productId: 'prod-shoe-1', sizeOrShoeSize: '39', color: 'Rouge Passion', sku: 'STIL-RED-39', stockQuantity: 2, priceAdjustment: 1500 }
+        { id: 'var-str-37', productId: 'prod-shoe-1', sizeOrShoeSize: '37', color: 'Noir Profond', sku: 'STR-BLK-37', stockQuantity: 5, priceAdjustment: 0 },
+        { id: 'var-str-38', productId: 'prod-shoe-1', sizeOrShoeSize: '38', color: 'Noir Profond', sku: 'STR-BLK-38', stockQuantity: 7, priceAdjustment: 0 },
+        { id: 'var-str-39', productId: 'prod-shoe-1', sizeOrShoeSize: '39', color: 'Noir Profond', sku: 'STR-BLK-39', stockQuantity: 6, priceAdjustment: 0 },
+        { id: 'var-str-40', productId: 'prod-shoe-1', sizeOrShoeSize: '40', color: 'Noir Profond', sku: 'STR-BLK-40', stockQuantity: 4, priceAdjustment: 0 },
+        { id: 'var-str-41', productId: 'prod-shoe-1', sizeOrShoeSize: '41', color: 'Noir Profond', sku: 'STR-BLK-41', stockQuantity: 4, priceAdjustment: 0 },
+        { id: 'var-str-42', productId: 'prod-shoe-1', sizeOrShoeSize: '42', color: 'Noir Profond', sku: 'STR-BLK-42', stockQuantity: 3, priceAdjustment: 0 },
+        { id: 'var-str-slv-37', productId: 'prod-shoe-1', sizeOrShoeSize: '37', color: 'Argent Miroir', sku: 'STR-SLV-37', stockQuantity: 4, priceAdjustment: 0 },
+        { id: 'var-str-slv-38', productId: 'prod-shoe-1', sizeOrShoeSize: '38', color: 'Argent Miroir', sku: 'STR-SLV-38', stockQuantity: 6, priceAdjustment: 0 },
+        { id: 'var-str-slv-39', productId: 'prod-shoe-1', sizeOrShoeSize: '39', color: 'Argent Miroir', sku: 'STR-SLV-39', stockQuantity: 5, priceAdjustment: 0 },
+        { id: 'var-str-slv-40', productId: 'prod-shoe-1', sizeOrShoeSize: '40', color: 'Argent Miroir', sku: 'STR-SLV-40', stockQuantity: 3, priceAdjustment: 0 },
+        { id: 'var-str-slv-41', productId: 'prod-shoe-1', sizeOrShoeSize: '41', color: 'Argent Miroir', sku: 'STR-SLV-41', stockQuantity: 3, priceAdjustment: 0 },
+        { id: 'var-str-slv-42', productId: 'prod-shoe-1', sizeOrShoeSize: '42', color: 'Argent Miroir', sku: 'STR-SLV-42', stockQuantity: 2, priceAdjustment: 0 }
       ],
       images: [
-        { id: 'img-4', productId: 'prod-shoe-1', minioUrl: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=800&q=80', altText: 'Escarpins stiletto noir verni', isPrimary: true }
+        { id: 'img-str-1', productId: 'prod-shoe-1', minioUrl: '/products/mules-talon-coeur-noir.jpg', altText: 'Mules talon coeur strass noir', isPrimary: true },
+        { id: 'img-str-2', productId: 'prod-shoe-1', minioUrl: '/products/mules-talon-coeur-argent.jpg', altText: 'Mules talon coeur argent', isPrimary: false }
       ]
     },
+
+    // 6. MULES TALON BOBINE 290-1
     {
       id: 'prod-shoe-2',
-      categoryId: 'cat-shoe-2',
-      name: 'Sandales Bijou Nu-Pieds « Cléopâtre »',
-      slug: 'sandales-bijou-cleopatre',
-      description: 'Sandales plates artisanales avec ornementation dorée, lanières en cuir souple épousant la cheville.',
-      basePrice: 22000,
-      isActive: true,
-      isFeatured: false,
-      variants: [
-        { id: 'var-12', productId: 'prod-shoe-2', sizeOrShoeSize: '41', color: 'Doré Antique', sku: 'SAND-GLD-41', stockQuantity: 4, priceAdjustment: 0 },
-        { id: 'var-13', productId: 'prod-shoe-2', sizeOrShoeSize: '37', color: 'Doré Antique', sku: 'SAND-GLD-37', stockQuantity: 8, priceAdjustment: 0 },
-        { id: 'var-14', productId: 'prod-shoe-2', sizeOrShoeSize: '38', color: 'Doré Antique', sku: 'SAND-GLD-38', stockQuantity: 10, priceAdjustment: 0 },
-        { id: 'var-15', productId: 'prod-shoe-2', sizeOrShoeSize: '39', color: 'Doré Antique', sku: 'SAND-GLD-39', stockQuantity: 7, priceAdjustment: 0 },
-        { id: 'var-16', productId: 'prod-shoe-2', sizeOrShoeSize: '40', color: 'Doré Antique', sku: 'SAND-GLD-40', stockQuantity: 3, priceAdjustment: 0 },
-        { id: 'var-16b', productId: 'prod-shoe-2', sizeOrShoeSize: '42', color: 'Doré Antique', sku: 'SAND-GLD-42', stockQuantity: 5, priceAdjustment: 0 }
-      ],
-      images: [
-        { id: 'img-5', productId: 'prod-shoe-2', minioUrl: 'https://images.unsplash.com/photo-1603808033192-082d6919d3e1?auto=format&fit=crop&w=800&q=80', altText: 'Sandales dorées Jumelles Store', isPrimary: true }
-      ]
-    },
-    {
-      id: 'prod-shoe-3',
-      categoryId: 'cat-shoe-3',
-      name: 'Baskets Urbaines Chic « Urban Glow »',
-      slug: 'baskets-urban-glow',
-      description: 'Sneakers modernes blanches avec empiècements métallisés or rose, semelle plateforme ultra légère.',
+      categoryId: 'cat-shoe-1',
+      name: 'Mules à Petit Talon Bobine Confort « Modèle 290-1 »',
+      slug: 'mules-talon-bobine-confort-290-1',
+      description: 'Mules élégantes à bout ouvert avec talon bobine 6 cm ultra-stable. Semelle intérieure rembourrée avec coussinet confort pour marcher toute la journée en toute sérénité.',
       basePrice: 32000,
       isActive: true,
       isFeatured: true,
       variants: [
-        { id: 'var-17', productId: 'prod-shoe-3', sizeOrShoeSize: '37', color: 'Blanc & Or Rose', sku: 'SNEAK-WHT-37', stockQuantity: 5, priceAdjustment: 0 },
-        { id: 'var-18', productId: 'prod-shoe-3', sizeOrShoeSize: '38', color: 'Blanc & Or Rose', sku: 'SNEAK-WHT-38', stockQuantity: 7, priceAdjustment: 0 },
-        { id: 'var-19', productId: 'prod-shoe-3', sizeOrShoeSize: '39', color: 'Blanc & Or Rose', sku: 'SNEAK-WHT-39', stockQuantity: 6, priceAdjustment: 0 },
-        { id: 'var-20', productId: 'prod-shoe-3', sizeOrShoeSize: '41', color: 'Blanc & Or Rose', sku: 'SNEAK-WHT-41', stockQuantity: 2, priceAdjustment: 0 }
+        { id: 'var-m290-37', productId: 'prod-shoe-2', sizeOrShoeSize: '37', color: 'Noir Verni', sku: 'M290-BLK-37', stockQuantity: 6, priceAdjustment: 0 },
+        { id: 'var-m290-38', productId: 'prod-shoe-2', sizeOrShoeSize: '38', color: 'Noir Verni', sku: 'M290-BLK-38', stockQuantity: 8, priceAdjustment: 0 },
+        { id: 'var-m290-39', productId: 'prod-shoe-2', sizeOrShoeSize: '39', color: 'Noir Verni', sku: 'M290-BLK-39', stockQuantity: 7, priceAdjustment: 0 },
+        { id: 'var-m290-40', productId: 'prod-shoe-2', sizeOrShoeSize: '40', color: 'Noir Verni', sku: 'M290-BLK-40', stockQuantity: 5, priceAdjustment: 0 },
+        { id: 'var-m290-41', productId: 'prod-shoe-2', sizeOrShoeSize: '41', color: 'Noir Verni', sku: 'M290-BLK-41', stockQuantity: 4, priceAdjustment: 0 },
+        { id: 'var-m290-42', productId: 'prod-shoe-2', sizeOrShoeSize: '42', color: 'Noir Verni', sku: 'M290-BLK-42', stockQuantity: 3, priceAdjustment: 0 },
+        { id: 'var-m290-wn-38', productId: 'prod-shoe-2', sizeOrShoeSize: '38', color: 'Wine (Bordeaux)', sku: 'M290-WIN-38', stockQuantity: 5, priceAdjustment: 0 },
+        { id: 'var-m290-wn-39', productId: 'prod-shoe-2', sizeOrShoeSize: '39', color: 'Wine (Bordeaux)', sku: 'M290-WIN-39', stockQuantity: 6, priceAdjustment: 0 },
+        { id: 'var-m290-cf-38', productId: 'prod-shoe-2', sizeOrShoeSize: '38', color: 'Coffee (Marron)', sku: 'M290-COF-38', stockQuantity: 6, priceAdjustment: 0 },
+        { id: 'var-m290-gd-38', productId: 'prod-shoe-2', sizeOrShoeSize: '38', color: 'Doré Lumineux', sku: 'M290-GLD-38', stockQuantity: 5, priceAdjustment: 0 }
       ],
       images: [
-        { id: 'img-6', productId: 'prod-shoe-3', minioUrl: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=800&q=80', altText: 'Baskets tendances blanches Jumelles', isPrimary: true }
+        { id: 'img-m290-1', productId: 'prod-shoe-2', minioUrl: '/products/mules-talon-290-collection.jpg', altText: 'Collection mules talon confort 290-1', isPrimary: true }
+      ]
+    },
+
+    // 7. SANDALES PLATES CUIR VERNI CROISÉ
+    {
+      id: 'prod-shoe-3',
+      categoryId: 'cat-shoe-2',
+      name: 'Sandales Plates Nu-Pieds en Cuir Verni Croisé',
+      slug: 'sandales-plates-cuir-verni-croise',
+      description: 'Sandales estivales plates confectionnées en cuir verni premium avec empiècements à brides croisées sur le cou-de-pied. Semelle avec surpiqûre dorée et boîte griffée.',
+      basePrice: 26000,
+      isActive: true,
+      isFeatured: false,
+      variants: [
+        { id: 'var-pl-37', productId: 'prod-shoe-3', sizeOrShoeSize: '37', color: 'Bordeaux Verni', sku: 'PLAT-BUR-37', stockQuantity: 7, priceAdjustment: 0 },
+        { id: 'var-pl-38', productId: 'prod-shoe-3', sizeOrShoeSize: '38', color: 'Bordeaux Verni', sku: 'PLAT-BUR-38', stockQuantity: 10, priceAdjustment: 0 },
+        { id: 'var-pl-39', productId: 'prod-shoe-3', sizeOrShoeSize: '39', color: 'Bordeaux Verni', sku: 'PLAT-BUR-39', stockQuantity: 8, priceAdjustment: 0 },
+        { id: 'var-pl-40', productId: 'prod-shoe-3', sizeOrShoeSize: '40', color: 'Bordeaux Verni', sku: 'PLAT-BUR-40', stockQuantity: 6, priceAdjustment: 0 },
+        { id: 'var-pl-41', productId: 'prod-shoe-3', sizeOrShoeSize: '41', color: 'Bordeaux Verni', sku: 'PLAT-BUR-41', stockQuantity: 5, priceAdjustment: 0 },
+        { id: 'var-pl-42', productId: 'prod-shoe-3', sizeOrShoeSize: '42', color: 'Bordeaux Verni', sku: 'PLAT-BUR-42', stockQuantity: 4, priceAdjustment: 0 },
+        { id: 'var-pl-cog-38', productId: 'prod-shoe-3', sizeOrShoeSize: '38', color: 'Cognac / Camel', sku: 'PLAT-COG-38', stockQuantity: 9, priceAdjustment: 0 },
+        { id: 'var-pl-cog-39', productId: 'prod-shoe-3', sizeOrShoeSize: '39', color: 'Cognac / Camel', sku: 'PLAT-COG-39', stockQuantity: 7, priceAdjustment: 0 },
+        { id: 'var-pl-wht-38', productId: 'prod-shoe-3', sizeOrShoeSize: '38', color: 'Blanc Épuré', sku: 'PLAT-WHT-38', stockQuantity: 8, priceAdjustment: 0 },
+        { id: 'var-pl-blk-38', productId: 'prod-shoe-3', sizeOrShoeSize: '38', color: 'Noir Intense', sku: 'PLAT-BLK-38', stockQuantity: 8, priceAdjustment: 0 }
+      ],
+      images: [
+        { id: 'img-pl-1', productId: 'prod-shoe-3', minioUrl: '/products/sandales-plates-croisees-collection.jpg', altText: 'Sandales plates croisées collection', isPrimary: true },
+        { id: 'img-pl-2', productId: 'prod-shoe-3', minioUrl: '/products/sandales-plates-bordeaux-detail.jpg', altText: 'Détail sandales bordeaux', isPrimary: false }
+      ]
+    },
+
+    // 8. TONGS CHICS EN CUIR & MÉDAILLON LOGO DORÉ
+    {
+      id: 'prod-shoe-4',
+      categoryId: 'cat-shoe-2',
+      name: 'Tongs Chics en Cuir & Médaillon Logo Doré',
+      slug: 'tongs-chics-cuir-medaillon-logo-dore',
+      description: 'L\'élégance décontractée à son zénith. Entredoigt en cuir véritable souple orné d\'un médaillon bijou doré poli. Semelle gravée, livrée dans son coffret luxe avec ruban de soie.',
+      basePrice: 29000,
+      isActive: true,
+      isFeatured: true,
+      variants: [
+        { id: 'var-tng-37', productId: 'prod-shoe-4', sizeOrShoeSize: '37', color: 'Doré Miroir', sku: 'TNG-GLD-37', stockQuantity: 6, priceAdjustment: 0 },
+        { id: 'var-tng-38', productId: 'prod-shoe-4', sizeOrShoeSize: '38', color: 'Doré Miroir', sku: 'TNG-GLD-38', stockQuantity: 9, priceAdjustment: 0 },
+        { id: 'var-tng-39', productId: 'prod-shoe-4', sizeOrShoeSize: '39', color: 'Doré Miroir', sku: 'TNG-GLD-39', stockQuantity: 8, priceAdjustment: 0 },
+        { id: 'var-tng-40', productId: 'prod-shoe-4', sizeOrShoeSize: '40', color: 'Doré Miroir', sku: 'TNG-GLD-40', stockQuantity: 5, priceAdjustment: 0 },
+        { id: 'var-tng-41', productId: 'prod-shoe-4', sizeOrShoeSize: '41', color: 'Doré Miroir', sku: 'TNG-GLD-41', stockQuantity: 4, priceAdjustment: 0 },
+        { id: 'var-tng-42', productId: 'prod-shoe-4', sizeOrShoeSize: '42', color: 'Doré Miroir', sku: 'TNG-GLD-42', stockQuantity: 3, priceAdjustment: 0 },
+        { id: 'var-tng-blk-38', productId: 'prod-shoe-4', sizeOrShoeSize: '38', color: 'Noir Intense', sku: 'TNG-BLK-38', stockQuantity: 8, priceAdjustment: 0 },
+        { id: 'var-tng-bur-38', productId: 'prod-shoe-4', sizeOrShoeSize: '38', color: 'Bordeaux Framboise', sku: 'TNG-BUR-38', stockQuantity: 7, priceAdjustment: 0 }
+      ],
+      images: [
+        { id: 'img-tng-1', productId: 'prod-shoe-4', minioUrl: '/products/tongs-cuir-bijou-dore.jpg', altText: 'Tongs cuir doré bijou', isPrimary: true },
+        { id: 'img-tng-2', productId: 'prod-shoe-4', minioUrl: '/products/tongs-cuir-bijou-noir.jpg', altText: 'Tongs cuir noir boîte luxe', isPrimary: false },
+        { id: 'img-tng-3', productId: 'prod-shoe-4', minioUrl: '/products/tongs-cuir-bijou-bordeaux.jpg', altText: 'Tongs cuir bordeaux', isPrimary: false },
+        { id: 'img-tng-4', productId: 'prod-shoe-4', minioUrl: '/products/claquettes-noeud-bijou-collection.jpg', altText: 'Claquettes noeud bijou', isPrimary: false }
       ]
     }
   ] as Product[],
@@ -231,21 +327,21 @@ export const memoryStore = {
       orderNumber: 'JUM-2026-0001',
       customerName: 'Fatou Ndiaye',
       customerEmail: 'fatou.ndiaye@example.com',
-      customerPhone: '+221 77 123 45 67',
+      customerPhone: '+221 77 208 78 20',
       shippingAddress: 'Almadies, Villa 42 en face pharmacie',
       shippingCity: 'Dakar',
-      totalAmount: 45000,
+      totalAmount: 65000,
       status: 'PAID',
       items: [
         {
           id: 'item-1',
           orderId: 'ord-1001',
-          productVariantId: 'var-1',
-          productName: 'Sac Cabas Royal Croco « Jumelles Élégance »',
-          variantDetails: 'Noir Onyx / Taille Standard',
+          productVariantId: 'var-birk-1',
+          productName: 'Sac à Main Prestige Cuir Epsom & Cadenas Métallique',
+          variantDetails: 'Camel Caramel / Format Médium (30cm)',
           quantity: 1,
-          unitPrice: 45000,
-          totalPrice: 45000
+          unitPrice: 65000,
+          totalPrice: 65000
         }
       ],
       createdAt: new Date().toISOString()
@@ -259,7 +355,7 @@ export const memoryStore = {
       provider: 'WAVE',
       transactionReference: 'WAVE-REF-JUM-9841',
       operatorTransactionId: 'WV_TXN_88492048',
-      amount: 45000,
+      amount: 65000,
       currency: 'XOF',
       status: 'SUCCESSFUL',
       paymentUrl: 'https://pay.wave.com/c/mock-jumelles-001',
@@ -267,4 +363,3 @@ export const memoryStore = {
     }
   ] as PaymentTransaction[]
 };
-
