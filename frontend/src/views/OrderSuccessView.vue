@@ -144,35 +144,108 @@
       <!-- ============================================== -->
       <!-- SECTION ORANGE MONEY                           -->
       <!-- ============================================== -->
-      <div v-else class="space-y-5">
-        <a
-          :href="paymentUrl"
-          target="_blank"
-          class="w-full py-4 px-6 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-800 text-white font-black text-sm sm:text-base rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3"
-        >
-          <span class="text-2xl">📱</span>
-          <span>Valider avec Orange Money ({{ formatPrice(amount) }})</span>
-        </a>
+      <div v-else class="space-y-4">
+        <!-- 1. BOUTONS MOBILES ORANGE MONEY -->
+        <div class="space-y-2.5">
+          <button
+            @click="openOrangeMoneyApp"
+            type="button"
+            class="w-full py-4 px-4 bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600 hover:from-orange-700 hover:to-orange-800 text-white font-black text-sm rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2.5 active:scale-98 cursor-pointer"
+          >
+            <span class="text-xl">🍊</span>
+            <span>Ouvrir l'application Orange Money</span>
+            <span class="bg-white/20 px-2.5 py-0.5 rounded-lg text-xs font-black">{{ formatPrice(amount) }}</span>
+          </button>
 
-        <div class="bg-orange-50/70 border border-orange-200 rounded-2xl p-4 space-y-3 text-xs">
-          <p class="font-bold text-orange-950">Option Transfert direct Orange Money :</p>
-          <div class="flex items-center justify-between pb-2 border-b border-orange-100">
-            <span class="text-stone-600">Numéro Boutique :</span>
-            <div class="flex items-center gap-2">
-              <span class="font-mono font-black text-orange-950">{{ boutiquePhone }}</span>
-              <button
-                @click="copyText(boutiquePhoneClean, 'phone')"
-                class="px-2 py-0.5 text-[10px] font-bold bg-white text-orange-800 border border-orange-300 rounded"
-              >
-                {{ copiedKey === 'phone' ? '✓ Copié' : 'Copier' }}
-              </button>
-            </div>
-          </div>
-          <div class="flex items-center justify-between">
-            <span class="text-stone-600">Montant :</span>
-            <span class="font-serif font-black text-orange-950">{{ formatPrice(amount) }}</span>
+          <!-- Bouton Code Rapide USSD #144# -->
+          <a
+            href="tel:*144%23"
+            @click="copyText(boutiquePhoneLocal, 'phone')"
+            class="w-full py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center gap-2"
+          >
+            <span>📞</span>
+            <span>Composer le #144# (Menu Rapide Orange Money)</span>
+          </a>
+
+          <div
+            v-if="omNotice"
+            class="mt-2.5 p-2.5 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-xl text-xs font-bold text-center shadow-sm"
+          >
+            {{ omNotice }}
           </div>
         </div>
+
+        <!-- 2. Carte Élégante & Alignée Orange Money (Fary Dione • 77 208 78 20) -->
+        <div class="bg-gradient-to-br from-orange-50/90 to-amber-50/50 border border-orange-200/90 rounded-3xl p-4 sm:p-5 space-y-3 shadow-sm">
+          <div class="flex items-center gap-2 pb-2 border-b border-orange-200/60">
+            <span class="text-base">📋</span>
+            <span class="text-xs font-black text-orange-950 uppercase tracking-wider">Informations de transfert Orange Money</span>
+          </div>
+
+          <!-- Ligne 1 : Nom du Compte OM (Fary Dione) -->
+          <div class="bg-white rounded-2xl p-3 border border-orange-100 flex items-center justify-between shadow-xs">
+            <div class="space-y-0.5">
+              <span class="text-[10px] uppercase tracking-wider text-stone-400 font-bold block">1. Nom du compte OM</span>
+              <span class="font-bold text-stone-900 text-sm sm:text-base">{{ boutiqueName }}</span>
+            </div>
+            <button
+              @click="copyText(boutiqueName, 'name')"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
+              :class="copiedKey === 'name' ? 'bg-emerald-600 text-white shadow' : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200'"
+            >
+              {{ copiedKey === 'name' ? '✓ Copié !' : 'Copier Nom' }}
+            </button>
+          </div>
+
+          <!-- Ligne 2 : Numéro Orange Money (77 208 78 20) -->
+          <div class="bg-white rounded-2xl p-3 border-2 border-orange-500/40 flex items-center justify-between shadow-xs">
+            <div class="space-y-0.5">
+              <span class="text-[10px] uppercase tracking-wider text-orange-700 font-bold block">2. Téléphone Orange Money</span>
+              <span class="font-mono font-black text-orange-950 text-base sm:text-lg tracking-wide">77 208 78 20</span>
+            </div>
+            <button
+              @click="copyText(boutiquePhoneLocal, 'phone')"
+              class="px-3.5 py-2 rounded-xl text-xs font-black shadow transition-all shrink-0 cursor-pointer"
+              :class="copiedKey === 'phone' ? 'bg-emerald-600 text-white ring-2 ring-emerald-300' : 'bg-orange-600 hover:bg-orange-700 text-white'"
+            >
+              {{ copiedKey === 'phone' ? '✓ Copié !' : 'Copier Numéro' }}
+            </button>
+          </div>
+
+          <!-- Ligne 3 : Montant exact -->
+          <div class="bg-white rounded-2xl p-3 border border-orange-100 flex items-center justify-between shadow-xs">
+            <div class="space-y-0.5">
+              <span class="text-[10px] uppercase tracking-wider text-stone-400 font-bold block">3. Montant à envoyer</span>
+              <span class="font-serif font-black text-stone-950 text-base sm:text-lg text-gold-700">{{ formatPrice(amount) }}</span>
+            </div>
+            <button
+              @click="copyText(amount.toString(), 'amount')"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
+              :class="copiedKey === 'amount' ? 'bg-emerald-600 text-white shadow' : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200'"
+            >
+              {{ copiedKey === 'amount' ? '✓ Copié !' : 'Copier Montant' }}
+            </button>
+          </div>
+
+          <!-- Ligne 4 : Référence Commande -->
+          <div class="bg-white rounded-2xl p-3 border border-orange-100 flex items-center justify-between shadow-xs">
+            <div class="space-y-0.5">
+              <span class="text-[10px] uppercase tracking-wider text-stone-400 font-bold block">4. Référence commande</span>
+              <span class="font-mono font-bold text-stone-800 text-xs sm:text-sm">{{ orderNumber }}</span>
+            </div>
+            <button
+              @click="copyText(orderNumber, 'ref')"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
+              :class="copiedKey === 'ref' ? 'bg-emerald-600 text-white shadow' : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200'"
+            >
+              {{ copiedKey === 'ref' ? '✓ Copié !' : 'Copier' }}
+            </button>
+          </div>
+        </div>
+
+        <p class="text-[11px] text-stone-500 text-center">
+          Effectuez le transfert vers le <strong>77 208 78 20 (Fary Dione)</strong> puis cliquez sur le bouton vert ci-dessous pour confirmer sur WhatsApp.
+        </p>
       </div>
 
       <!-- ============================================== -->
@@ -243,6 +316,7 @@ const boutiquePhoneLocal = ref('772087820');
 const boutiquePhoneClean = ref('221772087820');
 
 const waveNotice = ref('');
+const omNotice = ref('');
 const copiedKey = ref<string | null>(null);
 
 const fallbackCopy = (text: string): boolean => {
@@ -309,11 +383,24 @@ const openWaveApp = async () => {
   }, 180);
 };
 
+const openOrangeMoneyApp = async () => {
+  // Copier le numéro 77 208 78 20 pour le transfert Orange Money
+  await executeCopy(boutiquePhoneLocal.value);
+  copiedKey.value = 'phone';
+  omNotice.value = `✓ Numéro 77 208 78 20 copié ! Collez-le dans Orange Money.`;
+
+  setTimeout(() => {
+    // Tente d'ouvrir l'application Orange Money Max It (ou Orange Money Afrique)
+    window.location.href = 'maxit://';
+  }, 180);
+};
+
 const showQrCode = ref(false);
 
 const whatsappConfirmationUrl = computed(() => {
+  const providerLabel = provider.value === 'ORANGE_MONEY' ? 'Orange Money' : 'Wave';
   const msg = encodeURIComponent(
-    `Bonjour Jumelles Store, je viens d'effectuer le paiement Wave de ${formatPrice(amount.value)} pour ma commande n° ${orderNumber.value}. Pouvez-vous confirmer la réception ?`
+    `Bonjour Jumelles Store, je viens d'effectuer le paiement ${providerLabel} de ${formatPrice(amount.value)} pour ma commande n° ${orderNumber.value}. Pouvez-vous confirmer la réception ?`
   );
   return `https://wa.me/${boutiquePhoneClean.value}?text=${msg}`;
 });
