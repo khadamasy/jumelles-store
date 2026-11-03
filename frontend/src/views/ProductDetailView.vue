@@ -30,8 +30,8 @@
             :alt="product.name"
             class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
           />
-          <div class="absolute bottom-4 right-4 bg-stone-950/80 backdrop-blur-md text-gold-400 text-[10px] font-bold px-3 py-1.5 rounded-full border border-gold-400/30">
-            Stockage MinIO S3
+          <div class="absolute bottom-4 right-4 bg-stone-950/80 backdrop-blur-md text-gold-400 text-[10px] font-bold px-3 py-1.5 rounded-full border border-gold-400/30 shadow-md">
+            ✨ Maison Jumelles • Dakar
           </div>
         </div>
 

@@ -4,9 +4,9 @@ import { initMinioBuckets } from './config/minio';
 
 dotenv.config();
 
-const PORT = process.env.PORT || 4000;
+const PORT = Number(process.env.PORT) || 4000;
 
-app.listen(PORT, async () => {
+app.listen(PORT, '0.0.0.0', async () => {
   console.log(`=======================================================`);
   console.log(`🚀 API JUMELLES STORE DÉMARRÉE SUR LE PORT : ${PORT}`);
   console.log(`📍 Endpoint de santé : http://localhost:${PORT}/health`);

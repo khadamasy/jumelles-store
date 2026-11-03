@@ -1,6 +1,18 @@
 import axios from 'axios';
 
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const resolveApiUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  // En mode navigateur (PC ou téléphone mobile connecté en Wi-Fi 192.168.x.x) :
+  // Utiliser le chemin relatif '/api' qui passe par le proxy Vite et résout automatiquement l'IP du serveur
+  if (typeof window !== 'undefined' && window.location) {
+    return '/api';
+  }
+  return 'http://localhost:4000/api';
+};
+
+export const API_URL = resolveApiUrl();
 
 export const apiClient = axios.create({
   baseURL: API_URL,
