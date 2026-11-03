@@ -43,66 +43,62 @@
         <div class="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-sm space-y-6">
           <div class="flex items-center gap-3 border-b border-stone-100 pb-4">
             <span class="w-8 h-8 rounded-full bg-stone-900 text-gold-400 font-bold flex items-center justify-center text-sm">1</span>
-            <h2 class="font-serif text-lg font-bold text-stone-900">Adresse de Livraison</h2>
+            <div>
+              <h2 class="font-serif text-lg font-bold text-stone-900">Coordonnées de Livraison</h2>
+              <p class="text-xs text-stone-500">Renseignez vos coordonnées pour la réception de votre commande</p>
+            </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="sm:col-span-2">
-              <label class="block text-xs font-semibold text-stone-600 mb-1">Nom complet *</label>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-semibold text-stone-700 mb-1">Votre Nom complet *</label>
               <input
                 v-model="form.customerName"
                 type="text"
                 placeholder="Ex: Awa Diop"
-                class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 outline-none"
+                class="w-full px-4 py-3 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 outline-none"
                 required
               />
             </div>
 
             <div>
-              <label class="block text-xs font-semibold text-stone-600 mb-1">Téléphone (Wave / OM) *</label>
+              <label class="block text-xs font-semibold text-stone-700 mb-1">Votre Numéro de Téléphone (Appels / WhatsApp) *</label>
               <input
                 v-model="form.customerPhone"
                 type="tel"
-                placeholder="+221 77 208 78 20"
-                class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 outline-none"
+                placeholder="Ex: 77 123 45 67 ou 78 234 56 78"
+                class="w-full px-4 py-3 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 outline-none"
                 required
               />
+              <p class="text-[11px] text-stone-500 mt-1">Le livreur vous appellera sur ce numéro avant la livraison.</p>
             </div>
 
-            <div>
-              <label class="block text-xs font-semibold text-stone-600 mb-1">Adresse E-mail *</label>
-              <input
-                v-model="form.customerEmail"
-                type="email"
-                placeholder="awa.diop@example.com"
-                class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 outline-none"
-                required
-              />
-            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-stone-700 mb-1">Ville de Livraison *</label>
+                <select
+                  v-model="form.shippingCity"
+                  class="w-full px-4 py-3 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 outline-none bg-white"
+                >
+                  <option value="Dakar">Dakar (Plateau, Almadies, Mermoz...)</option>
+                  <option value="Banlieue Dakar">Banlieue (Pikine, Guédiawaye, Rufisque)</option>
+                  <option value="Thiès">Thiès</option>
+                  <option value="Saint-Louis">Saint-Louis</option>
+                  <option value="Mbour / Saly">Mbour / Saly</option>
+                  <option value="Autre région">Autre Région du Sénégal</option>
+                </select>
+              </div>
 
-            <div>
-              <label class="block text-xs font-semibold text-stone-600 mb-1">Ville de Livraison *</label>
-              <select
-                v-model="form.shippingCity"
-                class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 outline-none bg-white"
-              >
-                <option value="Dakar">Dakar (Plateau, Almadies, Mermoz...)</option>
-                <option value="Pikine / Guédiawaye">Banlieue (Pikine, Guédiawaye, Rufisque)</option>
-                <option value="Thiès">Thiès</option>
-                <option value="Saint-Louis">Saint-Louis</option>
-                <option value="Autre région">Autre Région du Sénégal</option>
-              </select>
-            </div>
-
-            <div>
-              <label class="block text-xs font-semibold text-stone-600 mb-1">Quartier & Précisions *</label>
-              <input
-                v-model="form.shippingAddress"
-                type="text"
-                placeholder="Ex: Almadies, Villa 12 en face pharmacie"
-                class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 outline-none"
-                required
-              />
+              <div>
+                <label class="block text-xs font-semibold text-stone-700 mb-1">Quartier & Précisions *</label>
+                <input
+                  v-model="form.shippingAddress"
+                  type="text"
+                  placeholder="Ex: Almadies, face pharmacie ou Mermoz"
+                  class="w-full px-4 py-3 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 outline-none"
+                  required
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -111,7 +107,28 @@
         <div class="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-sm space-y-6">
           <div class="flex items-center gap-3 border-b border-stone-100 pb-4">
             <span class="w-8 h-8 rounded-full bg-stone-900 text-gold-400 font-bold flex items-center justify-center text-sm">2</span>
-            <h2 class="font-serif text-lg font-bold text-stone-900">Mode de Paiement Sécurisé</h2>
+            <div>
+              <h2 class="font-serif text-lg font-bold text-stone-900">Mode de Paiement Sécurisé</h2>
+              <p class="text-xs text-stone-500">Paiement direct sécurisé Wave ou Orange Money</p>
+            </div>
+          </div>
+
+          <!-- Encadré fixe et rassurant : numéro officiel de réception de la boutique -->
+          <div class="bg-amber-50/80 border border-amber-200/90 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">📱</span>
+              <div>
+                <p class="font-bold text-amber-950 text-sm">Numéro Officiel de Transfert de la Boutique :</p>
+                <p class="text-stone-700 text-xs mt-0.5">
+                  Numéro : <strong class="text-stone-950 font-mono text-sm">77 208 78 20</strong>
+                  <span class="mx-1 text-stone-400">•</span>
+                  Titulaire Wave : <strong class="text-stone-950 font-bold">Fary Dione</strong>
+                </p>
+              </div>
+            </div>
+            <span class="self-start sm:self-center shrink-0 text-[10px] font-bold bg-amber-200/70 text-amber-900 px-2.5 py-1 rounded-full uppercase tracking-wider">
+              Compte Vérifié
+            </span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -284,17 +301,20 @@ const formatPrice = (price: number) => {
 };
 
 const handleCheckout = async () => {
-  if (!form.customerName || !form.customerEmail || !form.customerPhone || !form.shippingAddress) {
-    alert('Veuillez renseigner toutes vos coordonnées de livraison.');
+  if (!form.customerName || !form.customerPhone || !form.shippingAddress) {
+    alert('Veuillez renseigner votre nom, téléphone et adresse de livraison.');
     return;
   }
 
   isSubmitting.value = true;
   try {
+    const cleanPhone = form.customerPhone.replace(/\D/g, '');
+    const clientEmail = form.customerEmail?.trim() || `${cleanPhone || 'client'}@client.jumelles.sn`;
+
     // 1. Création de la commande sur l'API Node.js
     const orderPayload = {
       customerName: form.customerName,
-      customerEmail: form.customerEmail,
+      customerEmail: clientEmail,
       customerPhone: form.customerPhone,
       shippingCity: form.shippingCity,
       shippingAddress: form.shippingAddress,

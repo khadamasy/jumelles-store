@@ -5,7 +5,7 @@ import { AuthenticatedRequest } from '../middlewares/authMiddleware';
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
-    const {
+    let {
       customerName,
       customerEmail,
       customerPhone,
@@ -14,9 +14,14 @@ export const createOrder = async (req: Request, res: Response) => {
       items,
     } = req.body;
 
+    // Email facultatif pour le client : génération automatique si non renseigné
+    if (!customerEmail || customerEmail.trim() === '') {
+      const cleanDigits = customerPhone ? customerPhone.replace(/\D/g, '') : 'client';
+      customerEmail = `${cleanDigits}@client.jumelles.sn`;
+    }
+
     if (
       !customerName ||
-      !customerEmail ||
       !customerPhone ||
       !shippingAddress ||
       !shippingCity ||
