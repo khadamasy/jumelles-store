@@ -64,13 +64,13 @@
           <div class="flex items-center justify-between pb-2 border-b border-blue-100 text-xs">
             <span class="font-bold text-stone-600">Numéro de la boutique :</span>
             <div class="flex items-center gap-2">
-              <span class="font-mono font-black text-blue-950 text-sm">{{ boutiquePhone }}</span>
+              <span class="font-mono font-black text-blue-950 text-sm select-all">{{ boutiquePhone }}</span>
               <button
                 @click="copyText(boutiquePhoneClean, 'phone')"
-                class="px-2.5 py-1 text-[11px] font-bold rounded-lg border transition-all"
-                :class="copiedKey === 'phone' ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-blue-700 border-blue-300 hover:bg-blue-100'"
+                class="px-2.5 py-1 text-[11px] font-bold rounded-lg border transition-all cursor-pointer"
+                :class="copiedKey === 'phone' ? 'bg-emerald-600 text-white border-emerald-600 ring-2 ring-emerald-300' : 'bg-white text-blue-700 border-blue-300 hover:bg-blue-100'"
               >
-                {{ copiedKey === 'phone' ? '✓ Copié' : 'Copier' }}
+                {{ copiedKey === 'phone' ? '✓ Copié !' : 'Copier' }}
               </button>
             </div>
           </div>
@@ -78,13 +78,13 @@
           <div class="flex items-center justify-between pb-2 border-b border-blue-100 text-xs">
             <span class="font-bold text-stone-600">Montant exact :</span>
             <div class="flex items-center gap-2">
-              <span class="font-mono font-black text-blue-950 text-sm">{{ formatPrice(amount) }}</span>
+              <span class="font-mono font-black text-blue-950 text-sm select-all">{{ formatPrice(amount) }}</span>
               <button
                 @click="copyText(amount.toString(), 'amount')"
-                class="px-2.5 py-1 text-[11px] font-bold rounded-lg border transition-all"
-                :class="copiedKey === 'amount' ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-blue-700 border-blue-300 hover:bg-blue-100'"
+                class="px-2.5 py-1 text-[11px] font-bold rounded-lg border transition-all cursor-pointer"
+                :class="copiedKey === 'amount' ? 'bg-emerald-600 text-white border-emerald-600 ring-2 ring-emerald-300' : 'bg-white text-blue-700 border-blue-300 hover:bg-blue-100'"
               >
-                {{ copiedKey === 'amount' ? '✓ Copié' : 'Copier' }}
+                {{ copiedKey === 'amount' ? '✓ Copié !' : 'Copier' }}
               </button>
             </div>
           </div>
@@ -92,13 +92,13 @@
           <div class="flex items-center justify-between text-xs">
             <span class="font-bold text-stone-600">Référence commande :</span>
             <div class="flex items-center gap-2">
-              <span class="font-mono font-bold text-stone-800">{{ orderNumber }}</span>
+              <span class="font-mono font-bold text-stone-800 select-all">{{ orderNumber }}</span>
               <button
                 @click="copyText(orderNumber, 'ref')"
-                class="px-2.5 py-1 text-[11px] font-bold rounded-lg border transition-all"
-                :class="copiedKey === 'ref' ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-blue-700 border-blue-300 hover:bg-blue-100'"
+                class="px-2.5 py-1 text-[11px] font-bold rounded-lg border transition-all cursor-pointer"
+                :class="copiedKey === 'ref' ? 'bg-emerald-600 text-white border-emerald-600 ring-2 ring-emerald-300' : 'bg-white text-blue-700 border-blue-300 hover:bg-blue-100'"
               >
-                {{ copiedKey === 'ref' ? '✓ Copié' : 'Copier' }}
+                {{ copiedKey === 'ref' ? '✓ Copié !' : 'Copier' }}
               </button>
             </div>
           </div>
@@ -220,38 +220,72 @@ const boutiquePhone = ref((route.query.boutiquePhone as string) || '+221 77 208 
 const boutiquePhoneClean = ref('221772087820');
 
 const waveNotice = ref('');
+const copiedKey = ref<string | null>(null);
+
+const fallbackCopy = (text: string): boolean => {
+  try {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.top = '0';
+    textArea.style.left = '0';
+    textArea.style.width = '2em';
+    textArea.style.height = '2em';
+    textArea.style.padding = '0';
+    textArea.style.border = 'none';
+    textArea.style.outline = 'none';
+    textArea.style.boxShadow = 'none';
+    textArea.style.background = 'transparent';
+    textArea.setAttribute('readonly', '');
+
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    textArea.setSelectionRange(0, 99999);
+
+    const successful = document.execCommand('copy');
+    document.body.removeChild(textArea);
+    return successful;
+  } catch (err) {
+    console.warn('Erreur fallback copy:', err);
+    return false;
+  }
+};
+
+const executeCopy = async (text: string): Promise<boolean> => {
+  // 1. Essayer avec l'API standard navigator.clipboard si disponible et autorisée
+  if (typeof navigator !== 'undefined' && navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (e) {
+      // Passer au fallback ci-dessous
+    }
+  }
+  // 2. Méthode universelle de secours (fonctionne 100% sur mobile en Wi-Fi HTTP 192.168.x.x et Safari)
+  return fallbackCopy(text);
+};
+
+const copyText = async (text: string, key: string) => {
+  await executeCopy(text);
+  copiedKey.value = key;
+  setTimeout(() => {
+    copiedKey.value = null;
+  }, 2500);
+};
 
 const openWaveApp = async () => {
-  try {
-    // 1. Copie automatique du numéro officiel de la boutique dans le presse-papiers
-    await navigator.clipboard.writeText(boutiquePhoneClean.value);
-    copiedKey.value = 'phone';
-    waveNotice.value = `✓ Numéro ${boutiquePhone.value} copié ! Ouverture de Wave...`;
-  } catch (err) {
-    console.warn('Presse-papiers non accessible:', err);
-  }
+  await executeCopy(boutiquePhoneClean.value);
+  copiedKey.value = 'phone';
+  waveNotice.value = `✓ Numéro ${boutiquePhone.value} copié dans votre presse-papiers !`;
 
-  // 2. Ouvrir l'application native Wave sur iPhone et Android
-  // Sur iOS Safari et Android Chrome, wave:// lance l'application Wave
+  // Ouvrir l'application Wave native sur le téléphone
   setTimeout(() => {
     window.location.href = 'wave://';
-  }, 150);
+  }, 180);
 };
 
 const showQrCode = ref(false);
-const copiedKey = ref<string | null>(null);
-
-const copyText = async (text: string, key: string) => {
-  try {
-    await navigator.clipboard.writeText(text);
-    copiedKey.value = key;
-    setTimeout(() => {
-      copiedKey.value = null;
-    }, 2500);
-  } catch (e) {
-    console.error('Erreur copie:', e);
-  }
-};
 
 const whatsappConfirmationUrl = computed(() => {
   const msg = encodeURIComponent(
