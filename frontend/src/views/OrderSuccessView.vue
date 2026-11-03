@@ -37,16 +37,17 @@
       <!-- ============================================== -->
       <!-- SECTION WAVE : OUVERTURE DIRECTE PRÉ-REMPLIE    -->
       <!-- ============================================== -->
-      <div v-if="provider === 'WAVE'" class="space-y-5">
-        <!-- 1. GROS BOUTON MOBILE PRIORITAIRE : Ouvre Wave et copie le numéro -->
+      <div v-if="provider === 'WAVE'" class="space-y-4">
+        <!-- 1. GROS BOUTON MOBILE PRINCIPAL -->
         <div>
           <button
             @click="openWaveApp"
             type="button"
-            class="w-full py-4 px-6 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 hover:from-blue-700 hover:to-blue-800 text-white font-black text-sm sm:text-base rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3 transform active:scale-95 cursor-pointer"
+            class="w-full py-4 px-4 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 hover:from-blue-700 hover:to-blue-800 text-white font-black text-sm rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2.5 active:scale-98 cursor-pointer"
           >
-            <span class="text-2xl">📱</span>
-            <span>Ouvrir l'application Wave ({{ formatPrice(amount) }})</span>
+            <span class="text-xl">🌊</span>
+            <span>Ouvrir l'application Wave</span>
+            <span class="bg-white/20 px-2.5 py-0.5 rounded-lg text-xs font-black">{{ formatPrice(amount) }}</span>
           </button>
           <div
             v-if="waveNotice"
@@ -54,78 +55,73 @@
           >
             {{ waveNotice }}
           </div>
-          <p class="text-[11px] text-stone-500 text-center mt-2 font-medium">
-            En cliquant, le numéro <strong>{{ boutiquePhone }}</strong> et le montant sont copiés pour votre transfert Wave.
-          </p>
         </div>
 
-        <!-- 2. Récapitulatif clair avec boutons de copie en 1 clic -->
-        <div class="bg-blue-50/80 border border-blue-200 rounded-2xl p-4 space-y-3">
-          <p class="text-[11px] font-black text-blue-900 flex items-center gap-1.5 uppercase tracking-wider">
-            <span>💡</span> À renseigner dans Wave :
-          </p>
-
-          <!-- 1. Nom dans Wave -->
-          <div class="flex items-center justify-between pb-2 border-b border-blue-100 text-xs">
-            <span class="font-bold text-stone-600">1. Nom complet :</span>
-            <div class="flex items-center gap-2">
-              <span class="font-bold text-blue-950 text-xs select-all">{{ boutiqueName }}</span>
-              <button
-                @click="copyText(boutiqueName, 'name')"
-                class="px-2.5 py-1 text-[11px] font-bold rounded-lg border transition-all cursor-pointer"
-                :class="copiedKey === 'name' ? 'bg-emerald-600 text-white border-emerald-600 ring-2 ring-emerald-300' : 'bg-white text-blue-700 border-blue-300 hover:bg-blue-100'"
-              >
-                {{ copiedKey === 'name' ? '✓ Copié !' : 'Copier Nom' }}
-              </button>
-            </div>
+        <!-- 2. Carte Élégante & Alignée (Fary Dione • 77 208 78 20) -->
+        <div class="bg-gradient-to-br from-blue-50/90 to-sky-50/50 border border-blue-200/90 rounded-3xl p-4 sm:p-5 space-y-3 shadow-sm">
+          <div class="flex items-center gap-2 pb-2 border-b border-blue-200/60">
+            <span class="text-base">📋</span>
+            <span class="text-xs font-black text-blue-950 uppercase tracking-wider">Informations pour votre transfert Wave</span>
           </div>
 
-          <!-- 2. Numéro Wave (9 chiffres 772087820 pour coller directement après le +221) -->
-          <div class="flex items-center justify-between pb-2 border-b border-blue-100 text-xs">
-            <div>
-              <span class="font-bold text-stone-600 block">2. Téléphone Wave :</span>
-              <span class="text-[10px] text-blue-700 font-semibold">(Wave met déjà le +221)</span>
+          <!-- Ligne 1 : Nom du Compte Wave (Fary Dione) -->
+          <div class="bg-white rounded-2xl p-3 border border-blue-100 flex items-center justify-between shadow-xs">
+            <div class="space-y-0.5">
+              <span class="text-[10px] uppercase tracking-wider text-stone-400 font-bold block">1. Nom du compte Wave</span>
+              <span class="font-bold text-stone-900 text-sm sm:text-base">{{ boutiqueName }}</span>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="font-mono font-black text-blue-950 text-sm sm:text-base select-all">77 208 78 20</span>
-              <button
-                @click="copyText(boutiquePhoneLocal, 'phone')"
-                class="px-3 py-1.5 text-xs font-black rounded-lg border transition-all cursor-pointer shadow-sm"
-                :class="copiedKey === 'phone' ? 'bg-emerald-600 text-white border-emerald-600 ring-2 ring-emerald-300' : 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'"
-              >
-                {{ copiedKey === 'phone' ? '✓ Copié !' : 'Copier Numéro' }}
-              </button>
-            </div>
+            <button
+              @click="copyText(boutiqueName, 'name')"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
+              :class="copiedKey === 'name' ? 'bg-emerald-600 text-white shadow' : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200'"
+            >
+              {{ copiedKey === 'name' ? '✓ Copié !' : 'Copier Nom' }}
+            </button>
           </div>
 
-          <!-- 3. Montant exact -->
-          <div class="flex items-center justify-between pb-2 border-b border-blue-100 text-xs">
-            <span class="font-bold text-stone-600">3. Montant exact :</span>
-            <div class="flex items-center gap-2">
-              <span class="font-serif font-black text-blue-950 text-base select-all">{{ formatPrice(amount) }}</span>
-              <button
-                @click="copyText(amount.toString(), 'amount')"
-                class="px-2.5 py-1 text-[11px] font-bold rounded-lg border transition-all cursor-pointer"
-                :class="copiedKey === 'amount' ? 'bg-emerald-600 text-white border-emerald-600 ring-2 ring-emerald-300' : 'bg-white text-blue-700 border-blue-300 hover:bg-blue-100'"
-              >
-                {{ copiedKey === 'amount' ? '✓ Copié !' : 'Copier Montant' }}
-              </button>
+          <!-- Ligne 2 : Numéro Wave (77 208 78 20) -->
+          <div class="bg-white rounded-2xl p-3 border-2 border-blue-500/40 flex items-center justify-between shadow-xs">
+            <div class="space-y-0.5">
+              <span class="text-[10px] uppercase tracking-wider text-blue-700 font-bold block">2. Téléphone Wave</span>
+              <span class="font-mono font-black text-blue-950 text-base sm:text-lg tracking-wide">77 208 78 20</span>
             </div>
+            <button
+              @click="copyText(boutiquePhoneLocal, 'phone')"
+              class="px-3.5 py-2 rounded-xl text-xs font-black shadow transition-all shrink-0 cursor-pointer"
+              :class="copiedKey === 'phone' ? 'bg-emerald-600 text-white ring-2 ring-emerald-300' : 'bg-blue-600 hover:bg-blue-700 text-white'"
+            >
+              {{ copiedKey === 'phone' ? '✓ Copié !' : 'Copier Numéro' }}
+            </button>
           </div>
 
-          <!-- 4. Référence commande -->
-          <div class="flex items-center justify-between text-xs">
-            <span class="font-bold text-stone-600">4. Référence commande :</span>
-            <div class="flex items-center gap-2">
-              <span class="font-mono font-bold text-stone-800 select-all">{{ orderNumber }}</span>
-              <button
-                @click="copyText(orderNumber, 'ref')"
-                class="px-2.5 py-1 text-[11px] font-bold rounded-lg border transition-all cursor-pointer"
-                :class="copiedKey === 'ref' ? 'bg-emerald-600 text-white border-emerald-600 ring-2 ring-emerald-300' : 'bg-white text-blue-700 border-blue-300 hover:bg-blue-100'"
-              >
-                {{ copiedKey === 'ref' ? '✓ Copié !' : 'Copier' }}
-              </button>
+          <!-- Ligne 3 : Montant exact -->
+          <div class="bg-white rounded-2xl p-3 border border-blue-100 flex items-center justify-between shadow-xs">
+            <div class="space-y-0.5">
+              <span class="text-[10px] uppercase tracking-wider text-stone-400 font-bold block">3. Montant à envoyer</span>
+              <span class="font-serif font-black text-stone-950 text-base sm:text-lg text-gold-700">{{ formatPrice(amount) }}</span>
             </div>
+            <button
+              @click="copyText(amount.toString(), 'amount')"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
+              :class="copiedKey === 'amount' ? 'bg-emerald-600 text-white shadow' : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200'"
+            >
+              {{ copiedKey === 'amount' ? '✓ Copié !' : 'Copier Montant' }}
+            </button>
+          </div>
+
+          <!-- Ligne 4 : Référence Commande -->
+          <div class="bg-white rounded-2xl p-3 border border-blue-100 flex items-center justify-between shadow-xs">
+            <div class="space-y-0.5">
+              <span class="text-[10px] uppercase tracking-wider text-stone-400 font-bold block">4. Référence commande</span>
+              <span class="font-mono font-bold text-stone-800 text-xs sm:text-sm">{{ orderNumber }}</span>
+            </div>
+            <button
+              @click="copyText(orderNumber, 'ref')"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
+              :class="copiedKey === 'ref' ? 'bg-emerald-600 text-white shadow' : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200'"
+            >
+              {{ copiedKey === 'ref' ? '✓ Copié !' : 'Copier' }}
+            </button>
           </div>
         </div>
 
@@ -241,7 +237,7 @@ const amount = ref(parseFloat(route.query.amount as string) || 0);
 const qrCodeUrl = ref((route.query.qrCodeUrl as string) || '');
 const paymentUrl = ref((route.query.paymentUrl as string) || '');
 
-const boutiqueName = ref('Jumelles Store');
+const boutiqueName = ref('Fary Dione');
 const boutiquePhone = ref('+221 77 208 78 20');
 const boutiquePhoneLocal = ref('772087820');
 const boutiquePhoneClean = ref('221772087820');
