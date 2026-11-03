@@ -152,7 +152,7 @@
 
       <!-- Order Summary Card -->
       <div class="lg:col-span-5">
-        <div class="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-sm sticky top-28 space-y-6">
+        <div class="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-sm relative lg:sticky lg:top-28 space-y-6">
           <h3 class="font-serif text-lg font-bold text-stone-900 border-b border-stone-100 pb-4">
             Récapitulatif de la Commande
           </h3>

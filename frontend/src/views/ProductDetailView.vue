@@ -20,9 +20,9 @@
     </div>
 
     <!-- Product Layout -->
-    <div v-else-if="product" class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+    <div v-else-if="product" class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-start">
       <!-- Media Gallery (MinIO Images) -->
-      <div class="space-y-4 sticky top-28">
+      <div class="space-y-4 relative lg:sticky lg:top-28">
         <!-- Main Image -->
         <div class="aspect-[4/5] bg-stone-100 rounded-3xl overflow-hidden border border-stone-200 shadow-xl relative group">
           <img
@@ -36,12 +36,12 @@
         </div>
 
         <!-- Thumbnails Gallery -->
-        <div v-if="product.images && product.images.length > 1" class="flex gap-3 overflow-x-auto pb-2">
+        <div v-if="product.images && product.images.length > 1" class="flex gap-2.5 overflow-x-auto pb-2 pt-1 custom-scrollbar">
           <button
             v-for="img in product.images"
             :key="img.id"
             @click="activeImage = img.minioUrl"
-            class="w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all shrink-0 shadow-sm"
+            class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 transition-all shrink-0 shadow-sm"
             :class="activeImage === img.minioUrl ? 'border-gold-600 ring-2 ring-gold-400/50' : 'border-stone-200 opacity-60 hover:opacity-100'"
           >
             <img :src="img.minioUrl" :alt="img.altText" class="w-full h-full object-cover" />
