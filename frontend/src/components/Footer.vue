@@ -1,6 +1,40 @@
 <template>
-  <footer class="bg-gradient-to-b from-stone-900 to-stone-950 text-stone-300 pt-16 pb-10 border-t border-stone-800">
+  <footer class="bg-gradient-to-b from-stone-900 to-stone-950 text-stone-300 pt-12 pb-10 border-t border-stone-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <!-- Bandeau Contact Simple & Sobre : Appel & WhatsApp -->
+      <div class="bg-gradient-to-r from-stone-900 via-stone-850 to-stone-900 border border-gold-500/30 rounded-3xl p-5 sm:p-6 mb-12 flex flex-col md:flex-row items-center justify-between gap-5 shadow-xl">
+        <div class="flex items-center gap-4 text-center md:text-left">
+          <div class="w-12 h-12 rounded-2xl bg-gold-500/10 border border-gold-500/30 flex items-center justify-center text-2xl shrink-0">
+            📞
+          </div>
+          <div>
+            <h4 class="font-serif font-bold text-white text-base">Service Commercial & Commandes Directes</h4>
+            <p class="text-xs text-stone-400">Assistance téléphonique et conseils disponibles 7j/7 de 08h à 22h</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-center gap-3 w-full md:w-auto">
+          <!-- Bouton Appel -->
+          <a
+            href="tel:+221772087820"
+            class="px-5 py-3 rounded-2xl bg-stone-800 hover:bg-gold-500 hover:text-stone-950 text-white font-bold text-xs flex items-center gap-2.5 border border-stone-700/80 transition-all shadow-md group"
+          >
+            <span class="text-base group-hover:scale-110 transition-transform">📞</span>
+            <span>Appel direct : +221 77 208 78 20</span>
+          </a>
+
+          <!-- Bouton WhatsApp -->
+          <a
+            href="https://wa.me/221772087820?text=Bonjour%20Jumelles%20Store%2C%20je%20souhaite%20passer%20une%20commande"
+            target="_blank"
+            class="px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-2.5 transition-all shadow-md group"
+          >
+            <span class="text-base group-hover:scale-110 transition-transform">💬</span>
+            <span>WhatsApp (77 208 78 20)</span>
+          </a>
+        </div>
+      </div>
+
       <div class="grid grid-cols-1 md:grid-cols-4 gap-12 pb-12 border-b border-stone-800/80">
         <!-- Brand Info -->
         <div class="space-y-4">
