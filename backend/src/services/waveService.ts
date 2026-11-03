@@ -25,7 +25,11 @@ export class WaveService {
     try {
       console.log(`[Wave API] Création d'une session de paiement pour commande ${params.orderNumber} (${params.amount} ${params.currency})`);
 
-      // Simulation de l'appel d'API Wave (ou appel réel si clé valide fournie)
+      // Lien officiel Wave et lien direct pré-rempli avec le numéro de la boutique (+221 77 208 78 20)
+      const boutiquePhone = '+221 77 208 78 20';
+      const boutiquePhoneClean = '221772087820';
+      const waveDirectUrl = `https://wave.com/send?phone=${boutiquePhoneClean}&amount=${params.amount}`;
+      const waveDeepLink = `wave://send?phone=${boutiquePhoneClean}&amount=${params.amount}`;
       const mockCheckoutId = `cos_${Date.now()}_${Math.random().toString(36).substring(7)}`;
       const waveLaunchUrl = `https://pay.wave.com/c/${mockCheckoutId}?amount=${params.amount}&currency=${params.currency}`;
 
@@ -34,7 +38,11 @@ export class WaveService {
         amount: params.amount,
         currency: params.currency,
         waveLaunchUrl,
-        qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(waveLaunchUrl)}`,
+        waveDirectUrl,
+        waveDeepLink,
+        boutiquePhone,
+        boutiquePhoneClean,
+        qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(waveDirectUrl)}`,
         checkoutStatus: 'open',
         clientReference: params.clientReference,
       };
