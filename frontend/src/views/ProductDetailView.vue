@@ -211,25 +211,9 @@
             </button>
           </div>
 
-          <!-- Bouton Commande Directe par Téléphone et WhatsApp (+221 77 208 78 20) -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            <button
-              @click="phoneStore.openModal(product.name + ' - ' + (selectedVariant ? selectedVariant.color + ' / ' + selectedVariant.sizeOrShoeSize : ''))"
-              class="w-full py-3.5 px-4 rounded-2xl text-xs font-bold bg-stone-950 hover:bg-stone-900 border border-[#d7b966] text-white transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98"
-            >
-              <IconPhoneSolid className="w-4 h-4 text-[#e02f75]" />
-              <span>Appel direct (77 208 78 20)</span>
-            </button>
-
-            <a
-              :href="whatsappOrderUrl"
-              target="_blank"
-              class="w-full py-3.5 px-4 rounded-2xl text-xs font-bold bg-[#25D366] hover:bg-[#20ba59] text-white transition-all shadow-md flex items-center justify-center gap-2 active:scale-98"
-            >
-              <IconWhatsApp className="w-4 h-4 text-white" />
-              <span>WhatsApp (77 208 78 20)</span>
-            </a>
-          </div>
+          <p class="text-center text-[11px] text-stone-500 pt-1">
+            Livraison express sous 24h à Dakar • Paiement direct Wave ou Orange Money
+          </p>
         </div>
 
         <!-- Reassurance & Contact Card -->
@@ -239,13 +223,9 @@
               <ShoppingBag class="w-4 h-4 text-gold-600" />
               <span class="text-xs uppercase tracking-wider text-stone-700 font-bold">Garanties Maison Jumelles</span>
             </div>
-            <a
-              href="tel:+221772087820"
-              class="text-xs font-black text-gold-800 hover:text-stone-950 underline flex items-center gap-1.5"
-            >
-              <IconPhoneSolid className="w-3.5 h-3.5 text-[#e02f75]" />
-              <span>Service Vente : 77 208 78 20</span>
-            </a>
+            <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+              Stock Vérifié à Dakar
+            </span>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-stone-700">
             <div class="flex items-center gap-2">

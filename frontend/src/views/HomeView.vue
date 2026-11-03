@@ -24,8 +24,8 @@
         </span>
         <span class="text-stone-600">•</span>
         <span class="flex items-center gap-2">
-          <IconWhatsApp className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Commandes WhatsApp : +221 77 208 78 20</span>
+          <Award class="w-3.5 h-3.5 text-gold-400" />
+          <span>Maison de Maroquinerie Fine & Souliers de Gala</span>
         </span>
         <span class="text-stone-600">•</span>
         <!-- Duplication pour boucle infinie fluide -->
@@ -117,10 +117,10 @@
 
         <!-- Reassurance Mini Badges -->
         <div class="pt-4 border-t border-white/15 flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-stone-300">
-          <a href="tel:+221772087820" class="flex items-center gap-2 hover:text-gold-400 transition-colors font-bold">
-            <IconPhoneSolid className="w-3.5 h-3.5 text-[#e02f75]" />
-            <span>Commandes : +221 77 208 78 20</span>
-          </a>
+          <span class="flex items-center gap-2 text-stone-300 font-semibold">
+            <Sparkles class="w-3.5 h-3.5 text-gold-400" />
+            <span>Maroquinerie d'Exception</span>
+          </span>
           <span class="flex items-center gap-1.5 text-emerald-400 font-semibold">
             <CheckCircle2 class="w-3.5 h-3.5" />
             <span>Livraison 24h Dakar</span>
@@ -166,7 +166,7 @@
           </div>
           <div>
             <h4 class="font-serif font-bold text-stone-900 text-sm">Wave & Orange Money</h4>
-            <p class="text-xs text-stone-500 mt-1">Transfert direct sécurisé au 77 208 78 20 (Fary Dione).</p>
+            <p class="text-xs text-stone-500 mt-1">Paiements 100% sécurisés par transfert direct sans intermédiaire.</p>
           </div>
         </div>
 
@@ -322,24 +322,16 @@
             Réglez instantanément avec Wave ou Orange Money
           </h3>
           <p class="text-stone-300 text-xs sm:text-sm leading-relaxed font-light">
-            Validez votre commande en quelques secondes. Transfert direct vers le compte officiel vérifié <strong>77 208 78 20 (Fary Dione)</strong>.
+            Validez votre commande en quelques secondes directement depuis votre mobile avec Wave ou l'application Orange Money.
           </p>
           <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
-            <a
-              href="tel:+221772087820"
-              class="px-5 py-3 rounded-full bg-stone-900 border border-[#d7b966] text-xs font-bold text-white hover:bg-stone-850 active:scale-95 transition-all flex items-center gap-2 shadow"
+            <router-link
+              to="/catalog"
+              class="px-6 py-3 rounded-full bg-gold-500 hover:bg-gold-600 active:scale-95 text-stone-950 font-bold text-xs uppercase tracking-wider transition-all shadow-md inline-flex items-center gap-2 cursor-pointer"
             >
-              <IconPhoneSolid className="w-4 h-4 text-[#e02f75]" />
-              <span>Appeler : +221 77 208 78 20</span>
-            </a>
-            <a
-              href="https://wa.me/221772087820?text=Bonjour%20Jumelles%20Store%2C%20je%20souhaite%20commander%20un%20article"
-              target="_blank"
-              class="px-5 py-3 rounded-full bg-[#25D366] hover:bg-[#20ba59] active:scale-95 text-xs font-bold text-white transition-all flex items-center gap-2 shadow-lg"
-            >
-              <IconWhatsApp className="w-4 h-4 text-white" />
-              <span>Écrire sur WhatsApp</span>
-            </a>
+              <span>Découvrir la Collection</span>
+              <ArrowRight class="w-4 h-4" />
+            </router-link>
           </div>
         </div>
 
