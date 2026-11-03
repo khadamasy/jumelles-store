@@ -20,12 +20,37 @@
           v-model="searchQuery"
           type="text"
           placeholder="Rechercher un sac, escarpin..."
-          class="w-full pl-10 pr-4 py-2.5 bg-white border border-stone-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 shadow-sm"
+          class="w-full pl-10 pr-4 py-3 bg-white border border-stone-300 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 shadow-sm"
         />
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-400 absolute left-3.5 top-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-400 absolute left-3.5 top-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
       </div>
+    </div>
+
+    <!-- Raccourcis Rapides Univers (Mobile & Tablette) -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar lg:hidden">
+      <button
+        @click="selectedType = ''"
+        class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all"
+        :class="selectedType === '' ? 'bg-stone-950 text-white shadow' : 'bg-white border border-stone-200 text-stone-700'"
+      >
+        Tous les articles ({{ products.length }})
+      </button>
+      <button
+        @click="selectedType = 'SAC'"
+        class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all"
+        :class="selectedType === 'SAC' ? 'bg-stone-950 text-white shadow' : 'bg-white border border-stone-200 text-stone-700'"
+      >
+        👜 Sacs & Cabas
+      </button>
+      <button
+        @click="selectedType = 'CHAUSSURE'"
+        class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all"
+        :class="selectedType === 'CHAUSSURE' ? 'bg-stone-950 text-white shadow' : 'bg-white border border-stone-200 text-stone-700'"
+      >
+        👠 Chaussures (37-42)
+      </button>
     </div>
 
     <!-- Main Layout: Sidebar Filters + Products Grid -->

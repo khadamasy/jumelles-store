@@ -89,9 +89,10 @@
 
         <router-link
           :to="`/product/${product.slug || product.id}`"
-          class="inline-flex items-center justify-center px-4 py-2 bg-stone-900 group-hover:bg-gold-600 text-white text-xs font-bold rounded-xl transition-all shadow group-hover:shadow-lg"
+          class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-stone-950 hover:bg-gold-600 text-white text-xs font-bold rounded-xl transition-all shadow-md hover:shadow-xl transform active:scale-95"
         >
-          Commander
+          <span>Commander</span>
+          <span class="text-xs">→</span>
         </router-link>
       </div>
     </div>

@@ -52,34 +52,47 @@
       <!-- Info & Variant Configuration -->
       <div class="space-y-7">
         <div>
-          <span class="text-xs uppercase tracking-widest text-gold-700 font-black block mb-1">
-            {{ product.category?.name || 'Maroquinerie & Souliers' }}
-          </span>
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-xs uppercase tracking-widest text-gold-700 font-black bg-gold-50 px-3 py-0.5 rounded-full border border-gold-200">
+              {{ product.category?.name || 'Maroquinerie & Souliers' }}
+            </span>
+            <span class="text-xs text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+              ✓ En Stock à Dakar
+            </span>
+          </div>
+
           <h1 class="font-serif text-3xl sm:text-4xl font-extrabold text-stone-950 leading-tight">
             {{ product.name }}
           </h1>
-          <div class="mt-4 flex flex-wrap items-baseline gap-3">
-            <span class="font-serif text-3xl sm:text-4xl font-black text-stone-950">
-              {{ currencyStore.isEur ? currencyStore.toEurOnly(currentPrice) : currencyStore.toXofOnly(currentPrice) }}
-            </span>
-            <span
-              v-if="product.originalPrice && product.originalPrice > product.basePrice"
-              class="text-lg text-stone-400 line-through font-bold"
-            >
-              {{ currencyStore.isEur ? currencyStore.toEurOnly(product.originalPrice) : currencyStore.toXofOnly(product.originalPrice) }}
-            </span>
-            <span
-              v-if="product.originalPrice && product.originalPrice > product.basePrice"
-              class="text-xs bg-rosewood-600 text-white font-extrabold px-2.5 py-1 rounded-full shadow"
-            >
-              -{{ Math.round((1 - product.basePrice / product.originalPrice) * 100) }}% PROMO
-            </span>
-            <span class="text-sm font-extrabold text-gold-800 bg-gold-50 border border-gold-200 px-3 py-1 rounded-xl shadow-sm">
-              {{ currencyStore.isEur ? currencyStore.toXofOnly(currentPrice) : '≈ ' + currencyStore.toEurOnly(currentPrice) }}
-            </span>
-            <span class="text-xs text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-              Paiement Wave & OM disponible
-            </span>
+
+          <!-- Bloc Prix Épuré & Prestigieux -->
+          <div class="mt-4 p-4 rounded-2xl bg-stone-50 border border-stone-200/90 flex flex-wrap items-baseline justify-between gap-3 shadow-xs">
+            <div class="flex items-baseline gap-3">
+              <span class="font-serif text-3xl sm:text-4xl font-black text-stone-950">
+                {{ currencyStore.isEur ? currencyStore.toEurOnly(currentPrice) : currencyStore.toXofOnly(currentPrice) }}
+              </span>
+              <span
+                v-if="product.originalPrice && product.originalPrice > product.basePrice"
+                class="text-base text-stone-400 line-through font-bold"
+              >
+                {{ currencyStore.isEur ? currencyStore.toEurOnly(product.originalPrice) : currencyStore.toXofOnly(product.originalPrice) }}
+              </span>
+              <span
+                v-if="product.originalPrice && product.originalPrice > product.basePrice"
+                class="text-xs bg-rosewood-600 text-white font-extrabold px-2.5 py-0.5 rounded-full shadow"
+              >
+                -{{ Math.round((1 - product.basePrice / product.originalPrice) * 100) }}%
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-extrabold text-gold-800 bg-gold-100/60 border border-gold-300 px-3 py-1 rounded-xl shadow-2xs">
+                {{ currencyStore.isEur ? currencyStore.toXofOnly(currentPrice) : '≈ ' + currencyStore.toEurOnly(currentPrice) }}
+              </span>
+              <span class="text-[11px] text-blue-700 font-bold bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200">
+                Wave / OM
+              </span>
+            </div>
           </div>
         </div>
 
@@ -218,21 +231,36 @@
         </div>
 
         <!-- Reassurance & Contact Card -->
-        <div class="bg-stone-100/70 border border-stone-200/90 rounded-2xl p-5 space-y-3 text-xs text-stone-700">
-          <div class="flex items-center justify-between font-bold text-stone-900 pb-2 border-b border-stone-200">
-            <span>📞 Service Client & Commandes :</span>
-            <button
-              @click="phoneStore.openModal(product.name)"
-              class="text-gold-800 underline font-black hover:text-stone-950 transition-colors cursor-pointer"
+        <div class="bg-gradient-to-br from-stone-50 to-stone-100/70 border border-stone-200 rounded-3xl p-5 space-y-4 shadow-sm">
+          <div class="flex items-center justify-between font-bold text-stone-900 pb-3 border-b border-stone-200">
+            <div class="flex items-center gap-2">
+              <span class="text-base">🛍️</span>
+              <span class="text-xs uppercase tracking-wider text-stone-600 font-bold">Garanties Maison Jumelles</span>
+            </div>
+            <a
+              href="tel:+221772087820"
+              class="text-xs font-black text-gold-800 hover:text-stone-950 underline"
             >
-              +221 77 208 78 20
-            </button>
+              📞 Service Vente : 77 208 78 20
+            </a>
           </div>
-          <div class="grid grid-cols-2 gap-2 text-[11px] text-stone-600">
-            <p>✔ Livraison rapide à Dakar en 24h</p>
-            <p>✔ Paiements Wave & Orange Money</p>
-            <p>✔ Emballage soigné & Ruban cadeau</p>
-            <p>✔ Échange de pointure sous 48h</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-stone-700">
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-600 font-black">✓</span>
+              <span>Livraison express à Dakar sous 24h</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-blue-600 font-black">✓</span>
+              <span>Paiement Wave & Orange Money</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-gold-600 font-black">✓</span>
+              <span>Emballage soigné & Ruban cadeau</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-emerald-600 font-black">✓</span>
+              <span>Échange de pointure sous 48h</span>
+            </div>
           </div>
         </div>
       </div>
