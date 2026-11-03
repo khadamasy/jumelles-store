@@ -5,20 +5,47 @@
 @layer base {
   body {
     @apply bg-[#FAFAF9] text-[#1C1917] selection:bg-gold-200 selection:text-gold-900;
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #f5f5f4;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #cb9f40;
-  border-radius: 3px;
+  background: #d7b966;
+  border-radius: 9999px;
 }
+
+/* Animations Motion Design */
+@keyframes luxuryMarquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: luxuryMarquee 28s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.08); }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 4s ease-in-out infinite;
+}
+
 

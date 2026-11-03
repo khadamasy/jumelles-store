@@ -5,7 +5,9 @@
     </h1>
 
     <div v-if="cartStore.items.length === 0" class="bg-white rounded-2xl border border-stone-200 p-12 text-center space-y-4">
-      <div class="text-5xl">🛍️</div>
+      <div class="w-16 h-16 rounded-3xl bg-stone-100 flex items-center justify-center mx-auto text-stone-500">
+        <ShoppingBag class="w-8 h-8 text-gold-600" />
+      </div>
       <h3 class="font-serif text-xl font-bold text-stone-900">Votre panier est vide.</h3>
       <p class="text-sm text-stone-500">Ajoutez des articles avant de procéder au règlement.</p>
       <router-link to="/catalog" class="inline-block px-6 py-3 bg-stone-900 text-white text-xs font-semibold rounded-xl hover:bg-gold-600 transition-colors">
@@ -19,7 +21,9 @@
         <!-- Bandeau Mode Commande Rapide & Connexion Habituée -->
         <div class="bg-gradient-to-r from-stone-900 via-stone-950 to-stone-900 text-white p-5 rounded-2xl border border-gold-500/30 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div class="flex items-center gap-3">
-            <span class="text-2xl">⚡</span>
+            <div class="w-10 h-10 rounded-xl bg-gold-500/20 border border-gold-500/40 flex items-center justify-center shrink-0">
+              <Zap class="w-5 h-5 text-gold-400" />
+            </div>
             <div>
               <p class="text-xs font-black text-gold-400 uppercase tracking-wider">Commande Express Sans Mot de Passe</p>
               <p class="text-xs text-stone-300">Renseignez simplement vos coordonnées ci-dessous pour régler immédiatement avec Wave ou Orange Money.</p>
@@ -114,9 +118,11 @@
           </div>
 
           <!-- Encadré fixe et rassurant : numéro officiel de réception de la boutique -->
-          <div class="bg-amber-50/80 border border-amber-200/90 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div class="bg-amber-50/80 border border-amber-200/90 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
             <div class="flex items-center gap-3">
-              <span class="text-2xl">📱</span>
+              <div class="w-10 h-10 rounded-xl bg-amber-200/60 flex items-center justify-center shrink-0">
+                <Phone class="w-5 h-5 text-amber-900" />
+              </div>
               <div>
                 <p class="font-bold text-amber-950 text-sm">Numéro Officiel de Transfert de la Boutique :</p>
                 <p class="text-stone-700 text-xs mt-0.5">
@@ -126,8 +132,9 @@
                 </p>
               </div>
             </div>
-            <span class="self-start sm:self-center shrink-0 text-[10px] font-bold bg-amber-200/70 text-amber-900 px-2.5 py-1 rounded-full uppercase tracking-wider">
-              Compte Vérifié
+            <span class="self-start sm:self-center shrink-0 text-[10px] font-bold bg-amber-200/70 text-amber-900 px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
+              <ShieldCheck class="w-3 h-3 text-amber-800" />
+              <span>Compte Vérifié</span>
             </span>
           </div>
 
@@ -139,7 +146,7 @@
               :class="selectedProvider === 'WAVE' ? 'border-blue-600 bg-blue-50/50 ring-2 ring-blue-500/20' : 'border-stone-200 hover:border-stone-300'"
             >
               <div class="flex items-center justify-between mb-3">
-                <span class="text-2xl">🌊</span>
+                <span class="font-black text-xs text-blue-700 bg-blue-100 px-2.5 py-1 rounded-lg">WAVE</span>
                 <span class="text-xs font-bold text-blue-700 bg-blue-100 px-2.5 py-0.5 rounded-full">Recommandé</span>
               </div>
               <div>
@@ -155,8 +162,8 @@
               :class="selectedProvider === 'ORANGE_MONEY' ? 'border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20' : 'border-stone-200 hover:border-stone-300'"
             >
               <div class="flex items-center justify-between mb-3">
-                <span class="text-2xl">🍊</span>
-                <span class="text-xs font-bold text-orange-700 bg-orange-100 px-2.5 py-0.5 rounded-full">Orange Money</span>
+                <span class="font-black text-xs text-orange-700 bg-orange-100 px-2.5 py-1 rounded-lg">ORANGE MONEY</span>
+                <span class="text-xs font-bold text-orange-700 bg-orange-100 px-2.5 py-0.5 rounded-full">Max it / #144#</span>
               </div>
               <div>
                 <p class="font-bold text-stone-900">Orange Money</p>
@@ -235,9 +242,10 @@
             <p class="text-xs text-stone-500 font-medium">Besoin d'aide pour finaliser ?</p>
             <button
               @click="phoneStore.openModal('Finalisation Commande')"
-              class="text-xs font-bold text-stone-900 hover:text-gold-700 underline block mt-0.5 mx-auto cursor-pointer"
+              class="text-xs font-bold text-stone-900 hover:text-gold-700 underline inline-flex items-center gap-1.5 mt-0.5 mx-auto cursor-pointer"
             >
-              📞 Service Téléphonique & WhatsApp : +221 77 208 78 20
+              <Phone class="w-3.5 h-3.5 text-gold-600" />
+              <span>Service Téléphonique & WhatsApp : +221 77 208 78 20</span>
             </button>
           </div>
         </div>
@@ -249,6 +257,7 @@
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { ShoppingBag, Zap, Phone, ShieldCheck, Check } from 'lucide-vue-next';
 import { useCartStore } from '../stores/cart';
 import { useAuthStore } from '../stores/auth';
 import { useCurrencyStore } from '../stores/currency';

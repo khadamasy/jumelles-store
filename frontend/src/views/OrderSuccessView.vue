@@ -1,13 +1,14 @@
 <template>
   <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center space-y-8">
     <!-- Success Badge -->
-    <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-4xl shadow-lg ring-8 ring-emerald-50">
-      ✓
+    <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-lg ring-8 ring-emerald-50">
+      <CheckCircle2 class="w-10 h-10 text-emerald-600" />
     </div>
 
     <div class="space-y-3">
-      <span class="text-xs uppercase tracking-widest text-gold-600 font-extrabold bg-gold-50 px-3.5 py-1 rounded-full border border-gold-200">
-        Commande Enregistrée avec Succès
+      <span class="text-xs uppercase tracking-widest text-gold-600 font-extrabold bg-gold-50 px-3.5 py-1 rounded-full border border-gold-200 inline-flex items-center gap-1.5">
+        <Sparkles class="w-3.5 h-3.5" />
+        <span>Commande Enregistrée avec Succès</span>
       </span>
       <h1 class="font-serif text-3xl sm:text-4xl font-extrabold text-stone-900">
         Merci pour votre commande !
@@ -22,7 +23,9 @@
       <!-- En-tête Montant & Opérateur -->
       <div class="flex items-center justify-between border-b border-stone-100 pb-4">
         <div class="flex items-center gap-3">
-          <span class="text-3xl">{{ isOrangeMoney ? '🍊' : '🌊' }}</span>
+          <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-white shadow-sm" :class="isOrangeMoney ? 'bg-orange-500' : 'bg-blue-600'">
+            <span class="text-xs font-black">{{ isOrangeMoney ? 'OM' : 'WAVE' }}</span>
+          </div>
           <div>
             <span class="font-black text-base text-stone-900 block">{{ isOrangeMoney ? 'Règlement Orange Money' : 'Règlement Wave' }}</span>
             <span class="text-[11px] text-stone-400">Paiement direct sans intermédiaire</span>
@@ -45,22 +48,23 @@
             type="button"
             class="w-full py-4 px-4 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 hover:from-blue-700 hover:to-blue-800 text-white font-black text-sm rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2.5 active:scale-98 cursor-pointer"
           >
-            <span class="text-xl">🌊</span>
+            <ExternalLink class="w-4 h-4" />
             <span>Ouvrir l'application Wave</span>
             <span class="bg-white/20 px-2.5 py-0.5 rounded-lg text-xs font-black">{{ formatPrice(amount) }}</span>
           </button>
           <div
             v-if="waveNotice"
-            class="mt-2.5 p-2.5 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-xl text-xs font-bold text-center shadow-sm"
+            class="mt-2.5 p-2.5 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-xl text-xs font-bold text-center shadow-sm flex items-center justify-center gap-1.5"
           >
-            {{ waveNotice }}
+            <Check class="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <span>{{ waveNotice }}</span>
           </div>
         </div>
 
         <!-- 2. Carte Élégante & Alignée (Fary Dione • 77 208 78 20) -->
         <div class="bg-gradient-to-br from-blue-50/90 to-sky-50/50 border border-blue-200/90 rounded-3xl p-4 sm:p-5 space-y-3 shadow-sm">
           <div class="flex items-center gap-2 pb-2 border-b border-blue-200/60">
-            <span class="text-base">📋</span>
+            <ShieldCheck class="w-4 h-4 text-blue-600" />
             <span class="text-xs font-black text-blue-950 uppercase tracking-wider">Informations pour votre transfert Wave</span>
           </div>
 
@@ -72,10 +76,11 @@
             </div>
             <button
               @click="copyText(boutiqueName, 'name')"
-              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
               :class="copiedKey === 'name' ? 'bg-emerald-600 text-white shadow' : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200'"
             >
-              {{ copiedKey === 'name' ? '✓ Copié !' : 'Copier Nom' }}
+              <component :is="copiedKey === 'name' ? Check : Copy" class="w-3.5 h-3.5" />
+              <span>{{ copiedKey === 'name' ? 'Copié !' : 'Copier Nom' }}</span>
             </button>
           </div>
 
@@ -87,10 +92,11 @@
             </div>
             <button
               @click="copyText(boutiquePhoneLocal, 'phone')"
-              class="px-3.5 py-2 rounded-xl text-xs font-black shadow transition-all shrink-0 cursor-pointer"
+              class="px-3.5 py-2 rounded-xl text-xs font-black shadow transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
               :class="copiedKey === 'phone' ? 'bg-emerald-600 text-white ring-2 ring-emerald-300' : 'bg-blue-600 hover:bg-blue-700 text-white'"
             >
-              {{ copiedKey === 'phone' ? '✓ Copié !' : 'Copier Numéro' }}
+              <component :is="copiedKey === 'phone' ? Check : Copy" class="w-3.5 h-3.5" />
+              <span>{{ copiedKey === 'phone' ? 'Copié !' : 'Copier Numéro' }}</span>
             </button>
           </div>
 
@@ -102,10 +108,11 @@
             </div>
             <button
               @click="copyText(amount.toString(), 'amount')"
-              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
               :class="copiedKey === 'amount' ? 'bg-emerald-600 text-white shadow' : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200'"
             >
-              {{ copiedKey === 'amount' ? '✓ Copié !' : 'Copier Montant' }}
+              <component :is="copiedKey === 'amount' ? Check : Copy" class="w-3.5 h-3.5" />
+              <span>{{ copiedKey === 'amount' ? 'Copié !' : 'Copier Montant' }}</span>
             </button>
           </div>
 
@@ -117,10 +124,11 @@
             </div>
             <button
               @click="copyText(orderNumber, 'ref')"
-              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
               :class="copiedKey === 'ref' ? 'bg-emerald-600 text-white shadow' : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200'"
             >
-              {{ copiedKey === 'ref' ? '✓ Copié !' : 'Copier' }}
+              <component :is="copiedKey === 'ref' ? Check : Copy" class="w-3.5 h-3.5" />
+              <span>{{ copiedKey === 'ref' ? 'Copié !' : 'Copier' }}</span>
             </button>
           </div>
         </div>
@@ -131,7 +139,8 @@
             @click="showQrCode = !showQrCode"
             class="text-xs text-blue-700 hover:text-blue-900 font-bold underline flex items-center justify-center gap-1.5 mx-auto"
           >
-            <span>{{ showQrCode ? '▲ Masquer le QR Code' : '📷 Vous êtes sur PC ? Afficher le QR Code à scanner' }}</span>
+            <QrCode class="w-4 h-4" />
+            <span>{{ showQrCode ? 'Masquer le QR Code' : 'Vous êtes sur PC ? Afficher le QR Code à scanner' }}</span>
           </button>
 
           <div v-if="showQrCode" class="mt-4 p-4 bg-stone-50 rounded-2xl border border-stone-200 inline-block shadow-inner">
@@ -152,7 +161,7 @@
             type="button"
             class="w-full py-4 px-4 bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600 hover:from-orange-700 hover:to-orange-800 text-white font-black text-sm rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2.5 active:scale-98 cursor-pointer"
           >
-            <span class="text-xl">📋</span>
+            <Copy class="w-4 h-4" />
             <span>Copier le Numéro Orange Money</span>
             <span class="bg-white/20 px-2.5 py-0.5 rounded-lg text-xs font-black">{{ formatPrice(amount) }}</span>
           </button>
@@ -160,9 +169,10 @@
           <!-- Notification de confirmation de copie -->
           <div
             v-if="omNotice"
-            class="p-3 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-2xl text-xs font-bold text-center shadow-sm"
+            class="p-3 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-2xl text-xs font-bold text-center shadow-sm flex items-center justify-center gap-1.5"
           >
-            {{ omNotice }}
+            <Check class="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <span>{{ omNotice }}</span>
           </div>
 
           <!-- Bouton Code Rapide USSD #144# -->
@@ -170,7 +180,7 @@
             href="tel:#144#"
             class="w-full py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center gap-2"
           >
-            <span>📞</span>
+            <Phone class="w-3.5 h-3.5 text-orange-400" />
             <span>Composer le #144# sur mon téléphone</span>
           </a>
         </div>
@@ -178,7 +188,7 @@
         <!-- 2. Carte Élégante & Alignée Orange Money (Fary Dione • 77 208 78 20) -->
         <div class="bg-gradient-to-br from-orange-50/90 to-amber-50/50 border border-orange-200/90 rounded-3xl p-4 sm:p-5 space-y-3 shadow-sm">
           <div class="flex items-center gap-2 pb-2 border-b border-orange-200/60">
-            <span class="text-base">📋</span>
+            <ShieldCheck class="w-4 h-4 text-orange-600" />
             <span class="text-xs font-black text-orange-950 uppercase tracking-wider">Informations de transfert Orange Money</span>
           </div>
 
@@ -190,10 +200,11 @@
             </div>
             <button
               @click="copyText(boutiqueName, 'name')"
-              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
               :class="copiedKey === 'name' ? 'bg-emerald-600 text-white shadow' : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200'"
             >
-              {{ copiedKey === 'name' ? '✓ Copié !' : 'Copier Nom' }}
+              <component :is="copiedKey === 'name' ? Check : Copy" class="w-3.5 h-3.5" />
+              <span>{{ copiedKey === 'name' ? 'Copié !' : 'Copier Nom' }}</span>
             </button>
           </div>
 
@@ -205,10 +216,11 @@
             </div>
             <button
               @click="copyText(boutiquePhoneLocal, 'phone')"
-              class="px-3.5 py-2 rounded-xl text-xs font-black shadow transition-all shrink-0 cursor-pointer"
+              class="px-3.5 py-2 rounded-xl text-xs font-black shadow transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
               :class="copiedKey === 'phone' ? 'bg-emerald-600 text-white ring-2 ring-emerald-300' : 'bg-orange-600 hover:bg-orange-700 text-white'"
             >
-              {{ copiedKey === 'phone' ? '✓ Copié !' : 'Copier Numéro' }}
+              <component :is="copiedKey === 'phone' ? Check : Copy" class="w-3.5 h-3.5" />
+              <span>{{ copiedKey === 'phone' ? 'Copié !' : 'Copier Numéro' }}</span>
             </button>
           </div>
 
@@ -220,10 +232,11 @@
             </div>
             <button
               @click="copyText(amount.toString(), 'amount')"
-              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
               :class="copiedKey === 'amount' ? 'bg-emerald-600 text-white shadow' : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200'"
             >
-              {{ copiedKey === 'amount' ? '✓ Copié !' : 'Copier Montant' }}
+              <component :is="copiedKey === 'amount' ? Check : Copy" class="w-3.5 h-3.5" />
+              <span>{{ copiedKey === 'amount' ? 'Copié !' : 'Copier Montant' }}</span>
             </button>
           </div>
 
@@ -235,10 +248,11 @@
             </div>
             <button
               @click="copyText(orderNumber, 'ref')"
-              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
               :class="copiedKey === 'ref' ? 'bg-emerald-600 text-white shadow' : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200'"
             >
-              {{ copiedKey === 'ref' ? '✓ Copié !' : 'Copier' }}
+              <component :is="copiedKey === 'ref' ? Check : Copy" class="w-3.5 h-3.5" />
+              <span>{{ copiedKey === 'ref' ? 'Copié !' : 'Copier' }}</span>
             </button>
           </div>
         </div>
@@ -257,7 +271,7 @@
           target="_blank"
           class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
         >
-          <span class="text-base">💬</span>
+          <MessageCircle class="w-4 h-4" />
           <span>Confirmer le paiement {{ isOrangeMoney ? 'Orange Money' : 'Wave' }} sur WhatsApp (+221 77 208 78 20)</span>
         </a>
       </div>
@@ -299,6 +313,17 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
+import {
+  CheckCircle2,
+  Sparkles,
+  ExternalLink,
+  Check,
+  Copy,
+  ShieldCheck,
+  QrCode,
+  Phone,
+  MessageCircle
+} from 'lucide-vue-next';
 import { PaymentService } from '../services/api';
 
 const route = useRoute();

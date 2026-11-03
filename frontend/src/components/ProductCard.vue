@@ -17,34 +17,35 @@
         v-if="product.originalPrice && product.originalPrice > product.basePrice"
         class="absolute top-3.5 left-3.5 bg-rosewood-600 text-white text-[10px] tracking-wider uppercase font-black px-2.5 py-1 rounded-full shadow-md flex items-center gap-1 z-10"
       >
-        <span>🔥</span>
+        <Flame class="w-3 h-3 text-white" />
         <span>-{{ Math.round((1 - product.basePrice / product.originalPrice) * 100) }}%</span>
       </span>
 
       <!-- Badge Coup de Coeur -->
       <span
         v-else-if="product.isFeatured"
-        class="absolute top-3.5 left-3.5 bg-stone-950/90 text-gold-400 backdrop-blur-md text-[10px] tracking-widest uppercase font-black px-3 py-1 rounded-full border border-gold-500/40 shadow-sm"
+        class="absolute top-3.5 left-3.5 bg-stone-950/90 text-gold-400 backdrop-blur-md text-[10px] tracking-widest uppercase font-black px-3 py-1 rounded-full border border-gold-500/40 shadow-sm flex items-center gap-1 z-10"
       >
-        ★ Coup de Cœur
+        <Sparkles class="w-3 h-3 text-gold-400" />
+        <span>Coup de Cœur</span>
       </span>
 
       <!-- Badge Stock Restant -->
       <span
         v-if="totalStock <= 5 && totalStock > 0"
-        class="absolute top-3.5 right-3.5 bg-amber-600/95 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md backdrop-blur-sm"
+        class="absolute top-3.5 right-3.5 bg-amber-600/95 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md backdrop-blur-sm z-10"
       >
         Plus que {{ totalStock }} en stock
       </span>
       <span
         v-else-if="totalStock === 0"
-        class="absolute top-3.5 right-3.5 bg-rosewood-700/95 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md"
+        class="absolute top-3.5 right-3.5 bg-rosewood-700/95 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md z-10"
       >
         Rupture temporaire
       </span>
 
       <!-- Preview des pointures ou couleurs au survol -->
-      <div class="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-wrap gap-1">
+      <div class="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-wrap gap-1 z-10">
         <span
           v-for="v in previewVariants"
           :key="v.id"
@@ -56,7 +57,7 @@
     </div>
 
     <!-- Details -->
-    <div class="p-6 flex-1 flex flex-col justify-between space-y-4">
+    <div class="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
       <div>
         <div class="flex items-center justify-between text-[11px] uppercase tracking-wider text-stone-400 font-bold mb-1">
           <span>{{ categoryName }}</span>
@@ -70,7 +71,7 @@
         </router-link>
       </div>
 
-      <div class="pt-3 border-t border-stone-100 flex items-center justify-between">
+      <div class="pt-3 border-t border-stone-100 flex items-center justify-between gap-2">
         <div>
           <div v-if="product.originalPrice && product.originalPrice > product.basePrice" class="flex items-center gap-1.5">
             <span class="text-[10px] text-rosewood-600 font-bold uppercase">Promo</span>
@@ -89,10 +90,10 @@
 
         <router-link
           :to="`/product/${product.slug || product.id}`"
-          class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-stone-950 hover:bg-gold-600 text-white text-xs font-bold rounded-xl transition-all shadow-md hover:shadow-xl transform active:scale-95"
+          class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-stone-950 hover:bg-gold-600 text-white text-xs font-bold rounded-xl transition-all shadow-md hover:shadow-xl transform active:scale-95 shrink-0"
         >
           <span>Commander</span>
-          <span class="text-xs">→</span>
+          <ArrowRight class="w-3.5 h-3.5" />
         </router-link>
       </div>
     </div>
@@ -101,6 +102,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { ArrowRight, Sparkles, Flame } from 'lucide-vue-next';
 import { useCurrencyStore } from '../stores/currency';
 
 const currencyStore = useCurrencyStore();

@@ -22,9 +22,7 @@
           placeholder="Rechercher un sac, escarpin..."
           class="w-full pl-10 pr-4 py-3 bg-white border border-stone-300 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-gold-500/50 focus:border-gold-500 shadow-sm"
         />
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-stone-400 absolute left-3.5 top-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
+        <Search class="w-4 h-4 text-stone-400 absolute left-3.5 top-3.5" />
       </div>
     </div>
 
@@ -32,35 +30,36 @@
     <div class="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar lg:hidden">
       <button
         @click="selectedType = ''"
-        class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all"
+        class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer"
         :class="selectedType === '' ? 'bg-stone-950 text-white shadow' : 'bg-white border border-stone-200 text-stone-700'"
       >
         Tous les articles ({{ products.length }})
       </button>
       <button
         @click="selectedType = 'SAC'"
-        class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all"
+        class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer"
         :class="selectedType === 'SAC' ? 'bg-stone-950 text-white shadow' : 'bg-white border border-stone-200 text-stone-700'"
       >
-        👜 Sacs & Cabas
+        Sacs & Cabas
       </button>
       <button
         @click="selectedType = 'CHAUSSURE'"
-        class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all"
+        class="px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer"
         :class="selectedType === 'CHAUSSURE' ? 'bg-stone-950 text-white shadow' : 'bg-white border border-stone-200 text-stone-700'"
       >
-        👠 Chaussures (37-42)
+        Chaussures (37-42)
       </button>
     </div>
 
     <!-- Main Layout: Sidebar Filters + Products Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
       <!-- Filter Sidebar -->
-      <aside class="space-y-6 bg-white p-6 rounded-2xl border border-stone-200 shadow-sm h-fit">
+      <aside class="space-y-6 bg-white p-6 rounded-3xl border border-stone-200 shadow-sm h-fit">
         <div class="flex items-center justify-between pb-3 border-b border-stone-100">
           <h3 class="font-serif font-bold text-stone-900 text-base">Filtres</h3>
-          <button @click="resetFilters" class="text-xs text-gold-600 hover:text-gold-800 font-medium">
-            Réinitialiser
+          <button @click="resetFilters" class="text-xs text-gold-700 hover:text-gold-900 font-bold flex items-center gap-1 cursor-pointer">
+            <RotateCcw class="w-3 h-3" />
+            <span>Réinitialiser</span>
           </button>
         </div>
 
@@ -70,24 +69,24 @@
           <div class="flex flex-col gap-1.5 text-sm">
             <button
               @click="selectedType = ''"
-              class="text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between"
-              :class="selectedType === '' ? 'bg-stone-900 text-white font-medium' : 'text-stone-700 hover:bg-stone-100'"
+              class="text-left px-3 py-2 rounded-xl transition-colors flex items-center justify-between cursor-pointer"
+              :class="selectedType === '' ? 'bg-stone-950 text-white font-medium' : 'text-stone-700 hover:bg-stone-100'"
             >
               <span>Tous les articles</span>
             </button>
             <button
               @click="selectedType = 'SAC'"
-              class="text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between"
-              :class="selectedType === 'SAC' ? 'bg-stone-900 text-white font-medium' : 'text-stone-700 hover:bg-stone-100'"
+              class="text-left px-3 py-2 rounded-xl transition-colors flex items-center justify-between cursor-pointer"
+              :class="selectedType === 'SAC' ? 'bg-stone-950 text-white font-medium' : 'text-stone-700 hover:bg-stone-100'"
             >
-              <span>👜 Maroquinerie & Sacs</span>
+              <span>Maroquinerie & Sacs</span>
             </button>
             <button
               @click="selectedType = 'CHAUSSURE'"
-              class="text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between"
-              :class="selectedType === 'CHAUSSURE' ? 'bg-stone-900 text-white font-medium' : 'text-stone-700 hover:bg-stone-100'"
+              class="text-left px-3 py-2 rounded-xl transition-colors flex items-center justify-between cursor-pointer"
+              :class="selectedType === 'CHAUSSURE' ? 'bg-stone-950 text-white font-medium' : 'text-stone-700 hover:bg-stone-100'"
             >
-              <span>👠 Chaussures & Escarpins</span>
+              <span>Chaussures & Souliers</span>
             </button>
           </div>
         </div>
@@ -129,22 +128,24 @@
         </div>
 
         <!-- Assistance Commande Téléphonique -->
-        <div class="pt-4 border-t border-stone-100 bg-stone-50 p-4 rounded-xl space-y-2">
+        <div class="pt-4 border-t border-stone-100 bg-stone-50 p-4 rounded-2xl space-y-2">
           <p class="text-xs font-bold text-stone-900 flex items-center gap-1.5">
-            <span>📞</span> Conseil & Commande :
+            <Phone class="w-3.5 h-3.5 text-gold-700" />
+            <span>Conseil & Commande :</span>
           </p>
           <a
             href="tel:+221772087820"
-            class="text-xs font-black text-gold-800 hover:underline block"
+            class="text-xs font-black text-stone-900 hover:text-gold-700 block font-mono"
           >
             +221 77 208 78 20
           </a>
           <a
             href="https://wa.me/221772087820?text=Bonjour%20Jumelles%20Store%2C%20j%27aimerais%20de%20l%27aide%20pour%20choisir%20une%20pointure%20ou%20un%20sac"
             target="_blank"
-            class="inline-block text-[11px] font-bold text-emerald-700 bg-emerald-100/70 border border-emerald-300 px-2 py-0.5 rounded-md"
+            class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-100/70 border border-emerald-300 px-2.5 py-1 rounded-lg"
           >
-            💬 Aide WhatsApp
+            <MessageCircle class="w-3 h-3 text-emerald-700" />
+            <span>Aide WhatsApp</span>
           </a>
         </div>
       </aside>
@@ -152,14 +153,16 @@
       <!-- Products Grid -->
       <main class="lg:col-span-3 space-y-6">
         <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div v-for="n in 6" :key="n" class="bg-stone-200 animate-pulse rounded-2xl h-80"></div>
+          <div v-for="n in 6" :key="n" class="bg-stone-200 animate-pulse rounded-3xl h-80"></div>
         </div>
 
-        <div v-else-if="filteredProducts.length === 0" class="bg-white rounded-2xl border border-stone-200 p-12 text-center space-y-4">
-          <div class="text-5xl">🔍</div>
+        <div v-else-if="filteredProducts.length === 0" class="bg-white rounded-3xl border border-stone-200 p-12 text-center space-y-4 shadow-sm">
+          <div class="w-16 h-16 rounded-2xl bg-stone-100 flex items-center justify-center mx-auto text-stone-400">
+            <Search class="w-8 h-8" />
+          </div>
           <h3 class="font-serif text-xl font-bold text-stone-900">Aucun produit ne correspond à vos critères.</h3>
           <p class="text-sm text-stone-500">Essayez de réinitialiser vos filtres ou de modifier votre mot-clé de recherche.</p>
-          <button @click="resetFilters" class="px-5 py-2.5 bg-stone-900 text-white text-xs font-semibold rounded-xl hover:bg-gold-600 transition-colors">
+          <button @click="resetFilters" class="px-5 py-2.5 bg-stone-900 text-white text-xs font-semibold rounded-xl hover:bg-gold-600 transition-colors cursor-pointer">
             Afficher toute la boutique
           </button>
         </div>
@@ -179,6 +182,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { Search, RotateCcw, Phone, MessageCircle } from 'lucide-vue-next';
 import { ProductService } from '../services/api';
 import ProductCard from '../components/ProductCard.vue';
 

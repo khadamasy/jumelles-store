@@ -168,19 +168,21 @@
         <div class="pt-4 border-t border-stone-100 space-y-4">
           <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
             <!-- Stepper -->
-            <div class="flex items-center border border-stone-300 rounded-2xl bg-white w-fit shadow-sm">
+            <div class="flex items-center border border-stone-300 rounded-2xl bg-white w-fit shadow-xs">
               <button
                 @click="quantity > 1 ? quantity-- : null"
-                class="px-4 py-3 text-stone-600 hover:text-stone-900 font-bold text-sm"
+                class="px-4 py-3 text-stone-600 hover:text-stone-900 font-bold text-sm flex items-center justify-center cursor-pointer"
+                aria-label="Diminuer la quantité"
               >
-                -
+                <Minus class="w-3.5 h-3.5" />
               </button>
-              <span class="px-4 text-sm font-black text-stone-900">{{ quantity }}</span>
+              <span class="px-3 text-sm font-black text-stone-900">{{ quantity }}</span>
               <button
                 @click="quantity < (selectedVariant?.stockQuantity || 1) ? quantity++ : null"
-                class="px-4 py-3 text-stone-600 hover:text-stone-900 font-bold text-sm"
+                class="px-4 py-3 text-stone-600 hover:text-stone-900 font-bold text-sm flex items-center justify-center cursor-pointer"
+                aria-label="Augmenter la quantité"
               >
-                +
+                <Plus class="w-3.5 h-3.5" />
               </button>
             </div>
 
@@ -188,14 +190,14 @@
             <button
               @click="addToCart"
               :disabled="!selectedVariant || selectedVariant.stockQuantity <= 0"
-              class="flex-1 py-4 px-6 rounded-2xl text-xs font-black uppercase tracking-wider text-white transition-all shadow-md flex items-center justify-center gap-2"
+              class="flex-1 py-4 px-6 rounded-2xl text-xs font-black uppercase tracking-wider text-white transition-all shadow-md flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
               :class="
                 selectedVariant && selectedVariant.stockQuantity > 0
                   ? 'bg-stone-950 hover:bg-gold-600 hover:shadow-xl'
                   : 'bg-stone-400 cursor-not-allowed'
               "
             >
-              <span>🛍️</span>
+              <ShoppingBag class="w-4 h-4 text-gold-400" />
               <span>Ajouter au Panier</span>
             </button>
 
@@ -203,7 +205,7 @@
             <button
               @click="buyNow"
               :disabled="!selectedVariant || selectedVariant.stockQuantity <= 0"
-              class="py-4 px-6 rounded-2xl text-xs font-black uppercase tracking-wider bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-stone-950 transition-all shadow-lg"
+              class="py-4 px-6 rounded-2xl text-xs font-black uppercase tracking-wider bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-stone-950 transition-all shadow-lg active:scale-98 cursor-pointer"
             >
               Acheter Immédiatement
             </button>
@@ -215,7 +217,7 @@
               @click="phoneStore.openModal(product.name + ' - ' + (selectedVariant ? selectedVariant.color + ' / ' + selectedVariant.sizeOrShoeSize : ''))"
               class="w-full py-3.5 px-4 rounded-2xl text-xs font-bold bg-stone-950 hover:bg-gold-600 text-white transition-all shadow flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>📞</span>
+              <Phone class="w-3.5 h-3.5 text-gold-400" />
               <span>Commander par Téléphone</span>
             </button>
 
@@ -224,7 +226,7 @@
               target="_blank"
               class="w-full py-3.5 px-4 rounded-2xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow flex items-center justify-center gap-2"
             >
-              <span>💬</span>
+              <MessageCircle class="w-3.5 h-3.5" />
               <span>WhatsApp (77 208 78 20)</span>
             </a>
           </div>
@@ -234,33 +236,39 @@
         <div class="bg-gradient-to-br from-stone-50 to-stone-100/70 border border-stone-200 rounded-3xl p-5 space-y-4 shadow-sm">
           <div class="flex items-center justify-between font-bold text-stone-900 pb-3 border-b border-stone-200">
             <div class="flex items-center gap-2">
-              <span class="text-base">🛍️</span>
-              <span class="text-xs uppercase tracking-wider text-stone-600 font-bold">Garanties Maison Jumelles</span>
+              <ShoppingBag class="w-4 h-4 text-gold-600" />
+              <span class="text-xs uppercase tracking-wider text-stone-700 font-bold">Garanties Maison Jumelles</span>
             </div>
             <a
               href="tel:+221772087820"
-              class="text-xs font-black text-gold-800 hover:text-stone-950 underline"
+              class="text-xs font-black text-gold-800 hover:text-stone-950 underline flex items-center gap-1"
             >
-              📞 Service Vente : 77 208 78 20
+              <Phone class="w-3 h-3" />
+              <span>Service Vente : 77 208 78 20</span>
             </a>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-stone-700">
             <div class="flex items-center gap-2">
-              <span class="text-emerald-600 font-black">✓</span>
+              <Truck class="w-4 h-4 text-emerald-600 shrink-0" />
               <span>Livraison express à Dakar sous 24h</span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-blue-600 font-black">✓</span>
+              <ShieldCheck class="w-4 h-4 text-blue-600 shrink-0" />
               <span>Paiement Wave & Orange Money</span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-gold-600 font-black">✓</span>
+              <Gift class="w-4 h-4 text-gold-600 shrink-0" />
               <span>Emballage soigné & Ruban cadeau</span>
             </div>
             <div class="flex items-center gap-2">
-              <span class="text-emerald-600 font-black">✓</span>
+              <RefreshCw class="w-4 h-4 text-emerald-600 shrink-0" />
               <span>Échange de pointure sous 48h</span>
             </div>
+          </div>
+          <div class="pt-1 text-center">
+            <router-link to="/faq-livraison" class="text-[11px] text-stone-500 hover:text-gold-700 font-bold underline">
+              Consulter la FAQ & les conditions complètes de livraison →
+            </router-link>
           </div>
         </div>
       </div>
@@ -275,6 +283,17 @@ import { ProductService } from '../services/api';
 import { useCartStore } from '../stores/cart';
 import { useCurrencyStore } from '../stores/currency';
 import { usePhoneStore } from '../stores/phone';
+import {
+  ShoppingBag,
+  Phone,
+  MessageCircle,
+  Truck,
+  ShieldCheck,
+  RefreshCw,
+  Gift,
+  Minus,
+  Plus,
+} from 'lucide-vue-next';
 
 const route = useRoute();
 const router = useRouter();

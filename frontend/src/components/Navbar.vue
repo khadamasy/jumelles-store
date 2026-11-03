@@ -1,32 +1,35 @@
 <template>
-  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 transition-all shadow-sm">
-    <!-- Top Announcement Bar avec Numéro Officiel & WhatsApp -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 transition-all shadow-xs">
+    <!-- Top Bar Élégante : Assistance & WhatsApp Dakar -->
     <div class="bg-gradient-to-r from-stone-950 via-stone-900 to-stone-950 text-stone-200 text-xs py-2 px-4 border-b border-gold-500/20">
       <div class="max-w-7xl mx-auto flex items-center justify-between">
         <div class="flex items-center gap-2">
           <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-          <span class="font-medium text-gold-400">JUMELLES STORE DAKAR</span>
-          <span class="hidden sm:inline text-stone-400">• Sacs de luxe & Souliers haute maroquinerie</span>
+          <span class="font-serif tracking-wider font-bold text-gold-400 text-[11px] sm:text-xs">JUMELLES STORE DAKAR</span>
+          <span class="hidden md:inline text-stone-400 text-[11px]">• Maison de Maroquinerie Fine & Souliers de Gala</span>
         </div>
 
-        <div class="flex items-center gap-4 text-[11px]">
-          <button
-            @click="phoneStore.openModal()"
-            class="flex items-center gap-1.5 text-stone-300 hover:text-gold-400 transition-colors font-medium cursor-pointer"
-            title="Ouvrir le service téléphonique Jumelles Store"
+        <div class="flex items-center gap-3 sm:gap-5 text-[11px]">
+          <a
+            href="tel:+221772087820"
+            class="flex items-center gap-1.5 text-stone-300 hover:text-gold-400 transition-colors font-medium"
+            title="Appel direct service client"
           >
-            <span>📞</span>
-            <span>+221 77 208 78 20</span>
-          </button>
+            <Phone class="w-3.5 h-3.5 text-gold-400" />
+            <span class="font-mono font-bold">+221 77 208 78 20</span>
+          </a>
 
-          <button
-            @click="phoneStore.openWhatsApp()"
-            class="hidden md:flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-bold bg-emerald-950/60 border border-emerald-500/40 px-2.5 py-0.5 rounded-full transition-colors cursor-pointer"
+          <a
+            href="https://wa.me/221772087820?text=Bonjour%20Jumelles%20Store%2C%20je%20souhaite%20des%20informations%20sur%20vos%20articles"
+            target="_blank"
+            class="flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-bold bg-emerald-950/60 border border-emerald-500/40 px-2.5 py-0.5 rounded-full transition-colors"
           >
-            <span>💬</span> WhatsApp Direct
-          </button>
+            <MessageCircle class="w-3 h-3 text-emerald-400" />
+            <span class="hidden sm:inline">WhatsApp Direct</span>
+            <span class="sm:hidden">WhatsApp</span>
+          </a>
 
-          <span class="hidden lg:inline text-gold-500 font-semibold">• Paiements Wave & Orange Money</span>
+          <span class="hidden lg:inline text-gold-500/90 font-semibold">• Wave & Orange Money</span>
         </div>
       </div>
     </div>
@@ -34,28 +37,41 @@
     <!-- Main Navigation Bar -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-20">
-        <!-- Brand Logo -->
-        <router-link to="/" class="flex items-center gap-3.5 group">
-          <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-stone-900 via-stone-800 to-stone-950 flex items-center justify-center text-gold-400 border border-gold-500/40 shadow-md group-hover:scale-105 group-hover:border-gold-400 transition-all">
-            <span class="font-serif font-black text-2xl tracking-tighter">J</span>
-          </div>
-          <div>
-            <span class="font-serif font-extrabold text-2xl tracking-wider text-stone-950 block leading-none">
-              JUMELLES
-            </span>
-            <div class="flex items-center gap-1.5 mt-1">
-              <span class="text-[9px] tracking-[0.3em] text-gold-700 font-black uppercase">
-                STORE
-              </span>
-              <span class="text-[8px] bg-stone-100 text-stone-600 px-1.5 py-0.2 rounded font-semibold tracking-wider">
-                SACS & SOULIERS
-              </span>
-            </div>
-          </div>
-        </router-link>
+        <!-- Mobile Menu Button & Brand Logo -->
+        <div class="flex items-center gap-3">
+          <!-- Mobile Hamburger Toggle -->
+          <button
+            @click="mobileMenuOpen = !mobileMenuOpen"
+            class="md:hidden p-2 text-stone-800 hover:text-stone-950 rounded-xl hover:bg-stone-100 transition-colors"
+            aria-label="Ouvrir le menu de navigation"
+          >
+            <Menu v-if="!mobileMenuOpen" class="w-6 h-6" />
+            <X v-else class="w-6 h-6 text-gold-700" />
+          </button>
 
-        <!-- Navigation Links -->
-        <nav class="hidden md:flex items-center space-x-8 text-sm font-semibold">
+          <!-- Brand Logo -->
+          <router-link to="/" class="flex items-center gap-3 group">
+            <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-stone-900 via-stone-850 to-stone-950 flex items-center justify-center text-gold-400 border border-gold-500/40 shadow-md group-hover:scale-105 group-hover:border-gold-400 transition-all">
+              <span class="font-serif font-black text-xl sm:text-2xl tracking-tighter">J</span>
+            </div>
+            <div>
+              <span class="font-serif font-extrabold text-xl sm:text-2xl tracking-wider text-stone-950 block leading-none">
+                JUMELLES
+              </span>
+              <div class="flex items-center gap-1.5 mt-1">
+                <span class="text-[9px] tracking-[0.28em] text-gold-700 font-black uppercase">
+                  STORE
+                </span>
+                <span class="text-[8px] bg-stone-100 text-stone-600 px-1.5 py-0.2 rounded font-semibold tracking-wider">
+                  SACS & SOULIERS
+                </span>
+              </div>
+            </div>
+          </router-link>
+        </div>
+
+        <!-- Desktop Navigation Links (Vrais Liens) -->
+        <nav class="hidden md:flex items-center space-x-7 text-xs lg:text-sm font-semibold">
           <router-link
             to="/"
             class="text-stone-700 hover:text-gold-700 transition-colors py-1 relative"
@@ -68,14 +84,14 @@
             class="text-stone-700 hover:text-gold-700 transition-colors py-1 relative flex items-center gap-1.5"
             active-class="text-gold-700 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-gold-600"
           >
-            <span>👜</span> Sacs & Cabas
+            <span>Sacs & Cabas</span>
           </router-link>
           <router-link
             to="/catalog?type=CHAUSSURE"
             class="text-stone-700 hover:text-gold-700 transition-colors py-1 relative flex items-center gap-1.5"
             active-class="text-gold-700 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-gold-600"
           >
-            <span>👠</span> Chaussures & Escarpins
+            <span>Chaussures (37-42)</span>
           </router-link>
           <router-link
             to="/catalog"
@@ -89,24 +105,24 @@
             class="text-stone-700 hover:text-gold-700 transition-colors py-1 relative flex items-center gap-1"
             active-class="text-gold-700 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-gold-600"
           >
-            <span>⚡</span> FAQ Livraison
+            <span>FAQ Livraison</span>
           </router-link>
           <router-link
             v-if="authStore.isAdmin"
             to="/admin"
             class="bg-gradient-to-r from-amber-500 to-amber-600 text-stone-950 font-bold px-3.5 py-1.5 rounded-full text-xs shadow hover:from-amber-600 hover:to-amber-700 transition-all flex items-center gap-1.5"
           >
-            <span>⚙️</span> Espace Gérance
+            <span>Gérance</span>
           </router-link>
         </nav>
 
-        <!-- Actions (Search, Account, Cart) -->
-        <div class="flex items-center space-x-2 sm:space-x-4">
-          <!-- Convertisseur de Devise (FCFA / EUR €) pour les clients de la diaspora & internationaux -->
-          <div class="flex items-center bg-stone-100 p-1 rounded-xl border border-stone-200/90 shadow-inner">
+        <!-- Right Actions (Currency Switcher, User Dropdown, Cart) -->
+        <div class="flex items-center space-x-2 sm:space-x-3">
+          <!-- Convertisseur de Devise (FCFA / EUR €) -->
+          <div class="flex items-center bg-stone-100 p-1 rounded-xl border border-stone-200/90 shadow-2xs">
             <button
               @click="currencyStore.setCurrency('XOF')"
-              class="px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition-all"
+              class="px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-extrabold transition-all"
               :class="currencyStore.isXof ? 'bg-stone-900 text-gold-400 shadow' : 'text-stone-500 hover:text-stone-900'"
               title="Afficher les prix en Franc CFA (FCFA)"
             >
@@ -114,41 +130,41 @@
             </button>
             <button
               @click="currencyStore.setCurrency('EUR')"
-              class="px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition-all flex items-center gap-1"
+              class="px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-extrabold transition-all"
               :class="currencyStore.isEur ? 'bg-gold-600 text-white shadow' : 'text-stone-500 hover:text-stone-900'"
-              title="Convertir automatiquement les prix en Euros (€)"
+              title="Convertir les prix en Euros (€)"
             >
-              <span>€</span>
-              <span>EUR</span>
+              EUR
             </button>
           </div>
 
           <!-- User / Auth Dropdown -->
           <div class="relative group">
-            <button class="flex items-center gap-2 text-stone-700 hover:text-stone-950 p-2.5 rounded-2xl hover:bg-stone-100 transition-all border border-stone-200/60">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-stone-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              <span v-if="authStore.isAuthenticated" class="text-xs font-bold hidden lg:inline max-w-[110px] truncate text-stone-900">
+            <button
+              class="flex items-center gap-1.5 text-stone-700 hover:text-stone-950 p-2 sm:p-2.5 rounded-xl hover:bg-stone-100 transition-all border border-stone-200/60"
+              aria-label="Mon compte"
+            >
+              <User class="w-4 h-4 text-stone-800" />
+              <span v-if="authStore.isAuthenticated" class="text-xs font-bold hidden xl:inline max-w-[100px] truncate text-stone-900">
                 {{ authStore.userName }}
               </span>
             </button>
 
             <!-- Dropdown Menu -->
-            <div class="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-stone-200 py-3 hidden group-hover:block transition-all z-50 animate-fadeIn">
+            <div class="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-stone-200 py-3 hidden group-hover:block transition-all z-50 animate-in fade-in zoom-in-95">
               <div v-if="authStore.isAuthenticated" class="px-4 py-2 border-b border-stone-100">
-                <p class="text-[11px] text-stone-400">Compte actif</p>
+                <p class="text-[10px] text-stone-400 uppercase tracking-wider font-bold">Compte client</p>
                 <p class="text-sm font-bold text-stone-900 truncate">{{ authStore.userName }}</p>
                 <span
                   class="inline-block mt-1 text-[10px] font-bold uppercase px-2 py-0.5 rounded-md"
                   :class="authStore.isAdmin ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-blue-100 text-blue-800 border border-blue-300'"
                 >
-                  {{ authStore.isAdmin ? '👑 Direction / Admin' : '👤 Client Particulier' }}
+                  {{ authStore.isAdmin ? '👑 Direction' : '👤 Cliente' }}
                 </span>
               </div>
 
               <div class="py-1">
-                <router-link v-if="authStore.isAuthenticated" to="/orders" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-50">
+                <router-link to="/orders" class="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-50">
                   <span>📦</span> Mes Commandes
                 </router-link>
 
@@ -164,14 +180,14 @@
                   @click="authStore.loginAsDemoAdmin"
                   class="w-full text-left text-xs text-amber-900 hover:bg-amber-100/70 p-1.5 rounded-lg flex items-center justify-between font-bold"
                 >
-                  <span>👑 Mode Administratrice</span>
-                  <span class="text-[10px] text-amber-600">Gérer stocks</span>
+                  <span>👑 Mode Gérance</span>
+                  <span class="text-[10px] text-amber-600">Admin</span>
                 </button>
                 <button
                   @click="authStore.loginAsDemoClient"
                   class="w-full text-left text-xs text-blue-900 hover:bg-blue-100/70 p-1.5 rounded-lg flex items-center justify-between font-semibold"
                 >
-                  <span>👤 Mode Cliente (Awa)</span>
+                  <span>👤 Mode Cliente</span>
                   <span class="text-[10px] text-blue-600">Acheter</span>
                 </button>
               </div>
@@ -187,15 +203,14 @@
           <!-- Shopping Cart Button -->
           <button
             @click="cartStore.toggleDrawer(true)"
-            class="relative p-2.5 bg-stone-900 hover:bg-gold-600 text-white rounded-2xl transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+            class="relative p-2.5 sm:px-4 sm:py-2.5 bg-stone-900 hover:bg-gold-600 text-white rounded-2xl transition-all shadow-md hover:shadow-lg flex items-center gap-2 active:scale-95"
+            aria-label="Voir le panier"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
-            <span class="hidden sm:inline text-xs font-bold pr-1">Panier</span>
+            <ShoppingBag class="w-4 h-4 text-gold-400" />
+            <span class="hidden sm:inline text-xs font-bold">Panier</span>
             <span
               v-if="cartStore.totalItems > 0"
-              class="bg-gold-400 text-stone-950 text-[11px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow"
+              class="bg-gold-400 text-stone-950 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow"
             >
               {{ cartStore.totalItems }}
             </span>
@@ -203,15 +218,126 @@
         </div>
       </div>
     </div>
+
+    <!-- Mobile Drawer Menu (Mobile First UI/UX) -->
+    <div
+      v-if="mobileMenuOpen"
+      class="md:hidden fixed inset-0 top-[110px] bg-stone-950/70 backdrop-blur-md z-40 transition-all animate-in fade-in"
+      @click.self="mobileMenuOpen = false"
+    >
+      <div class="bg-white border-b border-stone-200 shadow-2xl p-6 space-y-6 max-h-[calc(100vh-110px)] overflow-y-auto">
+        <div class="space-y-1">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-gold-700">Collections Maison Jumelles</p>
+          <div class="grid grid-cols-1 gap-2 pt-2">
+            <router-link
+              to="/"
+              @click="mobileMenuOpen = false"
+              class="flex items-center justify-between p-3 rounded-2xl bg-stone-50 hover:bg-gold-50 font-serif font-bold text-stone-900 transition-colors"
+            >
+              <span>Accueil</span>
+              <ChevronRight class="w-4 h-4 text-stone-400" />
+            </router-link>
+
+            <router-link
+              to="/catalog?type=SAC"
+              @click="mobileMenuOpen = false"
+              class="flex items-center justify-between p-3 rounded-2xl bg-stone-50 hover:bg-gold-50 font-serif font-bold text-stone-900 transition-colors"
+            >
+              <span>👜 Maroquinerie & Sacs de Luxe</span>
+              <ChevronRight class="w-4 h-4 text-stone-400" />
+            </router-link>
+
+            <router-link
+              to="/catalog?type=CHAUSSURE"
+              @click="mobileMenuOpen = false"
+              class="flex items-center justify-between p-3 rounded-2xl bg-stone-50 hover:bg-gold-50 font-serif font-bold text-stone-900 transition-colors"
+            >
+              <span>👠 Chaussures & Souliers (37-42)</span>
+              <ChevronRight class="w-4 h-4 text-stone-400" />
+            </router-link>
+
+            <router-link
+              to="/catalog"
+              @click="mobileMenuOpen = false"
+              class="flex items-center justify-between p-3 rounded-2xl bg-stone-50 hover:bg-gold-50 font-serif font-bold text-stone-900 transition-colors"
+            >
+              <span>✨ Tout le Catalogue (13 Pièces)</span>
+              <ChevronRight class="w-4 h-4 text-stone-400" />
+            </router-link>
+
+            <router-link
+              to="/faq-livraison"
+              @click="mobileMenuOpen = false"
+              class="flex items-center justify-between p-3 rounded-2xl bg-stone-50 hover:bg-gold-50 font-serif font-bold text-stone-900 transition-colors"
+            >
+              <span>⚡ FAQ & Délais de Livraison Dakar</span>
+              <ChevronRight class="w-4 h-4 text-stone-400" />
+            </router-link>
+
+            <router-link
+              to="/orders"
+              @click="mobileMenuOpen = false"
+              class="flex items-center justify-between p-3 rounded-2xl bg-stone-50 hover:bg-gold-50 font-serif font-bold text-stone-900 transition-colors"
+            >
+              <span>📦 Suivi de Commande</span>
+              <ChevronRight class="w-4 h-4 text-stone-400" />
+            </router-link>
+
+            <router-link
+              v-if="authStore.isAdmin"
+              to="/admin"
+              @click="mobileMenuOpen = false"
+              class="flex items-center justify-between p-3 rounded-2xl bg-amber-50 border border-amber-200 font-serif font-bold text-amber-900 transition-colors"
+            >
+              <span>👑 Espace Gérance & Stocks</span>
+              <ChevronRight class="w-4 h-4 text-amber-600" />
+            </router-link>
+          </div>
+        </div>
+
+        <!-- Contact Rapide Mobile -->
+        <div class="pt-2 border-t border-stone-100 space-y-2">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400">Assistance Clientèle 7j/7</p>
+          <div class="grid grid-cols-2 gap-2">
+            <a
+              href="tel:+221772087820"
+              class="py-3 px-3 rounded-xl bg-stone-950 text-white font-bold text-xs flex items-center justify-center gap-2"
+            >
+              <Phone class="w-3.5 h-3.5 text-gold-400" />
+              <span>Appeler</span>
+            </a>
+            <a
+              href="https://wa.me/221772087820?text=Bonjour%20Jumelles%20Store"
+              target="_blank"
+              class="py-3 px-3 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center justify-center gap-2"
+            >
+              <MessageCircle class="w-3.5 h-3.5" />
+              <span>WhatsApp</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
   </header>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
+import {
+  ShoppingBag,
+  Phone,
+  MessageCircle,
+  User,
+  Menu,
+  X,
+  ChevronRight,
+} from 'lucide-vue-next';
 import { useCartStore } from '../stores/cart';
 import { useAuthStore } from '../stores/auth';
 import { useCurrencyStore } from '../stores/currency';
 import { usePhoneStore } from '../stores/phone';
 
+const mobileMenuOpen = ref(false);
 const cartStore = useCartStore();
 const authStore = useAuthStore();
 const currencyStore = useCurrencyStore();
