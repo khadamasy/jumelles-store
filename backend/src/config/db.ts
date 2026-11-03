@@ -522,15 +522,5 @@ export const memoryStore = {
     }
   ] as PaymentTransaction[],
 
-  phoneCallbacks: [
-    {
-      id: 'call-1',
-      customerName: 'Aissatou Sow',
-      customerPhone: '+221 77 555 44 33',
-      productInterest: 'Sac à Main Prestige Cuir Epsom',
-      notes: 'Souhaite confirmation de livraison à Mermoz cet après-midi',
-      status: 'PENDING',
-      createdAt: new Date().toISOString()
-    }
-  ] as PhoneCallbackRequest[]
+  phoneCallbacks: [] as PhoneCallbackRequest[]
 };
