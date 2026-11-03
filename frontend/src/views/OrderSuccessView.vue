@@ -22,9 +22,9 @@
       <!-- En-tête Montant & Opérateur -->
       <div class="flex items-center justify-between border-b border-stone-100 pb-4">
         <div class="flex items-center gap-3">
-          <span class="text-3xl">{{ provider === 'WAVE' ? '🌊' : '🍊' }}</span>
+          <span class="text-3xl">{{ isOrangeMoney ? '🍊' : '🌊' }}</span>
           <div>
-            <span class="font-black text-base text-stone-900 block">{{ provider === 'WAVE' ? 'Règlement Wave' : 'Règlement Orange Money' }}</span>
+            <span class="font-black text-base text-stone-900 block">{{ isOrangeMoney ? 'Règlement Orange Money' : 'Règlement Wave' }}</span>
             <span class="text-[11px] text-stone-400">Paiement direct sans intermédiaire</span>
           </div>
         </div>
@@ -37,7 +37,7 @@
       <!-- ============================================== -->
       <!-- SECTION WAVE : OUVERTURE DIRECTE PRÉ-REMPLIE    -->
       <!-- ============================================== -->
-      <div v-if="provider === 'WAVE'" class="space-y-4">
+      <div v-if="!isOrangeMoney" class="space-y-4">
         <!-- 1. GROS BOUTON MOBILE PRINCIPAL -->
         <div>
           <button
@@ -255,10 +255,10 @@
         <a
           :href="whatsappConfirmationUrl"
           target="_blank"
-          class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
+          class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
         >
-          <span>💬</span>
-          <span>Confirmer le paiement sur WhatsApp (+221 77 208 78 20)</span>
+          <span class="text-base">💬</span>
+          <span>Confirmer le paiement {{ isOrangeMoney ? 'Orange Money' : 'Wave' }} sur WhatsApp (+221 77 208 78 20)</span>
         </a>
       </div>
 
@@ -390,10 +390,14 @@ const copyOrangeMoneyPhone = async () => {
   omNotice.value = `✓ Numéro 77 208 78 20 copié ! Collez-le dans Orange Money ou composez le #144#.`;
 };
 
+const isOrangeMoney = computed(() => {
+  return (provider.value || '').toUpperCase().includes('ORANGE');
+});
+
 const showQrCode = ref(false);
 
 const whatsappConfirmationUrl = computed(() => {
-  const providerLabel = provider.value === 'ORANGE_MONEY' ? 'Orange Money' : 'Wave';
+  const providerLabel = isOrangeMoney.value ? 'Orange Money' : 'Wave';
   const msg = encodeURIComponent(
     `Bonjour Jumelles Store, je viens d'effectuer le paiement ${providerLabel} de ${formatPrice(amount.value)} pour ma commande n° ${orderNumber.value}. Pouvez-vous confirmer la réception ?`
   );

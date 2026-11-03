@@ -122,7 +122,7 @@
                 <p class="text-stone-700 text-xs mt-0.5">
                   Numéro : <strong class="text-stone-950 font-mono text-sm">77 208 78 20</strong>
                   <span class="mx-1 text-stone-400">•</span>
-                  Titulaire Wave : <strong class="text-stone-950 font-bold">Fary Dione</strong>
+                  Titulaire (Wave & Orange Money) : <strong class="text-stone-950 font-bold">Fary Dione</strong>
                 </p>
               </div>
             </div>
