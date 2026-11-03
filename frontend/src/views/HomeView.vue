@@ -67,76 +67,109 @@
       </div>
     </section>
 
-    <!-- 3. Hero Section Haute Couture (Mobile First & Motion Design) -->
-    <section class="relative bg-stone-950 text-white min-h-[520px] lg:min-h-[660px] flex items-center overflow-hidden rounded-3xl mx-4 sm:mx-6 lg:mx-8 shadow-2xl border border-stone-800">
-      <!-- Background Luxury Visual with Zoom Hover Effect -->
-      <div class="absolute inset-0 z-0 opacity-40 mix-blend-luminosity overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1920&q=85"
-          alt="Maison Jumelles Store Mode Dakar"
-          class="w-full h-full object-cover scale-105 transition-transform duration-1000 ease-out"
-        />
-      </div>
-      <div class="absolute inset-0 bg-gradient-to-r from-stone-950 via-stone-950/85 to-transparent z-10"></div>
-      <div class="absolute inset-0 bg-gradient-to-t from-stone-950/90 via-transparent to-transparent z-10"></div>
+    <!-- 3. Hero Section Éditoriale Haute Maroquinerie & Souliers -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 text-white rounded-3xl p-6 sm:p-12 lg:p-16 border border-stone-800 shadow-2xl relative overflow-hidden">
+        <!-- Glows dorés en arrière-plan -->
+        <div class="absolute -top-32 -left-32 w-96 h-96 bg-gold-600/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-gold-400/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      <div class="relative z-20 max-w-4xl px-6 sm:px-12 lg:px-16 py-16 lg:py-24 space-y-6 sm:space-y-8">
-        <!-- Luxury Floating Badge -->
-        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gold-500/15 border border-gold-400/40 text-gold-300 text-[10px] sm:text-xs font-bold uppercase tracking-widest backdrop-blur-md shadow-lg">
-          <span class="w-2 h-2 rounded-full bg-gold-400 animate-ping"></span>
-          <span>Maison Jumelles • Haute Maroquinerie Dakar</span>
-        </div>
-
-        <h1 class="font-serif text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.12]">
-          L'Élégance du Sac & la Grâce du Soulier.
-        </h1>
-
-        <p class="text-stone-300 text-sm sm:text-base lg:text-lg leading-relaxed font-light max-w-xl">
-          Pièces exclusives de haute maroquinerie au cuir sélectionné et souliers taillés pour sublimer chaque silhouette à Dakar.
-        </p>
-
-        <!-- CTAs Vrais Liens -->
-        <div class="flex flex-wrap items-center gap-3 sm:gap-4 pt-2">
-          <router-link
-            to="/catalog?type=SAC"
-            class="px-6 sm:px-8 py-3.5 sm:py-4 bg-gradient-to-r from-gold-500 via-gold-400 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-stone-950 font-black text-xs sm:text-sm rounded-2xl shadow-xl transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2"
-          >
-            <ShoppingBag class="w-4 h-4" />
-            <span>Découvrir les Sacs</span>
-            <ArrowRight class="w-4 h-4" />
-          </router-link>
-
-          <router-link
-            to="/catalog?type=CHAUSSURE"
-            class="px-6 sm:px-8 py-3.5 sm:py-4 bg-white/10 hover:bg-white/20 text-white border border-white/30 backdrop-blur-md font-bold text-xs sm:text-sm rounded-2xl transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2"
-          >
-            <span>Voir les Chaussures (37-42)</span>
-            <ArrowRight class="w-4 h-4" />
-          </router-link>
-        </div>
-
-        <!-- Reassurance Mini Badges -->
-        <div class="pt-4 border-t border-white/15 flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-stone-300">
-          <span class="flex items-center gap-2 text-stone-300 font-semibold">
-            <Sparkles class="w-3.5 h-3.5 text-gold-400" />
-            <span>Maroquinerie d'Exception</span>
-          </span>
-          <span class="flex items-center gap-1.5 text-emerald-400 font-semibold">
-            <CheckCircle2 class="w-3.5 h-3.5" />
-            <span>Livraison 24h Dakar</span>
-          </span>
-          <span class="flex items-center gap-1.5 text-gold-400 font-semibold">
-            <div class="flex items-center gap-1">
-              <IconWave className="w-4 h-4 rounded" />
-              <IconOrangeMoney className="w-4 h-4 rounded" />
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
+          <!-- Colonne Gauche : Titre & Actions -->
+          <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gold-500/15 border border-gold-400/40 text-gold-300 text-[10px] sm:text-xs font-bold uppercase tracking-widest backdrop-blur-md shadow-sm">
+              <span class="w-2 h-2 rounded-full bg-gold-400 animate-ping"></span>
+              <span>Maison Jumelles • Collection 2026</span>
             </div>
-            <span>Wave & Orange Money</span>
-          </span>
+
+            <h1 class="font-serif text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.12]">
+              L'Élégance du Sac & la Grâce du Soulier.
+            </h1>
+
+            <p class="text-stone-300 text-sm sm:text-base lg:text-lg leading-relaxed font-light max-w-xl mx-auto lg:mx-0">
+              Des pièces exclusives de haute maroquinerie au cuir sélectionné et des souliers taillés pour sublimer chaque silhouette à Dakar.
+            </p>
+
+            <!-- Boutons Principaux -->
+            <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-2">
+              <router-link
+                to="/catalog?type=SAC"
+                class="px-6 sm:px-8 py-3.5 sm:py-4 bg-gradient-to-r from-gold-500 via-gold-400 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-stone-950 font-black text-xs sm:text-sm rounded-2xl shadow-xl transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2"
+              >
+                <ShoppingBag class="w-4 h-4" />
+                <span>Découvrir les Sacs</span>
+                <ArrowRight class="w-4 h-4" />
+              </router-link>
+
+              <router-link
+                to="/catalog?type=CHAUSSURE"
+                class="px-6 sm:px-8 py-3.5 sm:py-4 bg-white/10 hover:bg-white/20 text-white border border-white/30 backdrop-blur-md font-bold text-xs sm:text-sm rounded-2xl transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2"
+              >
+                <span>Voir les Chaussures (37-42)</span>
+                <ArrowRight class="w-4 h-4" />
+              </router-link>
+            </div>
+
+            <!-- Badges de réassurance sobres -->
+            <div class="pt-4 border-t border-white/15 flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 text-xs text-stone-300">
+              <span class="flex items-center gap-2">
+                <Truck class="w-3.5 h-3.5 text-gold-400" />
+                <span>Livraison 24h Dakar</span>
+              </span>
+              <span class="flex items-center gap-2">
+                <RefreshCw class="w-3.5 h-3.5 text-gold-400" />
+                <span>Échange pointure 48h</span>
+              </span>
+              <span class="flex items-center gap-2">
+                <ShieldCheck class="w-3.5 h-3.5 text-gold-400" />
+                <span>Paiement Wave & OM direct</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Colonne Droite : Vitrine Visuelle Double Produit (Sacs & Souliers) -->
+          <div class="lg:col-span-5 grid grid-cols-2 gap-4">
+            <!-- Produit 1 : Sac Birkin Camel -->
+            <router-link
+              to="/product/sac-a-main-birkin-style-camel"
+              class="group relative rounded-2xl overflow-hidden bg-stone-900 border border-gold-500/30 shadow-xl aspect-[3/4] flex flex-col justify-end p-4 transition-all hover:-translate-y-1"
+            >
+              <img
+                src="/products/sac-birkin-camel.jpg"
+                alt="Sac Birkin Camel"
+                class="absolute inset-0 w-full h-full object-cover group-hover:scale-108 transition-transform duration-700"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent"></div>
+              <div class="relative z-10 space-y-1">
+                <span class="text-[9px] uppercase tracking-wider text-gold-400 font-bold block">Best-Seller</span>
+                <p class="font-serif font-bold text-xs sm:text-sm text-white line-clamp-1">Sac Birkin Camel</p>
+                <span class="text-xs font-extrabold text-gold-300 block">15 000 FCFA</span>
+              </div>
+            </router-link>
+
+            <!-- Produit 2 : Mules Talon Cœur Noir -->
+            <router-link
+              to="/product/mules-talon-coeur-noir-soiree"
+              class="group relative rounded-2xl overflow-hidden bg-stone-900 border border-gold-500/30 shadow-xl aspect-[3/4] flex flex-col justify-end p-4 transition-all hover:-translate-y-1 mt-6"
+            >
+              <img
+                src="/products/mules-talon-coeur-noir.jpg"
+                alt="Mules Talon Cœur Noir"
+                class="absolute inset-0 w-full h-full object-cover group-hover:scale-108 transition-transform duration-700"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent"></div>
+              <div class="relative z-10 space-y-1">
+                <span class="text-[9px] uppercase tracking-wider text-gold-400 font-bold block">Pointures 37-42</span>
+                <p class="font-serif font-bold text-xs sm:text-sm text-white line-clamp-1">Mules Talon Cœur Noir</p>
+                <span class="text-xs font-extrabold text-gold-300 block">12 000 FCFA</span>
+              </div>
+            </router-link>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- 4. Piliers de Confiance & Prestige (4 Cartes Modernes avec Vraies Icônes) -->
+    <!-- 4. Piliers de Confiance & Prestige (4 Cartes Modernes) -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-stone-200/90 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="flex items-start gap-4 p-3 rounded-2xl hover:bg-stone-50 transition-colors">
@@ -311,7 +344,77 @@
       </div>
     </section>
 
-    <!-- 7. Bandeau Paiement Mobile & Assistance Directe -->
+    <!-- 7. Témoignages de Clientes Vérifiées à Dakar -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="bg-gradient-to-b from-stone-50 to-stone-100/70 border border-stone-200 rounded-3xl p-8 sm:p-12 shadow-sm space-y-8">
+        <div class="text-center max-w-lg mx-auto space-y-2">
+          <span class="text-xs font-bold text-gold-700 uppercase tracking-widest bg-gold-50 px-3.5 py-1 rounded-full border border-gold-200">
+            Avis Clientes Vérifiées
+          </span>
+          <h3 class="font-serif text-2xl sm:text-3xl font-bold text-stone-900">
+            Ce que disent nos clientes à Dakar
+          </h3>
+          <p class="text-xs sm:text-sm text-stone-500 font-light">
+            Des centaines de femmes satisfaites par la qualité de nos cuirs et la rapidité de nos livraisons.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3">
+            <div class="flex items-center text-amber-400 gap-1 text-sm">
+              <Star class="w-4 h-4 fill-amber-400" />
+              <Star class="w-4 h-4 fill-amber-400" />
+              <Star class="w-4 h-4 fill-amber-400" />
+              <Star class="w-4 h-4 fill-amber-400" />
+              <Star class="w-4 h-4 fill-amber-400" />
+            </div>
+            <p class="text-xs sm:text-sm text-stone-700 italic leading-relaxed">
+              « Le Sac Birkin Camel est tout simplement magnifique. Finition cuir irréprochable et bouclerie lourde. Livré en 3 heures à Dakar Almadies ! »
+            </p>
+            <div class="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
+              <span class="font-bold text-stone-900">Fatou S.</span>
+              <span class="text-stone-400">Almadies, Dakar</span>
+            </div>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3">
+            <div class="flex items-center text-amber-400 gap-1 text-sm">
+              <Star class="w-4 h-4 fill-amber-400" />
+              <Star class="w-4 h-4 fill-amber-400" />
+              <Star class="w-4 h-4 fill-amber-400" />
+              <Star class="w-4 h-4 fill-amber-400" />
+              <Star class="w-4 h-4 fill-amber-400" />
+            </div>
+            <p class="text-xs sm:text-sm text-stone-700 italic leading-relaxed">
+              « J'avais peur pour la pointure mais les escarpins en 39 taillent parfaitement. Confort incroyable pour danser toute la soirée. »
+            </p>
+            <div class="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
+              <span class="font-bold text-stone-900">Aïssatou D.</span>
+              <span class="text-stone-400">Point E, Dakar</span>
+            </div>
+          </div>
+
+          <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3">
+            <div class="flex items-center text-amber-400 gap-1 text-sm">
+              <Star class="w-4 h-4 fill-amber-400" />
+              <Star class="w-4 h-4 fill-amber-400" />
+              <Star class="w-4 h-4 fill-amber-400" />
+              <Star class="w-4 h-4 fill-amber-400" />
+              <Star class="w-4 h-4 fill-amber-400" />
+            </div>
+            <p class="text-xs sm:text-sm text-stone-700 italic leading-relaxed">
+              « Paiement Wave en un clic, commande confirmée immédiatement. Très professionnel et le packaging est sublime. »
+            </p>
+            <div class="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
+              <span class="font-bold text-stone-900">Mariama B.</span>
+              <span class="text-stone-400">Mermoz, Dakar</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. Bandeau Paiement Mobile Wave & Orange Money -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 rounded-3xl p-8 sm:p-12 text-white border border-gold-500/30 shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-8">
         <div class="space-y-4 max-w-xl text-center lg:text-left">
@@ -368,13 +471,11 @@ import {
   RefreshCw,
   ShoppingBag,
   ArrowRight,
-  CheckCircle2,
   Award,
+  Star,
 } from 'lucide-vue-next';
 import IconWave from '../components/icons/IconWave.vue';
 import IconOrangeMoney from '../components/icons/IconOrangeMoney.vue';
-import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
-import IconPhoneSolid from '../components/icons/IconPhoneSolid.vue';
 import { ProductService } from '../services/api';
 import ProductCard from '../components/ProductCard.vue';
 
@@ -390,29 +491,29 @@ const mobileStories = [
     image: '/products/sac-birkin-camel.jpg',
   },
   {
-    label: 'Pochettes Soirée',
-    link: '/catalog?category=pochettes-bandoulieres',
-    image: '/products/sac-pochette-chaine-or.jpg',
+    label: 'Sacs Alma & Cabas',
+    link: '/catalog?category=sacs-a-main',
+    image: '/products/sac-alma-damier-ebene.jpg',
   },
   {
-    label: 'Escarpins Gala',
-    link: '/catalog?category=escarpins-talons',
-    image: '/products/escarpins-stiletto-noir.jpg',
-  },
-  {
-    label: 'Mules & Nu-Pieds',
+    label: 'Mules Cœur Gala',
     link: '/catalog?category=sandales-mules',
     image: '/products/mules-talon-coeur-noir.jpg',
   },
   {
-    label: 'Collection Sneaker',
-    link: '/catalog?category=sneakers-femme',
-    image: '/products/sneakers-urbaines-dorees.jpg',
+    label: 'Mules Jacquard',
+    link: '/catalog?type=CHAUSSURE',
+    image: '/products/mules-h-jacquard-blanc-coffret.jpg',
   },
   {
-    label: 'Guide Livraison',
-    link: '/faq-livraison',
-    image: '/products/sac-cabas-croco-noir.jpg',
+    label: 'Sandales Bijou',
+    link: '/catalog?type=CHAUSSURE',
+    image: '/products/tongs-cuir-bijou-dore.jpg',
+  },
+  {
+    label: 'Sacs Matelassés',
+    link: '/catalog?type=SAC',
+    image: '/products/sac-matelasse-chaine-collection.jpg',
   },
 ];
 

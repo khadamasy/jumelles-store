@@ -28,81 +28,84 @@
           </div>
         </div>
 
-        <!-- Univers Sacs (Vrais Liens) -->
+        <!-- Univers Collections (Vrais Liens) -->
         <div>
           <h4 class="font-serif text-white font-bold mb-4 text-base tracking-wide flex items-center gap-2">
             <ShoppingBag class="w-4 h-4 text-gold-400" />
-            <span>Collection Sacs</span>
+            <span>Collections</span>
           </h4>
           <ul class="space-y-2.5 text-sm text-stone-400">
-            <li><router-link to="/catalog?category=sacs-a-main" class="hover:text-gold-400 transition-colors">Sacs Cabas & Portés Main</router-link></li>
+            <li><router-link to="/catalog?type=SAC" class="hover:text-gold-400 transition-colors">Sacs Cabas & Portés Main</router-link></li>
             <li><router-link to="/catalog?category=pochettes-bandoulieres" class="hover:text-gold-400 transition-colors">Pochettes Bijou de Gala</router-link></li>
-            <li><router-link to="/catalog?type=SAC" class="hover:text-gold-400 transition-colors">Cuir Effet Croco & Finitions Dorées</router-link></li>
-            <li><router-link to="/catalog?type=SAC" class="hover:text-gold-400 transition-colors">Bandoulières & Sacs Compacts</router-link></li>
+            <li><router-link to="/catalog?type=CHAUSSURE" class="hover:text-gold-400 transition-colors">Escarpins & Souliers (37-42)</router-link></li>
+            <li><router-link to="/catalog?category=sandales-mules" class="hover:text-gold-400 transition-colors">Sandales & Mules Dorées</router-link></li>
+            <li><router-link to="/catalog" class="hover:text-gold-400 transition-colors text-xs font-bold text-gold-500">Voir tout le catalogue →</router-link></li>
           </ul>
         </div>
 
-        <!-- Univers Chaussures (Vrais Liens) -->
+        <!-- Section Légal (Conforme à la maquette fournie) -->
         <div>
-          <h4 class="font-serif text-white font-bold mb-4 text-base tracking-wide flex items-center gap-2">
-            <Sparkles class="w-4 h-4 text-gold-400" />
-            <span>Collection Chaussures</span>
+          <h4 class="text-white font-bold mb-4 text-base tracking-wide flex items-center gap-2">
+            <ShieldCheck class="w-4 h-4 text-sky-400" />
+            <span>Légal</span>
           </h4>
-          <ul class="space-y-2.5 text-sm text-stone-400">
-            <li><router-link to="/catalog?category=escarpins-talons" class="hover:text-gold-400 transition-colors">Escarpins Stiletto 10cm</router-link></li>
-            <li><router-link to="/catalog?category=sandales-mules" class="hover:text-gold-400 transition-colors">Sandales Dorées & Nu-Pieds</router-link></li>
-            <li><router-link to="/catalog?category=sneakers-femme" class="hover:text-gold-400 transition-colors">Sneakers Urbaines Métallisées</router-link></li>
-            <li><router-link to="/catalog?type=CHAUSSURE" class="hover:text-gold-400 transition-colors">Pointures disponibles : 37 à 42</router-link></li>
+          <ul class="space-y-3 text-sm text-stone-400">
+            <li>
+              <router-link
+                to="/conditions-utilisation"
+                class="flex items-center gap-2.5 hover:text-white transition-colors group"
+              >
+                <FileText class="w-4 h-4 text-stone-400 group-hover:text-sky-400 transition-colors shrink-0" />
+                <span>Conditions d'utilisation</span>
+              </router-link>
+            </li>
+            <li>
+              <router-link
+                to="/politique-confidentialite"
+                class="flex items-center gap-2.5 hover:text-white transition-colors group"
+              >
+                <Lock class="w-4 h-4 text-stone-400 group-hover:text-sky-400 transition-colors shrink-0" />
+                <span>Politique de confidentialité</span>
+              </router-link>
+            </li>
+            <li>
+              <router-link
+                to="/faq-livraison"
+                class="flex items-center gap-2.5 hover:text-white transition-colors group text-xs text-stone-400"
+              >
+                <HelpCircle class="w-4 h-4 text-stone-400 group-hover:text-gold-400 transition-colors shrink-0" />
+                <span>Guide de livraison Dakar</span>
+              </router-link>
+            </li>
           </ul>
         </div>
 
-        <!-- Contact & Service Client Direct -->
+        <!-- Moyens de Paiement & Assistance -->
         <div class="space-y-4">
-          <h4 class="font-serif text-white font-bold mb-4 text-base tracking-wide">Commandes & Service Client</h4>
+          <h4 class="font-serif text-white font-bold mb-4 text-base tracking-wide">Paiements & Livraison</h4>
           
           <div class="space-y-3">
-            <!-- Numéro Officiel -->
-            <a
-              href="tel:+221772087820"
-              class="flex items-center gap-3 p-3 rounded-2xl bg-stone-850 border border-stone-700/80 hover:border-gold-500/50 transition-colors group"
-            >
-              <div class="w-9 h-9 rounded-xl bg-gold-500/10 text-gold-400 flex items-center justify-center font-bold text-base group-hover:bg-gold-500 group-hover:text-stone-950 transition-colors">
-                <IconPhoneSolid className="w-4 h-4 text-[#e02f75]" />
+            <!-- Moyens de paiement avec les vrais logos officiels -->
+            <div>
+              <p class="text-xs text-stone-400 mb-2 font-medium">Règlement 100% direct et sécurisé :</p>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 bg-sky-950/60 border border-cyan-500/40 text-cyan-300 px-3 py-1.5 rounded-xl text-xs font-bold shadow-xs">
+                  <IconWave className="w-4 h-4 shrink-0 rounded" />
+                  <span>Wave Sénégal</span>
+                </span>
+                <span class="inline-flex items-center gap-1.5 bg-orange-950/60 border border-orange-500/40 text-orange-300 px-3 py-1.5 rounded-xl text-xs font-bold shadow-xs">
+                  <IconOrangeMoney className="w-4 h-4 shrink-0 rounded" />
+                  <span>Orange Money</span>
+                </span>
               </div>
-              <div>
-                <p class="text-[11px] text-stone-400 uppercase tracking-wider font-semibold">Téléphone Direct</p>
-                <p class="text-sm font-bold text-white group-hover:text-gold-400 transition-colors">+221 77 208 78 20</p>
-              </div>
-            </a>
+            </div>
 
-            <!-- WhatsApp Direct -->
-            <a
-              href="https://wa.me/221772087820?text=Bonjour%20Jumelles%20Store%2C%20je%20souhaite%20commander%20un%20article"
-              target="_blank"
-              class="flex items-center gap-3 p-3 rounded-2xl bg-[#0f3d26]/40 border border-emerald-500/40 hover:bg-[#0f3d26]/70 transition-colors group"
-            >
-              <div class="w-9 h-9 rounded-xl bg-[#25D366] text-white flex items-center justify-center font-bold text-base shadow-sm">
-                <IconWhatsApp className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p class="text-[11px] text-emerald-400 uppercase tracking-wider font-semibold">WhatsApp Boutique</p>
-                <p class="text-xs font-bold text-white">Commander via WhatsApp (77 208 78 20)</p>
-              </div>
-            </a>
-          </div>
-
-          <!-- Moyens de paiement avec les vrais logos officiels -->
-          <div class="pt-2">
-            <p class="text-xs text-stone-400 mb-2 font-medium">Paiements 100% sécurisés :</p>
-            <div class="flex items-center gap-2.5">
-              <span class="inline-flex items-center gap-1.5 bg-sky-950/60 border border-cyan-500/40 text-cyan-300 px-3 py-1.5 rounded-xl text-xs font-bold shadow-xs">
-                <IconWave className="w-4 h-4 shrink-0 rounded" />
-                <span>Wave Sénégal</span>
-              </span>
-              <span class="inline-flex items-center gap-1.5 bg-orange-950/60 border border-orange-500/40 text-orange-300 px-3 py-1.5 rounded-xl text-xs font-bold shadow-xs">
-                <IconOrangeMoney className="w-4 h-4 shrink-0 rounded" />
-                <span>Orange Money</span>
-              </span>
+            <!-- Titulaire officiel vérifié -->
+            <div class="p-3 rounded-xl bg-stone-900 border border-stone-800 text-xs text-stone-400">
+              <span class="text-[10px] uppercase font-bold text-stone-500 block">Compte Officiel Vérifié</span>
+              <span class="text-stone-200 font-bold">Fary Dione</span>
+              <span class="mx-1">•</span>
+              <span class="font-mono text-stone-300">77 208 78 20</span>
             </div>
           </div>
         </div>
@@ -135,9 +138,11 @@ import {
   Truck,
   ShoppingBag,
   Sparkles,
+  ShieldCheck,
+  FileText,
+  Lock,
+  HelpCircle,
 } from 'lucide-vue-next';
-import IconWhatsApp from './icons/IconWhatsApp.vue';
-import IconPhoneSolid from './icons/IconPhoneSolid.vue';
 import IconWave from './icons/IconWave.vue';
 import IconOrangeMoney from './icons/IconOrangeMoney.vue';
 </script>

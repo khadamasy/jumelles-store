@@ -7,6 +7,7 @@ import OrderSuccessView from '../views/OrderSuccessView.vue';
 import OrdersView from '../views/OrdersView.vue';
 import AdminView from '../views/AdminView.vue';
 import FaqDeliveryView from '../views/FaqDeliveryView.vue';
+import LegalView from '../views/LegalView.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -18,6 +19,8 @@ const router = createRouter({
     { path: '/order-success', name: 'order-success', component: OrderSuccessView },
     { path: '/orders', name: 'orders', component: OrdersView },
     { path: '/faq-livraison', name: 'faq-livraison', component: FaqDeliveryView },
+    { path: '/conditions-utilisation', name: 'terms', component: LegalView },
+    { path: '/politique-confidentialite', name: 'privacy', component: LegalView },
     { path: '/admin', name: 'admin', component: AdminView },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
