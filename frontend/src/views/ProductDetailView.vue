@@ -215,18 +215,18 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <button
               @click="phoneStore.openModal(product.name + ' - ' + (selectedVariant ? selectedVariant.color + ' / ' + selectedVariant.sizeOrShoeSize : ''))"
-              class="w-full py-3.5 px-4 rounded-2xl text-xs font-bold bg-stone-950 hover:bg-gold-600 text-white transition-all shadow flex items-center justify-center gap-2 cursor-pointer"
+              class="w-full py-3.5 px-4 rounded-2xl text-xs font-bold bg-stone-950 hover:bg-stone-900 border border-[#d7b966] text-white transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer active:scale-98"
             >
-              <Phone class="w-3.5 h-3.5 text-gold-400" />
-              <span>Commander par Téléphone</span>
+              <IconPhoneSolid className="w-4 h-4 text-[#e02f75]" />
+              <span>Appel direct (77 208 78 20)</span>
             </button>
 
             <a
               :href="whatsappOrderUrl"
               target="_blank"
-              class="w-full py-3.5 px-4 rounded-2xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-all shadow flex items-center justify-center gap-2"
+              class="w-full py-3.5 px-4 rounded-2xl text-xs font-bold bg-[#25D366] hover:bg-[#20ba59] text-white transition-all shadow-md flex items-center justify-center gap-2 active:scale-98"
             >
-              <MessageCircle class="w-3.5 h-3.5" />
+              <IconWhatsApp className="w-4 h-4 text-white" />
               <span>WhatsApp (77 208 78 20)</span>
             </a>
           </div>
@@ -241,9 +241,9 @@
             </div>
             <a
               href="tel:+221772087820"
-              class="text-xs font-black text-gold-800 hover:text-stone-950 underline flex items-center gap-1"
+              class="text-xs font-black text-gold-800 hover:text-stone-950 underline flex items-center gap-1.5"
             >
-              <Phone class="w-3 h-3" />
+              <IconPhoneSolid className="w-3.5 h-3.5 text-[#e02f75]" />
               <span>Service Vente : 77 208 78 20</span>
             </a>
           </div>
@@ -253,8 +253,11 @@
               <span>Livraison express à Dakar sous 24h</span>
             </div>
             <div class="flex items-center gap-2">
-              <ShieldCheck class="w-4 h-4 text-blue-600 shrink-0" />
-              <span>Paiement Wave & Orange Money</span>
+              <div class="flex items-center gap-1 shrink-0">
+                <IconWave className="w-4 h-4 rounded" />
+                <IconOrangeMoney className="w-4 h-4 rounded" />
+              </div>
+              <span>Wave & Orange Money direct</span>
             </div>
             <div class="flex items-center gap-2">
               <Gift class="w-4 h-4 text-gold-600 shrink-0" />
@@ -285,8 +288,6 @@ import { useCurrencyStore } from '../stores/currency';
 import { usePhoneStore } from '../stores/phone';
 import {
   ShoppingBag,
-  Phone,
-  MessageCircle,
   Truck,
   ShieldCheck,
   RefreshCw,
@@ -294,6 +295,10 @@ import {
   Minus,
   Plus,
 } from 'lucide-vue-next';
+import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
+import IconPhoneSolid from '../components/icons/IconPhoneSolid.vue';
+import IconWave from '../components/icons/IconWave.vue';
+import IconOrangeMoney from '../components/icons/IconOrangeMoney.vue';
 
 const route = useRoute();
 const router = useRouter();

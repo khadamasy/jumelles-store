@@ -29,19 +29,26 @@
       </div>
 
       <div class="bg-white p-5 rounded-3xl border border-stone-200/90 shadow-sm text-center space-y-2">
-        <span class="text-3xl block">👠</span>
+        <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center mx-auto">
+          <Sparkles class="w-5 h-5 text-amber-600" />
+        </div>
         <h4 class="font-bold text-stone-900 text-sm">Échange 48h</h4>
         <p class="text-xs text-stone-500">Pointures échangeables facilement de 37 à 42</p>
       </div>
 
       <div class="bg-white p-5 rounded-3xl border border-stone-200/90 shadow-sm text-center space-y-2">
-        <span class="text-3xl block">🌊</span>
+        <div class="w-10 h-10 rounded-2xl bg-sky-50 flex items-center justify-center mx-auto gap-1 p-1">
+          <IconWave className="w-4 h-4 rounded" />
+          <IconOrangeMoney className="w-4 h-4 rounded" />
+        </div>
         <h4 class="font-bold text-stone-900 text-sm">Wave & OM</h4>
         <p class="text-xs text-stone-500">Paiement direct au 77 208 78 20 (Fary Dione)</p>
       </div>
 
       <div class="bg-white p-5 rounded-3xl border border-stone-200/90 shadow-sm text-center space-y-2">
-        <span class="text-3xl block">📞</span>
+        <div class="w-10 h-10 rounded-2xl bg-stone-100 flex items-center justify-center mx-auto">
+          <IconPhoneSolid className="w-5 h-5 text-[#e02f75]" />
+        </div>
         <h4 class="font-bold text-stone-900 text-sm">Assistance 7j/7</h4>
         <p class="text-xs text-stone-500">Conseillères disponibles de 08h à 22h GMT</p>
       </div>
@@ -78,8 +85,8 @@
 
     <!-- Contact & Assistance WhatsApp -->
     <div class="bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 rounded-3xl p-8 sm:p-10 text-white text-center space-y-5 shadow-2xl border border-gold-500/30">
-      <div class="w-14 h-14 rounded-2xl bg-gold-500/10 border border-gold-500/40 flex items-center justify-center text-3xl mx-auto">
-        💬
+      <div class="w-14 h-14 rounded-2xl bg-[#25D366]/20 border border-[#25D366]/40 flex items-center justify-center mx-auto shadow-sm">
+        <IconWhatsApp className="w-8 h-8 text-[#25D366]" />
       </div>
       <div class="space-y-2">
         <h3 class="font-serif text-2xl sm:text-3xl font-extrabold text-white">
@@ -94,17 +101,17 @@
         <a
           href="https://wa.me/221772087820?text=Bonjour%20Jumelles%20Store%2C%20j%27ai%20une%20question%20concernant%20une%20commande"
           target="_blank"
-          class="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center gap-2"
+          class="px-6 py-3.5 bg-[#25D366] hover:bg-[#20ba59] active:scale-95 text-white font-bold text-xs rounded-full shadow-lg transition-all flex items-center gap-2 cursor-pointer"
         >
-          <span>💬</span>
+          <IconWhatsApp className="w-4 h-4 text-white" />
           <span>Écrire sur WhatsApp (+221 77 208 78 20)</span>
         </a>
 
         <a
           href="tel:+221772087820"
-          class="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl border border-white/20 transition-all flex items-center gap-2"
+          class="px-6 py-3.5 bg-stone-900 hover:bg-stone-850 active:scale-95 text-white font-bold text-xs rounded-full border border-[#d7b966] transition-all flex items-center gap-2 cursor-pointer shadow"
         >
-          <span>📞</span>
+          <IconPhoneSolid className="w-4 h-4 text-[#e02f75]" />
           <span>Appeler le service client</span>
         </a>
       </div>
@@ -114,6 +121,11 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { Sparkles } from 'lucide-vue-next';
+import IconWave from '../components/icons/IconWave.vue';
+import IconOrangeMoney from '../components/icons/IconOrangeMoney.vue';
+import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
+import IconPhoneSolid from '../components/icons/IconPhoneSolid.vue';
 
 const openIndex = ref<number | null>(0);
 

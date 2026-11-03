@@ -23,9 +23,8 @@
       <!-- En-tête Montant & Opérateur -->
       <div class="flex items-center justify-between border-b border-stone-100 pb-4">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-white shadow-sm" :class="isOrangeMoney ? 'bg-orange-500' : 'bg-blue-600'">
-            <span class="text-xs font-black">{{ isOrangeMoney ? 'OM' : 'WAVE' }}</span>
-          </div>
+          <IconOrangeMoney v-if="isOrangeMoney" className="w-11 h-11 shrink-0 rounded-2xl shadow-sm" />
+          <IconWave v-else className="w-11 h-11 shrink-0 rounded-2xl shadow-sm" />
           <div>
             <span class="font-black text-base text-stone-900 block">{{ isOrangeMoney ? 'Règlement Orange Money' : 'Règlement Wave' }}</span>
             <span class="text-[11px] text-stone-400">Paiement direct sans intermédiaire</span>
@@ -46,9 +45,9 @@
           <button
             @click="openWaveApp"
             type="button"
-            class="w-full py-4 px-4 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 hover:from-blue-700 hover:to-blue-800 text-white font-black text-sm rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2.5 active:scale-98 cursor-pointer"
+            class="w-full py-4 px-4 bg-gradient-to-r from-cyan-600 via-blue-600 to-cyan-600 hover:from-cyan-700 hover:to-blue-700 text-white font-black text-sm rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2.5 active:scale-98 cursor-pointer"
           >
-            <ExternalLink class="w-4 h-4" />
+            <IconWave className="w-6 h-6 shrink-0 rounded-lg shadow-xs" />
             <span>Ouvrir l'application Wave</span>
             <span class="bg-white/20 px-2.5 py-0.5 rounded-lg text-xs font-black">{{ formatPrice(amount) }}</span>
           </button>
@@ -63,8 +62,8 @@
 
         <!-- 2. Carte Élégante & Alignée (Fary Dione • 77 208 78 20) -->
         <div class="bg-gradient-to-br from-blue-50/90 to-sky-50/50 border border-blue-200/90 rounded-3xl p-4 sm:p-5 space-y-3 shadow-sm">
-          <div class="flex items-center gap-2 pb-2 border-b border-blue-200/60">
-            <ShieldCheck class="w-4 h-4 text-blue-600" />
+          <div class="flex items-center gap-2.5 pb-2 border-b border-blue-200/60">
+            <IconWave className="w-5 h-5 shrink-0 rounded" />
             <span class="text-xs font-black text-blue-950 uppercase tracking-wider">Informations pour votre transfert Wave</span>
           </div>
 
@@ -159,9 +158,9 @@
           <button
             @click="copyOrangeMoneyPhone"
             type="button"
-            class="w-full py-4 px-4 bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600 hover:from-orange-700 hover:to-orange-800 text-white font-black text-sm rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2.5 active:scale-98 cursor-pointer"
+            class="w-full py-4 px-4 bg-gradient-to-r from-[#FF7900] via-orange-600 to-[#FF7900] hover:from-orange-700 hover:to-orange-800 text-white font-black text-sm rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2.5 active:scale-98 cursor-pointer"
           >
-            <Copy class="w-4 h-4" />
+            <IconOrangeMoney className="w-6 h-6 shrink-0 rounded-lg shadow-xs" />
             <span>Copier le Numéro Orange Money</span>
             <span class="bg-white/20 px-2.5 py-0.5 rounded-lg text-xs font-black">{{ formatPrice(amount) }}</span>
           </button>
@@ -178,17 +177,17 @@
           <!-- Bouton Code Rapide USSD #144# -->
           <a
             href="tel:#144#"
-            class="w-full py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center gap-2"
+            class="w-full py-3 px-4 bg-stone-900 hover:bg-stone-850 text-white font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center gap-2"
           >
-            <Phone class="w-3.5 h-3.5 text-orange-400" />
+            <IconPhoneSolid className="w-3.5 h-3.5 text-orange-400" />
             <span>Composer le #144# sur mon téléphone</span>
           </a>
         </div>
 
         <!-- 2. Carte Élégante & Alignée Orange Money (Fary Dione • 77 208 78 20) -->
         <div class="bg-gradient-to-br from-orange-50/90 to-amber-50/50 border border-orange-200/90 rounded-3xl p-4 sm:p-5 space-y-3 shadow-sm">
-          <div class="flex items-center gap-2 pb-2 border-b border-orange-200/60">
-            <ShieldCheck class="w-4 h-4 text-orange-600" />
+          <div class="flex items-center gap-2.5 pb-2 border-b border-orange-200/60">
+            <IconOrangeMoney className="w-5 h-5 shrink-0 rounded" />
             <span class="text-xs font-black text-orange-950 uppercase tracking-wider">Informations de transfert Orange Money</span>
           </div>
 
@@ -269,9 +268,9 @@
         <a
           :href="whatsappConfirmationUrl"
           target="_blank"
-          class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
+          class="w-full py-4 px-4 bg-[#25D366] hover:bg-[#20ba59] active:scale-95 text-white font-black text-sm rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2.5 cursor-pointer"
         >
-          <MessageCircle class="w-4 h-4" />
+          <IconWhatsApp className="w-5 h-5 text-white shrink-0" />
           <span>Confirmer le paiement {{ isOrangeMoney ? 'Orange Money' : 'Wave' }} sur WhatsApp (+221 77 208 78 20)</span>
         </a>
       </div>
@@ -324,6 +323,10 @@ import {
   Phone,
   MessageCircle
 } from 'lucide-vue-next';
+import IconWave from '../components/icons/IconWave.vue';
+import IconOrangeMoney from '../components/icons/IconOrangeMoney.vue';
+import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
+import IconPhoneSolid from '../components/icons/IconPhoneSolid.vue';
 import { PaymentService } from '../services/api';
 
 const route = useRoute();

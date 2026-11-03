@@ -130,7 +130,7 @@
         <!-- Assistance Commande Téléphonique -->
         <div class="pt-4 border-t border-stone-100 bg-stone-50 p-4 rounded-2xl space-y-2">
           <p class="text-xs font-bold text-stone-900 flex items-center gap-1.5">
-            <Phone class="w-3.5 h-3.5 text-gold-700" />
+            <IconPhoneSolid className="w-3.5 h-3.5 text-[#e02f75]" />
             <span>Conseil & Commande :</span>
           </p>
           <a
@@ -142,9 +142,9 @@
           <a
             href="https://wa.me/221772087820?text=Bonjour%20Jumelles%20Store%2C%20j%27aimerais%20de%20l%27aide%20pour%20choisir%20une%20pointure%20ou%20un%20sac"
             target="_blank"
-            class="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-100/70 border border-emerald-300 px-2.5 py-1 rounded-lg"
+            class="inline-flex items-center gap-1.5 text-[11px] font-bold text-white bg-[#25D366] hover:bg-[#20ba59] px-3 py-1.5 rounded-full shadow-xs transition-all"
           >
-            <MessageCircle class="w-3 h-3 text-emerald-700" />
+            <IconWhatsApp className="w-3.5 h-3.5 text-white" />
             <span>Aide WhatsApp</span>
           </a>
         </div>
@@ -182,7 +182,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { Search, RotateCcw, Phone, MessageCircle } from 'lucide-vue-next';
+import { Search, RotateCcw } from 'lucide-vue-next';
+import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
+import IconPhoneSolid from '../components/icons/IconPhoneSolid.vue';
 import { ProductService } from '../services/api';
 import ProductCard from '../components/ProductCard.vue';
 

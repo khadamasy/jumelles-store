@@ -47,30 +47,30 @@
 
         <!-- Contexte Article si ouvert depuis une fiche -->
         <div v-if="phoneStore.productContext" class="bg-gold-50/70 border border-gold-200 rounded-xl p-3 text-xs flex items-center gap-2">
-          <span class="text-base">👜</span>
+          <ShoppingBag class="w-4 h-4 text-gold-700 shrink-0" />
           <div>
             <span class="font-bold text-stone-900">Article sélectionné :</span>
             <span class="text-stone-700 ml-1">{{ phoneStore.productContext }}</span>
           </div>
         </div>
 
-        <!-- 3 Boutons d'Action Directe -->
+        <!-- 3 Boutons d'Action Directe avec vrais icones -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <!-- Appeler Directement -->
           <button
             @click="phoneStore.callNow"
-            class="w-full py-3.5 px-4 bg-stone-950 hover:bg-gold-600 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 group"
+            class="w-full py-3.5 px-4 bg-stone-950 hover:bg-stone-900 border border-[#d7b966] text-white font-bold text-xs rounded-full shadow-md transition-all flex items-center justify-center gap-2 group cursor-pointer active:scale-98"
           >
-            <span class="text-base group-hover:scale-110 transition-transform">📞</span>
+            <IconPhoneSolid className="w-4 h-4 text-[#e02f75] group-hover:scale-110 transition-transform" />
             <span>Appeler le 77 208 78 20</span>
           </button>
 
           <!-- WhatsApp Direct -->
           <button
             @click="phoneStore.openWhatsApp()"
-            class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 group"
+            class="w-full py-3.5 px-4 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs rounded-full shadow-md transition-all flex items-center justify-center gap-2 group cursor-pointer active:scale-98"
           >
-            <span class="text-base group-hover:scale-110 transition-transform">💬</span>
+            <IconWhatsApp className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
             <span>Discuter sur WhatsApp</span>
           </button>
         </div>
@@ -78,10 +78,10 @@
         <!-- Bouton Copier le Numéro -->
         <button
           @click="phoneStore.copyPhoneNumber"
-          class="w-full py-2.5 px-3 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-xl border border-stone-200 transition-colors flex items-center justify-center gap-2"
+          class="w-full py-2.5 px-3 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-xl border border-stone-200 transition-colors flex items-center justify-center gap-2 cursor-pointer"
         >
-          <span>📋</span>
-          <span v-if="phoneStore.copied" class="text-emerald-700 font-bold">✓ Numéro copié dans le presse-papier !</span>
+          <component :is="phoneStore.copied ? Check : Copy" class="w-3.5 h-3.5" />
+          <span v-if="phoneStore.copied" class="text-emerald-700 font-bold">Numéro copié dans le presse-papier !</span>
           <span v-else>Copier le numéro (+221 77 208 78 20)</span>
         </button>
 
@@ -128,7 +128,7 @@
 
         <!-- Message de succès après demande de rappel -->
         <div v-else class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-center space-y-1 text-xs">
-          <div class="text-2xl">✅</div>
+          <CheckCircle2 class="w-8 h-8 text-emerald-600 mx-auto" />
           <p class="font-bold text-emerald-900">Demande de rappel enregistrée !</p>
           <p class="text-emerald-700">Notre équipe prépare votre appel au <strong>{{ form.phone }}</strong>.</p>
         </div>
@@ -145,6 +145,9 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue';
+import { ShoppingBag, Copy, Check, CheckCircle2 } from 'lucide-vue-next';
+import IconPhoneSolid from './icons/IconPhoneSolid.vue';
+import IconWhatsApp from './icons/IconWhatsApp.vue';
 import { usePhoneStore } from '../stores/phone';
 
 const phoneStore = usePhoneStore();

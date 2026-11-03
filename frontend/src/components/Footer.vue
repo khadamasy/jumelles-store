@@ -17,9 +17,9 @@
           <!-- Bouton Appel -->
           <a
             href="tel:+221772087820"
-            class="px-6 py-3 rounded-full bg-stone-950 hover:bg-stone-900 active:scale-95 text-white font-bold text-xs sm:text-sm flex items-center gap-2.5 border border-gold-400/90 transition-all shadow-lg group cursor-pointer"
+            class="px-6 py-3 rounded-full bg-stone-950 hover:bg-stone-900 active:scale-95 text-white font-bold text-xs sm:text-sm flex items-center gap-2.5 border border-[#d7b966]/90 transition-all shadow-lg group cursor-pointer"
           >
-            <Phone class="w-4 h-4 text-gold-400 group-hover:rotate-12 transition-transform" />
+            <IconPhoneSolid className="w-4 h-4 text-[#e02f75] group-hover:rotate-12 transition-transform" />
             <span class="tracking-wide">Appel (77 208 78 20)</span>
           </a>
 
@@ -29,7 +29,7 @@
             target="_blank"
             class="px-6 py-3 rounded-full bg-[#25D366] hover:bg-[#20ba59] active:scale-95 text-white font-bold text-xs sm:text-sm flex items-center gap-2.5 transition-all shadow-lg group cursor-pointer"
           >
-            <MessageCircle class="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
+            <IconWhatsApp className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
             <span class="tracking-wide">WhatsApp (77 208 78 20)</span>
           </a>
         </div>
@@ -98,13 +98,13 @@
             <!-- Numéro Officiel -->
             <a
               href="tel:+221772087820"
-              class="flex items-center gap-3 p-3 rounded-xl bg-stone-800/60 border border-stone-700/80 hover:border-gold-500/50 transition-colors group"
+              class="flex items-center gap-3 p-3 rounded-2xl bg-stone-850 border border-stone-700/80 hover:border-gold-500/50 transition-colors group"
             >
-              <div class="w-9 h-9 rounded-lg bg-gold-500/10 text-gold-400 flex items-center justify-center font-bold text-base group-hover:bg-gold-500 group-hover:text-stone-950 transition-colors">
-                <Phone class="w-4 h-4" />
+              <div class="w-9 h-9 rounded-xl bg-gold-500/10 text-gold-400 flex items-center justify-center font-bold text-base group-hover:bg-gold-500 group-hover:text-stone-950 transition-colors">
+                <IconPhoneSolid className="w-4 h-4 text-[#e02f75]" />
               </div>
               <div>
-                <p class="text-[11px] text-stone-400 uppercase tracking-wider font-semibold">Téléphone / Assistance</p>
+                <p class="text-[11px] text-stone-400 uppercase tracking-wider font-semibold">Téléphone Direct</p>
                 <p class="text-sm font-bold text-white group-hover:text-gold-400 transition-colors">+221 77 208 78 20</p>
               </div>
             </a>
@@ -113,10 +113,10 @@
             <a
               href="https://wa.me/221772087820?text=Bonjour%20Jumelles%20Store%2C%20je%20souhaite%20commander%20un%20article"
               target="_blank"
-              class="flex items-center gap-3 p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/40 hover:bg-emerald-900/40 transition-colors group"
+              class="flex items-center gap-3 p-3 rounded-2xl bg-[#0f3d26]/40 border border-emerald-500/40 hover:bg-[#0f3d26]/70 transition-colors group"
             >
-              <div class="w-9 h-9 rounded-lg bg-emerald-500 text-stone-950 flex items-center justify-center font-bold text-base">
-                <MessageCircle class="w-4 h-4" />
+              <div class="w-9 h-9 rounded-xl bg-[#25D366] text-white flex items-center justify-center font-bold text-base shadow-sm">
+                <IconWhatsApp className="w-5 h-5 text-white" />
               </div>
               <div>
                 <p class="text-[11px] text-emerald-400 uppercase tracking-wider font-semibold">WhatsApp Boutique</p>
@@ -125,15 +125,17 @@
             </a>
           </div>
 
-          <!-- Moyens de paiement -->
+          <!-- Moyens de paiement avec les vrais logos officiels -->
           <div class="pt-2">
             <p class="text-xs text-stone-400 mb-2 font-medium">Paiements 100% sécurisés :</p>
-            <div class="flex items-center gap-2">
-              <span class="bg-blue-600/20 border border-blue-500/40 text-blue-400 px-3 py-1 rounded-md text-xs font-bold">
-                Wave Sénégal
+            <div class="flex items-center gap-2.5">
+              <span class="inline-flex items-center gap-1.5 bg-sky-950/60 border border-cyan-500/40 text-cyan-300 px-3 py-1.5 rounded-xl text-xs font-bold shadow-xs">
+                <IconWave className="w-4 h-4 shrink-0 rounded" />
+                <span>Wave Sénégal</span>
               </span>
-              <span class="bg-orange-600/20 border border-orange-500/40 text-orange-400 px-3 py-1 rounded-md text-xs font-bold">
-                Orange Money
+              <span class="inline-flex items-center gap-1.5 bg-orange-950/60 border border-orange-500/40 text-orange-300 px-3 py-1.5 rounded-xl text-xs font-bold shadow-xs">
+                <IconOrangeMoney className="w-4 h-4 shrink-0 rounded" />
+                <span>Orange Money</span>
               </span>
             </div>
           </div>
@@ -163,11 +165,13 @@
 
 <script setup lang="ts">
 import {
-  Phone,
-  MessageCircle,
   MapPin,
   Truck,
   ShoppingBag,
   Sparkles,
 } from 'lucide-vue-next';
+import IconWhatsApp from './icons/IconWhatsApp.vue';
+import IconPhoneSolid from './icons/IconPhoneSolid.vue';
+import IconWave from './icons/IconWave.vue';
+import IconOrangeMoney from './icons/IconOrangeMoney.vue';
 </script>

@@ -24,7 +24,7 @@
         </span>
         <span class="text-stone-600">•</span>
         <span class="flex items-center gap-2">
-          <Phone class="w-3.5 h-3.5 text-gold-400" />
+          <IconWhatsApp className="w-3.5 h-3.5 text-emerald-400" />
           <span>Commandes WhatsApp : +221 77 208 78 20</span>
         </span>
         <span class="text-stone-600">•</span>
@@ -118,15 +118,18 @@
         <!-- Reassurance Mini Badges -->
         <div class="pt-4 border-t border-white/15 flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-stone-300">
           <a href="tel:+221772087820" class="flex items-center gap-2 hover:text-gold-400 transition-colors font-bold">
-            <Phone class="w-3.5 h-3.5 text-gold-400" />
+            <IconPhoneSolid className="w-3.5 h-3.5 text-[#e02f75]" />
             <span>Commandes : +221 77 208 78 20</span>
           </a>
-          <span class="flex items-center gap-1 text-emerald-400 font-semibold">
+          <span class="flex items-center gap-1.5 text-emerald-400 font-semibold">
             <CheckCircle2 class="w-3.5 h-3.5" />
             <span>Livraison 24h Dakar</span>
           </span>
-          <span class="flex items-center gap-1 text-gold-400 font-semibold">
-            <ShieldCheck class="w-3.5 h-3.5" />
+          <span class="flex items-center gap-1.5 text-gold-400 font-semibold">
+            <div class="flex items-center gap-1">
+              <IconWave className="w-4 h-4 rounded" />
+              <IconOrangeMoney className="w-4 h-4 rounded" />
+            </div>
             <span>Wave & Orange Money</span>
           </span>
         </div>
@@ -157,8 +160,9 @@
         </div>
 
         <div class="flex items-start gap-4 p-3 rounded-2xl hover:bg-stone-50 transition-colors">
-          <div class="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center shrink-0 shadow-2xs">
-            <ShieldCheck class="w-6 h-6" />
+          <div class="w-12 h-12 rounded-2xl bg-sky-50 border border-sky-200 flex items-center justify-center shrink-0 shadow-2xs gap-1 p-1">
+            <IconWave className="w-5 h-5 rounded" />
+            <IconOrangeMoney className="w-5 h-5 rounded" />
           </div>
           <div>
             <h4 class="font-serif font-bold text-stone-900 text-sm">Wave & Orange Money</h4>
@@ -323,39 +327,35 @@
           <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
             <a
               href="tel:+221772087820"
-              class="px-5 py-3 rounded-2xl bg-white/10 border border-white/20 text-xs font-bold text-white hover:bg-white/20 transition-all flex items-center gap-2 shadow"
+              class="px-5 py-3 rounded-full bg-stone-900 border border-[#d7b966] text-xs font-bold text-white hover:bg-stone-850 active:scale-95 transition-all flex items-center gap-2 shadow"
             >
-              <Phone class="w-4 h-4 text-gold-400" />
+              <IconPhoneSolid className="w-4 h-4 text-[#e02f75]" />
               <span>Appeler : +221 77 208 78 20</span>
             </a>
             <a
               href="https://wa.me/221772087820?text=Bonjour%20Jumelles%20Store%2C%20je%20souhaite%20commander%20un%20article"
               target="_blank"
-              class="px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-xs font-bold text-white transition-all flex items-center gap-2 shadow-lg"
+              class="px-5 py-3 rounded-full bg-[#25D366] hover:bg-[#20ba59] active:scale-95 text-xs font-bold text-white transition-all flex items-center gap-2 shadow-lg"
             >
-              <MessageCircle class="w-4 h-4" />
+              <IconWhatsApp className="w-4 h-4 text-white" />
               <span>Écrire sur WhatsApp</span>
             </a>
           </div>
         </div>
 
         <div class="flex flex-col sm:flex-row items-center gap-4 shrink-0 w-full sm:w-auto">
-          <!-- Wave Card -->
-          <div class="bg-blue-600/10 backdrop-blur-md border border-blue-500/30 p-5 rounded-2xl flex items-center gap-4 w-full sm:w-56 shadow-lg">
-            <div class="w-12 h-12 rounded-xl bg-blue-600/30 flex items-center justify-center text-blue-400 font-black text-xl shrink-0">
-              🌊
-            </div>
+          <!-- Wave Card avec vrai pingouin Wave -->
+          <div class="bg-cyan-950/40 backdrop-blur-md border border-cyan-500/30 p-5 rounded-2xl flex items-center gap-4 w-full sm:w-56 shadow-lg">
+            <IconWave className="w-12 h-12 rounded-xl shadow-xs shrink-0" />
             <div>
               <p class="font-black text-sm text-white">Wave Sénégal</p>
-              <p class="text-xs text-blue-300">Paiement 0% frais</p>
+              <p class="text-xs text-cyan-300">Paiement 0% frais</p>
             </div>
           </div>
 
-          <!-- Orange Money Card -->
-          <div class="bg-orange-600/10 backdrop-blur-md border border-orange-500/30 p-5 rounded-2xl flex items-center gap-4 w-full sm:w-56 shadow-lg">
-            <div class="w-12 h-12 rounded-xl bg-orange-600/30 flex items-center justify-center text-orange-400 font-black text-xl shrink-0">
-              🍊
-            </div>
+          <!-- Orange Money Card avec vrai logo OM -->
+          <div class="bg-orange-950/40 backdrop-blur-md border border-orange-500/30 p-5 rounded-2xl flex items-center gap-4 w-full sm:w-56 shadow-lg">
+            <IconOrangeMoney className="w-12 h-12 rounded-xl shadow-xs shrink-0" />
             <div>
               <p class="font-black text-sm text-white">Orange Money</p>
               <p class="text-xs text-orange-300">Max it ou code #144#</p>
@@ -374,13 +374,15 @@ import {
   Truck,
   ShieldCheck,
   RefreshCw,
-  Phone,
-  MessageCircle,
   ShoppingBag,
   ArrowRight,
   CheckCircle2,
   Award,
 } from 'lucide-vue-next';
+import IconWave from '../components/icons/IconWave.vue';
+import IconOrangeMoney from '../components/icons/IconOrangeMoney.vue';
+import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
+import IconPhoneSolid from '../components/icons/IconPhoneSolid.vue';
 import { ProductService } from '../services/api';
 import ProductCard from '../components/ProductCard.vue';
 

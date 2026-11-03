@@ -15,16 +15,16 @@
             class="flex items-center gap-1.5 text-stone-300 hover:text-gold-400 transition-colors font-medium"
             title="Appel direct service client"
           >
-            <Phone class="w-3.5 h-3.5 text-gold-400" />
+            <IconPhoneSolid className="w-3.5 h-3.5 text-[#e02f75]" />
             <span class="font-mono font-bold">+221 77 208 78 20</span>
           </a>
 
           <a
             href="https://wa.me/221772087820?text=Bonjour%20Jumelles%20Store%2C%20je%20souhaite%20des%20informations%20sur%20vos%20articles"
             target="_blank"
-            class="flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-bold bg-emerald-950/60 border border-emerald-500/40 px-2.5 py-0.5 rounded-full transition-colors"
+            class="flex items-center gap-1.5 text-white font-bold bg-[#25D366] hover:bg-[#20ba59] px-2.5 py-0.5 rounded-full transition-colors shadow-xs"
           >
-            <MessageCircle class="w-3 h-3 text-emerald-400" />
+            <IconWhatsApp className="w-3.5 h-3.5 text-white" />
             <span class="hidden sm:inline">WhatsApp Direct</span>
             <span class="sm:hidden">WhatsApp</span>
           </a>
@@ -270,7 +270,10 @@
               @click="mobileMenuOpen = false"
               class="flex items-center justify-between p-3 rounded-2xl bg-stone-50 hover:bg-gold-50 font-serif font-bold text-stone-900 transition-colors"
             >
-              <span>⚡ FAQ & Délais de Livraison Dakar</span>
+              <div class="flex items-center gap-2.5">
+                <HelpCircle class="w-4 h-4 text-gold-600" />
+                <span>FAQ & Délais de Livraison Dakar</span>
+              </div>
               <ChevronRight class="w-4 h-4 text-stone-400" />
             </router-link>
 
@@ -279,7 +282,10 @@
               @click="mobileMenuOpen = false"
               class="flex items-center justify-between p-3 rounded-2xl bg-stone-50 hover:bg-gold-50 font-serif font-bold text-stone-900 transition-colors"
             >
-              <span>📦 Suivi de Commande</span>
+              <div class="flex items-center gap-2.5">
+                <PackageCheck class="w-4 h-4 text-gold-600" />
+                <span>Suivi de Commande</span>
+              </div>
               <ChevronRight class="w-4 h-4 text-stone-400" />
             </router-link>
 
@@ -289,29 +295,32 @@
               @click="mobileMenuOpen = false"
               class="flex items-center justify-between p-3 rounded-2xl bg-amber-50 border border-amber-200 font-serif font-bold text-amber-900 transition-colors"
             >
-              <span>👑 Espace Gérance & Stocks</span>
+              <div class="flex items-center gap-2.5">
+                <Crown class="w-4 h-4 text-amber-600" />
+                <span>Espace Gérance & Stocks</span>
+              </div>
               <ChevronRight class="w-4 h-4 text-amber-600" />
             </router-link>
           </div>
         </div>
 
-        <!-- Contact Rapide Mobile -->
+        <!-- Contact Rapide Mobile avec vrais icones -->
         <div class="pt-2 border-t border-stone-100 space-y-2">
           <p class="text-[10px] font-bold uppercase tracking-widest text-stone-400">Assistance Clientèle 7j/7</p>
           <div class="grid grid-cols-2 gap-2">
             <a
               href="tel:+221772087820"
-              class="py-3 px-3 rounded-xl bg-stone-950 text-white font-bold text-xs flex items-center justify-center gap-2"
+              class="py-3 px-3 rounded-full bg-stone-950 text-white font-bold text-xs flex items-center justify-center gap-2 border border-[#d7b966]"
             >
-              <Phone class="w-3.5 h-3.5 text-gold-400" />
+              <IconPhoneSolid className="w-3.5 h-3.5 text-[#e02f75]" />
               <span>Appeler</span>
             </a>
             <a
               href="https://wa.me/221772087820?text=Bonjour%20Jumelles%20Store"
               target="_blank"
-              class="py-3 px-3 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center justify-center gap-2"
+              class="py-3 px-3 rounded-full bg-[#25D366] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs"
             >
-              <MessageCircle class="w-3.5 h-3.5" />
+              <IconWhatsApp className="w-4 h-4 text-white" />
               <span>WhatsApp</span>
             </a>
           </div>
@@ -325,13 +334,16 @@
 import { ref } from 'vue';
 import {
   ShoppingBag,
-  Phone,
-  MessageCircle,
   User,
   Menu,
   X,
   ChevronRight,
+  HelpCircle,
+  PackageCheck,
+  Crown
 } from 'lucide-vue-next';
+import IconWhatsApp from './icons/IconWhatsApp.vue';
+import IconPhoneSolid from './icons/IconPhoneSolid.vue';
 import { useCartStore } from '../stores/cart';
 import { useAuthStore } from '../stores/auth';
 import { useCurrencyStore } from '../stores/currency';

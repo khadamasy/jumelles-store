@@ -121,7 +121,7 @@
           <div class="bg-amber-50/80 border border-amber-200/90 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-amber-200/60 flex items-center justify-center shrink-0">
-                <Phone class="w-5 h-5 text-amber-900" />
+                <IconPhoneSolid className="w-5 h-5 text-amber-900" />
               </div>
               <div>
                 <p class="font-bold text-amber-950 text-sm">Numéro Officiel de Transfert de la Boutique :</p>
@@ -146,7 +146,7 @@
               :class="selectedProvider === 'WAVE' ? 'border-blue-600 bg-blue-50/50 ring-2 ring-blue-500/20' : 'border-stone-200 hover:border-stone-300'"
             >
               <div class="flex items-center justify-between mb-3">
-                <span class="font-black text-xs text-blue-700 bg-blue-100 px-2.5 py-1 rounded-lg">WAVE</span>
+                <IconWave className="w-8 h-8 rounded-xl shadow-xs" />
                 <span class="text-xs font-bold text-blue-700 bg-blue-100 px-2.5 py-0.5 rounded-full">Recommandé</span>
               </div>
               <div>
@@ -162,7 +162,7 @@
               :class="selectedProvider === 'ORANGE_MONEY' ? 'border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20' : 'border-stone-200 hover:border-stone-300'"
             >
               <div class="flex items-center justify-between mb-3">
-                <span class="font-black text-xs text-orange-700 bg-orange-100 px-2.5 py-1 rounded-lg">ORANGE MONEY</span>
+                <IconOrangeMoney className="w-8 h-8 rounded-xl shadow-xs" />
                 <span class="text-xs font-bold text-orange-700 bg-orange-100 px-2.5 py-0.5 rounded-full">Max it / #144#</span>
               </div>
               <div>
@@ -257,7 +257,10 @@
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { ShoppingBag, Zap, Phone, ShieldCheck, Check } from 'lucide-vue-next';
+import { ShoppingBag, Zap, ShieldCheck, Check } from 'lucide-vue-next';
+import IconWave from '../components/icons/IconWave.vue';
+import IconOrangeMoney from '../components/icons/IconOrangeMoney.vue';
+import IconPhoneSolid from '../components/icons/IconPhoneSolid.vue';
 import { useCartStore } from '../stores/cart';
 import { useAuthStore } from '../stores/auth';
 import { useCurrencyStore } from '../stores/currency';
