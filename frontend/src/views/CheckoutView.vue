@@ -1,61 +1,48 @@
 <template>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <h1 class="font-serif text-3xl font-bold text-stone-900 mb-8">
-      Finalisation de Votre Commande
-    </h1>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- En-tête -->
+    <div class="mb-8 space-y-2">
+      <span class="text-xs uppercase tracking-widest text-gold-700 font-extrabold bg-gold-50 px-3.5 py-1 rounded-full border border-gold-200 inline-flex items-center gap-1.5">
+        <Sparkles class="w-3.5 h-3.5 text-gold-600" />
+        <span>Commande Express Sans Paiement en Ligne</span>
+      </span>
+      <h1 class="font-serif text-3xl sm:text-4xl font-extrabold text-stone-900">
+        Finalisation de Votre Commande
+      </h1>
+      <p class="text-xs sm:text-sm text-stone-500 max-w-2xl">
+        Renseignez vos coordonnées de livraison ci-dessous : votre commande sera immédiatement transmise sur WhatsApp pour validation et expédition rapide sous 24h.
+      </p>
+    </div>
 
-    <div v-if="cartStore.items.length === 0" class="bg-white rounded-2xl border border-stone-200 p-12 text-center space-y-4">
+    <!-- Panier vide -->
+    <div v-if="cartStore.items.length === 0" class="bg-white rounded-3xl border border-stone-200 p-12 text-center space-y-4 shadow-sm">
       <div class="w-16 h-16 rounded-3xl bg-stone-100 flex items-center justify-center mx-auto text-stone-500">
         <ShoppingBag class="w-8 h-8 text-gold-600" />
       </div>
       <h3 class="font-serif text-xl font-bold text-stone-900">Votre panier est vide.</h3>
-      <p class="text-sm text-stone-500">Ajoutez des articles avant de procéder au règlement.</p>
-      <router-link to="/catalog" class="inline-block px-6 py-3 bg-stone-900 text-white text-xs font-semibold rounded-xl hover:bg-gold-600 transition-colors">
-        Aller à la boutique
+      <p class="text-sm text-stone-500">Ajoutez des sacs ou des souliers avant de procéder à la commande.</p>
+      <router-link to="/catalog" class="inline-block px-6 py-3 bg-stone-900 text-white text-xs font-semibold rounded-xl hover:bg-gold-600 transition-colors shadow">
+        Découvrir la boutique
       </router-link>
     </div>
 
-    <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-      <!-- Checkout Form -->
+    <!-- Formulaire de commande + Récapitulatif -->
+    <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10">
+      <!-- Colonne Gauche : Coordonnées de Livraison & Confirmation WhatsApp -->
       <div class="lg:col-span-7 space-y-6">
-        <!-- Bandeau Mode Commande Rapide & Connexion Habituée -->
-        <div class="bg-gradient-to-r from-stone-900 via-stone-950 to-stone-900 text-white p-5 rounded-2xl border border-gold-500/30 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-gold-500/20 border border-gold-500/40 flex items-center justify-center shrink-0">
-              <Zap class="w-5 h-5 text-gold-400" />
-            </div>
-            <div>
-              <p class="text-xs font-black text-gold-400 uppercase tracking-wider">Commande Express Sans Mot de Passe</p>
-              <p class="text-xs text-stone-300">Renseignez simplement vos coordonnées ci-dessous pour régler immédiatement avec Wave ou Orange Money.</p>
-            </div>
-          </div>
-          <div v-if="!authStore.isAuthenticated" class="shrink-0">
-            <button
-              type="button"
-              @click="handleQuickLogin"
-              class="px-4 py-2 bg-white/10 hover:bg-gold-500 hover:text-stone-950 border border-white/20 hover:border-gold-400 text-xs font-bold text-white rounded-xl transition-all shadow"
-            >
-              Déjà cliente ? Se connecter
-            </button>
-          </div>
-          <div v-else class="shrink-0 flex items-center gap-2 bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 px-3 py-1.5 rounded-xl text-xs font-bold">
-            <span>✓</span> Connectée : {{ authStore.userName }}
-          </div>
-        </div>
-
         <!-- 1. Coordonnées de Livraison -->
-        <div class="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-sm space-y-6">
+        <div class="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-2xs space-y-6">
           <div class="flex items-center gap-3 border-b border-stone-100 pb-4">
             <span class="w-8 h-8 rounded-full bg-stone-900 text-gold-400 font-bold flex items-center justify-center text-sm">1</span>
             <div>
               <h2 class="font-serif text-lg font-bold text-stone-900">Coordonnées de Livraison</h2>
-              <p class="text-xs text-stone-500">Renseignez vos coordonnées pour la réception de votre commande</p>
+              <p class="text-xs text-stone-500">Indiquez vos informations exactes pour la réception du colis</p>
             </div>
           </div>
 
           <div class="space-y-4">
             <div>
-              <label class="block text-xs font-semibold text-stone-700 mb-1">Votre Nom complet *</label>
+              <label class="block text-xs font-bold text-stone-700 mb-1">Votre Nom complet *</label>
               <input
                 v-model="form.customerName"
                 type="text"
@@ -66,7 +53,7 @@
             </div>
 
             <div>
-              <label class="block text-xs font-semibold text-stone-700 mb-1">Votre Numéro de Téléphone (Appels / WhatsApp) *</label>
+              <label class="block text-xs font-bold text-stone-700 mb-1">Votre Numéro de Téléphone (WhatsApp) *</label>
               <input
                 v-model="form.customerPhone"
                 type="tel"
@@ -74,17 +61,19 @@
                 class="w-full px-4 py-3 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 outline-none"
                 required
               />
-              <p class="text-[11px] text-stone-500 mt-1">Le livreur vous appellera sur ce numéro avant la livraison.</p>
+              <p class="text-[11px] text-stone-400 mt-1">
+                Le récapitulatif complet de votre commande sera envoyé sur ce numéro WhatsApp.
+              </p>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs font-semibold text-stone-700 mb-1">Ville de Livraison *</label>
+                <label class="block text-xs font-bold text-stone-700 mb-1">Ville de Livraison *</label>
                 <select
                   v-model="form.shippingCity"
-                  class="w-full px-4 py-3 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 outline-none bg-white"
+                  class="w-full px-4 py-3 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 outline-none bg-white font-medium"
                 >
-                  <option value="Dakar">Dakar (Plateau, Almadies, Mermoz...)</option>
+                  <option value="Dakar">Dakar (Plateau, Almadies, Mermoz, Maristes...)</option>
                   <option value="Banlieue Dakar">Banlieue (Pikine, Guédiawaye, Rufisque)</option>
                   <option value="Thiès">Thiès</option>
                   <option value="Saint-Louis">Saint-Louis</option>
@@ -94,159 +83,155 @@
               </div>
 
               <div>
-                <label class="block text-xs font-semibold text-stone-700 mb-1">Quartier & Précisions *</label>
+                <label class="block text-xs font-bold text-stone-700 mb-1">Quartier & Précisions *</label>
                 <input
                   v-model="form.shippingAddress"
                   type="text"
-                  placeholder="Ex: Almadies, face pharmacie ou Mermoz"
+                  placeholder="Ex: Almadies, en face de la pharmacie"
                   class="w-full px-4 py-3 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 outline-none"
                   required
                 />
               </div>
             </div>
+
+            <div>
+              <label class="block text-xs font-bold text-stone-700 mb-1">Instructions ou remarques pour le livreur (Optionnel)</label>
+              <textarea
+                v-model="form.customerNote"
+                rows="2"
+                placeholder="Ex: Appelez-moi avant de partir, livraison souhaitée l'après-midi..."
+                class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-xs focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 outline-none"
+              ></textarea>
+            </div>
           </div>
         </div>
 
-        <!-- 2. Choix du Mode de Paiement Mobile -->
-        <div class="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-sm space-y-6">
-          <div class="flex items-center gap-3 border-b border-stone-100 pb-4">
-            <span class="w-8 h-8 rounded-full bg-stone-900 text-gold-400 font-bold flex items-center justify-center text-sm">2</span>
+        <!-- 2. Mode de Validation Directe via WhatsApp (Sans Paiement en Ligne) -->
+        <div class="bg-gradient-to-br from-emerald-950 via-stone-950 to-stone-900 text-white p-6 sm:p-8 rounded-3xl border border-emerald-500/30 shadow-xl space-y-4 relative overflow-hidden">
+          <div class="flex items-center gap-3 border-b border-white/10 pb-4">
+            <div class="w-10 h-10 rounded-2xl bg-[#25D366]/20 border border-[#25D366]/40 flex items-center justify-center shrink-0">
+              <IconWhatsApp className="w-6 h-6 text-[#25D366]" />
+            </div>
             <div>
-              <h2 class="font-serif text-lg font-bold text-stone-900">Mode de Paiement Sécurisé</h2>
-              <p class="text-xs text-stone-500">Paiement direct sécurisé Wave ou Orange Money</p>
+              <span class="text-[10px] uppercase font-bold tracking-widest text-[#25D366] block">Étape 2 • Confirmation Immédiate</span>
+              <h2 class="font-serif text-lg font-bold text-white">Validation Directe sur WhatsApp</h2>
             </div>
           </div>
 
-          <!-- Encadré fixe et rassurant : numéro officiel de réception de la boutique -->
-          <div class="bg-amber-50/80 border border-amber-200/90 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-amber-200/60 flex items-center justify-center shrink-0">
-                <IconPhoneSolid className="w-5 h-5 text-amber-900" />
+          <div class="space-y-3 text-xs text-stone-300 leading-relaxed font-light">
+            <p>
+              <strong class="text-white font-bold">Aucun paiement par carte ni compte en ligne requis :</strong> en cliquant sur le bouton ci-dessous, votre commande est enregistrée et vous basculez automatiquement sur WhatsApp avec la gérance de la boutique (<span class="text-[#25D366] font-bold">+221 77 208 78 20</span>).
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <div class="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-1">
+                <span class="font-bold text-white text-xs flex items-center gap-1.5">
+                  <CheckCircle2 class="w-3.5 h-3.5 text-[#25D366]" />
+                  <span>Message Pré-rempli</span>
+                </span>
+                <p class="text-[11px] text-stone-400">Vos articles, pointures, couleurs et adresse sont automatiquement inclus dans le message.</p>
               </div>
-              <div>
-                <p class="font-bold text-amber-950 text-sm">Numéro Officiel de Transfert de la Boutique :</p>
-                <p class="text-stone-700 text-xs mt-0.5">
-                  Numéro : <strong class="text-stone-950 font-mono text-sm">77 208 78 20</strong>
-                  <span class="mx-1 text-stone-400">•</span>
-                  Titulaire (Wave & Orange Money) : <strong class="text-stone-950 font-bold">Fary Dione</strong>
-                </p>
-              </div>
-            </div>
-            <span class="self-start sm:self-center shrink-0 text-[10px] font-bold bg-amber-200/70 text-amber-900 px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1">
-              <ShieldCheck class="w-3 h-3 text-amber-800" />
-              <span>Compte Vérifié</span>
-            </span>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- Option Wave -->
-            <div
-              @click="selectedProvider = 'WAVE'"
-              class="cursor-pointer p-5 rounded-2xl border-2 transition-all flex flex-col justify-between"
-              :class="selectedProvider === 'WAVE' ? 'border-blue-600 bg-blue-50/50 ring-2 ring-blue-500/20' : 'border-stone-200 hover:border-stone-300'"
-            >
-              <div class="flex items-center justify-between mb-3">
-                <IconWave className="w-8 h-8 rounded-xl shadow-xs" />
-                <span class="text-xs font-bold text-blue-700 bg-blue-100 px-2.5 py-0.5 rounded-full">Recommandé</span>
-              </div>
-              <div>
-                <p class="font-bold text-stone-900">Wave Sénégal</p>
-                <p class="text-xs text-stone-500 mt-1">Paiement instantané par QR code ou application mobile.</p>
-              </div>
-            </div>
-
-            <!-- Option Orange Money -->
-            <div
-              @click="selectedProvider = 'ORANGE_MONEY'"
-              class="cursor-pointer p-5 rounded-2xl border-2 transition-all flex flex-col justify-between"
-              :class="selectedProvider === 'ORANGE_MONEY' ? 'border-orange-500 bg-orange-50/50 ring-2 ring-orange-500/20' : 'border-stone-200 hover:border-stone-300'"
-            >
-              <div class="flex items-center justify-between mb-3">
-                <IconOrangeMoney className="w-8 h-8 rounded-xl shadow-xs" />
-                <span class="text-xs font-bold text-orange-700 bg-orange-100 px-2.5 py-0.5 rounded-full">Max it / #144#</span>
-              </div>
-              <div>
-                <p class="font-bold text-stone-900">Orange Money</p>
-                <p class="text-xs text-stone-500 mt-1">Validation sécurisée par code secret OTP / WebPay.</p>
+              <div class="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-1">
+                <span class="font-bold text-white text-xs flex items-center gap-1.5">
+                  <Truck class="w-3.5 h-3.5 text-gold-400" />
+                  <span>Règlement à la Livraison</span>
+                </span>
+                <p class="text-[11px] text-stone-400">Payez tranquillement à la réception du colis (en espèces ou par transfert direct Wave / OM).</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Order Summary Card -->
+      <!-- Colonne Droite : Récapitulatif de Commande & CTA WhatsApp -->
       <div class="lg:col-span-5">
-        <div class="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200 shadow-sm relative lg:sticky lg:top-28 space-y-6">
-          <h3 class="font-serif text-lg font-bold text-stone-900 border-b border-stone-100 pb-4">
-            Récapitulatif de la Commande
-          </h3>
+        <div class="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-2xs relative lg:sticky lg:top-28 space-y-6">
+          <div class="flex items-center justify-between border-b border-stone-100 pb-4">
+            <h3 class="font-serif text-lg font-bold text-stone-900">
+              Articles Commandés
+            </h3>
+            <span class="text-xs font-bold bg-stone-100 text-stone-700 px-2.5 py-0.5 rounded-full">
+              {{ cartStore.items.length }} article(s)
+            </span>
+          </div>
 
-          <!-- Articles List -->
-          <div class="space-y-3 max-h-72 overflow-y-auto pr-1 custom-scrollbar">
+          <!-- Liste des articles -->
+          <div class="space-y-3.5 max-h-72 overflow-y-auto pr-1 custom-scrollbar divide-y divide-stone-100">
             <div
               v-for="item in cartStore.items"
               :key="item.variantId"
-              class="flex items-center gap-3 text-xs"
+              class="flex items-center gap-3 text-xs pt-3 first:pt-0"
             >
-              <img :src="item.imageUrl" class="w-12 h-12 object-cover rounded-lg bg-stone-100 shrink-0" />
-              <div class="flex-1 min-w-0">
-                <p class="font-bold text-stone-900 truncate">{{ item.productName }}</p>
-                <p class="text-stone-500">{{ item.color }} • {{ item.sizeOrShoeSize }} (x{{ item.quantity }})</p>
+              <img
+                :src="item.imageUrl"
+                :alt="item.productName"
+                class="w-14 h-14 object-cover rounded-xl bg-stone-100 border border-stone-200 shrink-0"
+              />
+              <div class="flex-1 min-w-0 space-y-0.5">
+                <p class="font-serif font-bold text-stone-900 truncate text-xs sm:text-sm">{{ item.productName }}</p>
+                <p class="text-[11px] text-stone-500">
+                  <span class="font-medium text-stone-800">{{ item.color }}</span>
+                  <span v-if="item.sizeOrShoeSize"> • Pointure / Taille : <strong>{{ item.sizeOrShoeSize }}</strong></span>
+                </p>
+                <p class="text-[11px] text-stone-400">Qté : x{{ item.quantity }}</p>
               </div>
-              <span class="font-bold text-stone-900">{{ formatPrice(item.price * item.quantity) }}</span>
+              <div class="text-right shrink-0">
+                <span class="font-serif font-black text-stone-950 text-sm block">
+                  {{ formatPrice(item.price * item.quantity) }}
+                </span>
+                <span v-if="item.quantity > 1" class="text-[10px] text-stone-400 block">
+                  ({{ formatPrice(item.price) }}/u)
+                </span>
+              </div>
             </div>
           </div>
 
-          <!-- Totals -->
-          <div class="border-t border-stone-100 pt-4 space-y-2 text-sm">
+          <!-- Totaux -->
+          <div class="border-t border-stone-100 pt-4 space-y-2 text-xs sm:text-sm">
             <div class="flex justify-between text-stone-600">
               <span>Sous-total articles :</span>
-              <span>{{ cartStore.formattedSubtotal }}</span>
+              <span class="font-bold text-stone-900">{{ cartStore.formattedSubtotal }}</span>
             </div>
             <div class="flex justify-between text-stone-600">
-              <span>Frais de livraison :</span>
-              <span class="text-emerald-600 font-semibold">Gratuit (Offre Lancement)</span>
+              <span>Livraison 24h Dakar :</span>
+              <span class="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                Offerte (Promotion)
+              </span>
             </div>
             <div class="border-t border-stone-200 pt-3 flex justify-between items-baseline font-bold text-stone-950 text-base">
-              <span>Total à payer :</span>
+              <span>Total Commande :</span>
               <div class="text-right">
-                <span class="font-serif text-2xl text-gold-700 block">{{ currencyStore.toXofOnly(cartStore.subtotal) }}</span>
-                <span class="text-xs text-stone-500 font-bold block">≈ {{ currencyStore.toEurOnly(cartStore.subtotal) }}</span>
+                <span class="font-serif text-2xl text-stone-950 block font-black">{{ currencyStore.toXofOnly(cartStore.subtotal) }}</span>
+                <span class="text-[11px] text-stone-400 font-medium block">≈ {{ currencyStore.toEurOnly(cartStore.subtotal) }}</span>
               </div>
             </div>
           </div>
 
-          <!-- Submit Button -->
-          <button
-            @click="handleCheckout"
-            :disabled="isSubmitting"
-            class="w-full py-4 rounded-xl font-bold text-sm text-white shadow-lg transition-all flex items-center justify-center gap-2"
-            :class="
-              selectedProvider === 'WAVE'
-                ? 'bg-blue-600 hover:bg-blue-700'
-                : 'bg-orange-600 hover:bg-orange-700'
-            "
-          >
-            <span v-if="isSubmitting">Traitement en cours...</span>
-            <span v-else>
-              Payer avec {{ selectedProvider === 'WAVE' ? 'Wave' : 'Orange Money' }} ({{ cartStore.formattedSubtotal }})
-            </span>
-          </button>
-
-          <p class="text-[11px] text-stone-400 text-center">
-            En validant votre commande, vous acceptez les conditions de vente de Jumelles Store.
-          </p>
-
-          <!-- Assistance direct commande téléphonique -->
-          <div class="pt-2 border-t border-stone-100 text-center">
-            <p class="text-xs text-stone-500 font-medium">Besoin d'aide pour finaliser ?</p>
+          <!-- GROS BOUTON WHATSAPP -->
+          <div class="space-y-3 pt-2">
             <button
-              @click="phoneStore.openModal('Finalisation Commande')"
-              class="text-xs font-bold text-stone-900 hover:text-gold-700 underline inline-flex items-center gap-1.5 mt-0.5 mx-auto cursor-pointer"
+              @click="handleCheckoutWhatsApp"
+              :disabled="isSubmitting"
+              type="button"
+              class="w-full py-4 px-4 bg-[#25D366] hover:bg-[#20ba59] active:scale-98 text-white font-black text-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-3 cursor-pointer group"
             >
-              <Phone class="w-3.5 h-3.5 text-gold-600" />
-              <span>Service Téléphonique & WhatsApp : +221 77 208 78 20</span>
+              <IconWhatsApp className="w-5 h-5 text-white shrink-0 group-hover:scale-110 transition-transform" />
+              <span v-if="isSubmitting">Enregistrement de la commande...</span>
+              <span v-else>
+                Confirmer la Commande via WhatsApp
+              </span>
             </button>
+
+            <p class="text-[11px] text-stone-400 text-center font-light">
+              Cliquez pour être redirigée sur WhatsApp avec tous les détails de vos articles déjà prêts.
+            </p>
+          </div>
+
+          <!-- Assistance directe -->
+          <div class="pt-3 border-t border-stone-100 text-center">
+            <p class="text-[11px] text-stone-500">Une question ou hésitation sur une pointure ?</p>
+            <p class="text-xs font-bold text-stone-900 pt-0.5">
+              Service Client Boutique : <span class="text-gold-700 underline font-mono">+221 77 208 78 20</span>
+            </p>
           </div>
         </div>
       </div>
@@ -257,23 +242,18 @@
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { ShoppingBag, Zap, ShieldCheck, Check } from 'lucide-vue-next';
-import IconWave from '../components/icons/IconWave.vue';
-import IconOrangeMoney from '../components/icons/IconOrangeMoney.vue';
-import IconPhoneSolid from '../components/icons/IconPhoneSolid.vue';
+import { ShoppingBag, Sparkles, CheckCircle2, Truck } from 'lucide-vue-next';
+import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
 import { useCartStore } from '../stores/cart';
 import { useAuthStore } from '../stores/auth';
 import { useCurrencyStore } from '../stores/currency';
-import { usePhoneStore } from '../stores/phone';
-import { OrderService, PaymentService } from '../services/api';
+import { OrderService } from '../services/api';
 
 const router = useRouter();
 const cartStore = useCartStore();
 const authStore = useAuthStore();
 const currencyStore = useCurrencyStore();
-const phoneStore = usePhoneStore();
 
-const selectedProvider = ref<'WAVE' | 'ORANGE_MONEY'>('WAVE');
 const isSubmitting = ref(false);
 
 const form = reactive({
@@ -282,6 +262,7 @@ const form = reactive({
   customerPhone: '',
   shippingCity: 'Dakar',
   shippingAddress: '',
+  customerNote: '',
 });
 
 const fillUserData = () => {
@@ -289,15 +270,6 @@ const fillUserData = () => {
     if (authStore.user.name && !form.customerName) form.customerName = authStore.user.name;
     if (authStore.user.email && !form.customerEmail) form.customerEmail = authStore.user.email;
   }
-};
-
-const handleQuickLogin = () => {
-  if (authStore.keycloakInstance?.authenticated) {
-    authStore.loginKeycloak();
-  } else {
-    authStore.loginAsDemoClient();
-  }
-  fillUserData();
 };
 
 watch(() => authStore.user, () => {
@@ -312,9 +284,9 @@ const formatPrice = (price: number) => {
   return currencyStore.formatPrice(price);
 };
 
-const handleCheckout = async () => {
+const handleCheckoutWhatsApp = async () => {
   if (!form.customerName || !form.customerPhone || !form.shippingAddress) {
-    alert('Veuillez renseigner votre nom, téléphone et adresse de livraison.');
+    alert('Veuillez renseigner votre nom complet, votre numéro de téléphone et votre adresse de livraison.');
     return;
   }
 
@@ -323,54 +295,103 @@ const handleCheckout = async () => {
     const cleanPhone = form.customerPhone.replace(/\D/g, '');
     const clientEmail = form.customerEmail?.trim() || `${cleanPhone || 'client'}@client.jumelles.sn`;
 
-    // 1. Création de la commande sur l'API Node.js
+    // 1. Sauvegarde de la commande sur l'API pour que l'administration garde la trace
     const orderPayload = {
       customerName: form.customerName,
       customerEmail: clientEmail,
       customerPhone: form.customerPhone,
       shippingCity: form.shippingCity,
-      shippingAddress: form.shippingAddress,
+      shippingAddress: form.customerNote
+        ? `${form.shippingAddress} (Note: ${form.customerNote})`
+        : form.shippingAddress,
       items: cartStore.items.map((item) => ({
         productVariantId: item.variantId,
         quantity: item.quantity,
       })),
     };
 
-    const orderRes = await OrderService.create(orderPayload);
-    const createdOrder = orderRes.data.data;
+    let orderNumber = `CMD-${Date.now().toString().slice(-6)}`;
+    try {
+      const orderRes = await OrderService.create(orderPayload);
+      if (orderRes.data?.data?.orderNumber) {
+        orderNumber = orderRes.data.data.orderNumber;
+      }
+    } catch (apiErr) {
+      console.warn('Création API commande (continuation WhatsApp):', apiErr);
+    }
 
-    // 2. Initialisation du paiement Wave ou Orange Money
-    const paymentRes = await PaymentService.initiate({
-      orderId: createdOrder.id,
-      provider: selectedProvider.value,
+    // 2. Formatage du message WhatsApp détaillé avec tous les articles
+    const itemsListText = cartStore.items
+      .map((item, index) => {
+        const details = item.sizeOrShoeSize
+          ? `${item.color} • Pointure/Taille : ${item.sizeOrShoeSize}`
+          : item.color;
+        const lineTotal = formatPrice(item.price * item.quantity);
+        return `  ${index + 1}. *${item.productName}*\n     ↳ Détails : ${details}\n     ↳ Quantité : x${item.quantity}\n     ↳ Prix : ${lineTotal}`;
+      })
+      .join('\n\n');
+
+    const totalFormatted = currencyStore.toXofOnly(cartStore.subtotal);
+
+    const whatsappMessage =
+`Bonjour Maison Jumelles ✨,
+
+Je souhaite confirmer ma commande passée sur votre site internet :
+
+📋 *RÉFÉRENCE COMMANDE :* ${orderNumber}
+
+👤 *COORDONNÉES CLIENTE :*
+• Nom : ${form.customerName}
+• Téléphone : ${form.customerPhone}
+• Ville : ${form.shippingCity}
+• Adresse de livraison : ${form.shippingAddress}${form.customerNote ? '\n• Note spéciale : ' + form.customerNote : ''}
+
+🛍️ *ARTICLES COMMANDÉS :*
+${itemsListText}
+
+💰 *TOTAL COMMANDE :* *${totalFormatted}*
+🚚 *LIVRAISON :* 24h Dakar (Offerte)
+💵 *RÈGLEMENT :* À la livraison (Espèces ou Transfert Wave/OM)
+
+Merci de me confirmer la prise en compte de ma commande et le créneau de livraison !`;
+
+    const boutiqueWhatsAppPhone = '221772087820';
+    const whatsappUrl = `https://wa.me/${boutiqueWhatsAppPhone}?text=${encodeURIComponent(whatsappMessage)}`;
+
+    // 3. Sauvegarder pour la page de succès
+    const orderDataForSuccess = {
+      orderNumber,
+      customerName: form.customerName,
       customerPhone: form.customerPhone,
-    });
-
-    const paymentData = paymentRes.data.data;
+      shippingCity: form.shippingCity,
+      shippingAddress: form.shippingAddress,
+      totalAmount: cartStore.subtotal,
+      items: [...cartStore.items],
+      whatsappUrl,
+    };
+    sessionStorage.setItem('jumelles_last_order', JSON.stringify(orderDataForSuccess));
 
     // Vider le panier
     cartStore.clearCart();
 
-    // Rediriger vers la page de succès / paiement
-    router.push({
-      path: '/order-success',
-      query: {
-        orderId: createdOrder.id,
-        orderNumber: createdOrder.orderNumber,
-        provider: selectedProvider.value,
-        amount: createdOrder.totalAmount,
-        qrCodeUrl: paymentData.qrCodeUrl || '',
-        paymentUrl: paymentData.paymentUrl || '',
-        waveDeepLink: 'wave://',
-        boutiquePhone: '+221 77 208 78 20',
-      },
-    });
+    // 4. Rediriger immédiatement sur WhatsApp
+    window.location.href = whatsappUrl;
+
+    // Rediriger également vers la vue succès en arrière-plan
+    setTimeout(() => {
+      router.push({
+        path: '/order-success',
+        query: {
+          orderNumber,
+          amount: orderDataForSuccess.totalAmount,
+        },
+      });
+    }, 800);
   } catch (error: any) {
-    console.error('Erreur checkout:', error);
-    alert(error.response?.data?.message || 'Une erreur est survenue lors du paiement.');
+    console.error('Erreur validation WhatsApp:', error);
+    alert('Une erreur est survenue lors de la transmission de la commande.');
   } finally {
     isSubmitting.value = false;
   }
 };
 </script>
-

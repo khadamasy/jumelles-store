@@ -104,7 +104,7 @@
               </span>
             </div>
           </div>
-          <p class="text-xs text-stone-500">Paiements Wave & Orange Money acceptés. Conversion en Euros affichée pour les clients internationaux.</p>
+          <p class="text-xs text-stone-500">Validation rapide sur WhatsApp. Aucun paiement en ligne requis, règlement à la livraison.</p>
 
           <router-link
             to="/checkout"

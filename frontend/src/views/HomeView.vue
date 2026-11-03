@@ -15,7 +15,7 @@
         <span class="text-stone-600">•</span>
         <span class="flex items-center gap-2">
           <ShieldCheck class="w-3.5 h-3.5 text-gold-400" />
-          <span>Paiements Wave & Orange Money Sécurisés</span>
+          <span>Validation Directe sur WhatsApp</span>
         </span>
         <span class="text-stone-600">•</span>
         <span class="flex items-center gap-2">
@@ -41,7 +41,7 @@
         <span class="text-stone-600">•</span>
         <span class="flex items-center gap-2">
           <ShieldCheck class="w-3.5 h-3.5 text-gold-400" />
-          <span>Paiements Wave & Orange Money Sécurisés</span>
+          <span>Validation Directe sur WhatsApp</span>
         </span>
       </div>
     </div>
@@ -103,7 +103,7 @@
               </span>
               <span class="flex items-center gap-2">
                 <ShieldCheck class="w-3.5 h-3.5 text-gold-400" />
-                <span>Paiement Wave & OM direct</span>
+                <span>Confirmation WhatsApp & Livraison 24h</span>
               </span>
             </div>
           </div>
@@ -395,18 +395,18 @@
       </div>
     </section>
 
-    <!-- 8. Bandeau Paiement Mobile Wave & Orange Money -->
+    <!-- 8. Bandeau Commande Rapide via WhatsApp -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 rounded-3xl p-8 sm:p-12 text-white border border-gold-500/30 shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-8">
         <div class="space-y-4 max-w-xl text-center lg:text-left">
-          <span class="inline-block bg-gold-500/20 text-gold-400 text-xs uppercase tracking-widest font-black px-4 py-1.5 rounded-full border border-gold-400/30">
-            Achat Simplifié Sans Carte Bancaire
+          <span class="inline-block bg-[#25D366]/20 text-[#25D366] text-xs uppercase tracking-widest font-black px-4 py-1.5 rounded-full border border-[#25D366]/30">
+            Commande Facile Sans Paiement en Ligne
           </span>
           <h3 class="font-serif text-2xl sm:text-4xl font-bold leading-tight">
-            Réglez instantanément avec Wave ou Orange Money
+            Validez votre commande directement sur WhatsApp
           </h3>
           <p class="text-stone-300 text-xs sm:text-sm leading-relaxed font-light">
-            Validez votre commande en quelques secondes directement depuis votre mobile avec Wave ou l'application Orange Money.
+            Sélectionnez vos modèles sur le site : votre commande est directement transmise avec les détails des articles à notre équipe pour convenir de la livraison sous 24h à Dakar. Règlement à la réception.
           </p>
           <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
             <router-link
@@ -420,23 +420,21 @@
         </div>
 
         <div class="flex flex-col sm:flex-row items-center gap-4 shrink-0 w-full sm:w-auto">
-          <!-- Wave Card avec vrai pingouin Wave -->
-          <div class="bg-cyan-950/40 backdrop-blur-md border border-cyan-500/30 p-5 rounded-2xl flex items-center gap-4 w-full sm:w-56 shadow-lg">
-            <IconWave className="w-12 h-12 rounded-xl shadow-xs shrink-0" />
-            <div>
-              <p class="font-black text-sm text-white">Wave Sénégal</p>
-              <p class="text-xs text-cyan-300">Paiement 0% frais</p>
+          <!-- WhatsApp Card -->
+          <a
+            href="https://wa.me/221772087820?text=Bonjour%20Maison%20Jumelles%2C%20je%20souhaite%20des%20renseignements%20sur%20vos%20articles."
+            target="_blank"
+            class="bg-[#25D366]/15 hover:bg-[#25D366]/25 border border-[#25D366]/40 p-5 rounded-2xl flex items-center gap-4 w-full sm:w-72 shadow-lg transition-all group"
+          >
+            <div class="w-12 h-12 rounded-xl bg-[#25D366]/20 flex items-center justify-center shrink-0">
+              <IconWhatsApp className="w-8 h-8 text-[#25D366] group-hover:scale-110 transition-transform" />
             </div>
-          </div>
-
-          <!-- Orange Money Card avec vrai logo OM -->
-          <div class="bg-orange-950/40 backdrop-blur-md border border-orange-500/30 p-5 rounded-2xl flex items-center gap-4 w-full sm:w-56 shadow-lg">
-            <IconOrangeMoney className="w-12 h-12 rounded-xl shadow-xs shrink-0" />
             <div>
-              <p class="font-black text-sm text-white">Orange Money</p>
-              <p class="text-xs text-orange-300">Max it ou code #144#</p>
+              <p class="font-black text-sm text-white">WhatsApp Boutique</p>
+              <p class="text-xs text-stone-300 font-mono">+221 77 208 78 20</p>
+              <span class="text-[10px] text-[#25D366] font-bold">Réponse rapide • 7j/7</span>
             </div>
-          </div>
+          </a>
         </div>
       </div>
     </section>
@@ -455,8 +453,7 @@ import {
   Award,
   Star,
 } from 'lucide-vue-next';
-import IconWave from '../components/icons/IconWave.vue';
-import IconOrangeMoney from '../components/icons/IconOrangeMoney.vue';
+import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
 import { ProductService } from '../services/api';
 import ProductCard from '../components/ProductCard.vue';
 

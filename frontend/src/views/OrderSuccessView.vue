@@ -1,459 +1,171 @@
 <template>
-  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center space-y-8">
-    <!-- Success Badge -->
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 text-center space-y-8">
+    <!-- Badge de Succès -->
     <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-lg ring-8 ring-emerald-50">
       <CheckCircle2 class="w-10 h-10 text-emerald-600" />
     </div>
 
+    <!-- Titres -->
     <div class="space-y-3">
-      <span class="text-xs uppercase tracking-widest text-gold-600 font-extrabold bg-gold-50 px-3.5 py-1 rounded-full border border-gold-200 inline-flex items-center gap-1.5">
-        <Sparkles class="w-3.5 h-3.5" />
-        <span>Commande Enregistrée avec Succès</span>
+      <span class="text-xs uppercase tracking-widest text-[#25D366] font-extrabold bg-emerald-50 px-3.5 py-1 rounded-full border border-emerald-200 inline-flex items-center gap-1.5">
+        <IconWhatsApp className="w-4 h-4 text-[#25D366]" />
+        <span>Commande Enregistrée & Transmise sur WhatsApp</span>
       </span>
       <h1 class="font-serif text-3xl sm:text-4xl font-extrabold text-stone-900">
         Merci pour votre commande !
       </h1>
-      <p class="text-stone-600 text-sm">
-        Numéro de suivi officiel : <strong class="text-stone-950 font-mono font-black text-base">{{ orderNumber }}</strong>
+      <p class="text-stone-600 text-xs sm:text-sm">
+        Numéro de suivi officiel : <strong class="text-stone-950 font-mono font-black text-base">{{ displayOrderNumber }}</strong>
       </p>
     </div>
 
-    <!-- Payment Action Card -->
-    <div class="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-2xl max-w-lg mx-auto space-y-6 text-left">
-      <!-- En-tête Montant & Opérateur -->
-      <div class="flex items-center justify-between border-b border-stone-100 pb-4">
-        <div class="flex items-center gap-3">
-          <IconOrangeMoney v-if="isOrangeMoney" className="w-11 h-11 shrink-0 rounded-2xl shadow-sm" />
-          <IconWave v-else className="w-11 h-11 shrink-0 rounded-2xl shadow-sm" />
-          <div>
-            <span class="font-black text-base text-stone-900 block">{{ isOrangeMoney ? 'Règlement Orange Money' : 'Règlement Wave' }}</span>
-            <span class="text-[11px] text-stone-400">Paiement direct sans intermédiaire</span>
-          </div>
-        </div>
-        <div class="text-right">
-          <span class="text-[10px] text-stone-400 font-bold uppercase block">Montant à régler</span>
-          <span class="font-serif font-black text-2xl text-stone-950 block text-gold-700">{{ formatPrice(amount) }}</span>
-        </div>
-      </div>
-
-      <!-- ============================================== -->
-      <!-- SECTION WAVE : OUVERTURE DIRECTE PRÉ-REMPLIE    -->
-      <!-- ============================================== -->
-      <div v-if="!isOrangeMoney" class="space-y-4">
-        <!-- 1. GROS BOUTON MOBILE PRINCIPAL -->
-        <div>
-          <button
-            @click="openWaveApp"
-            type="button"
-            class="w-full py-4 px-4 bg-gradient-to-r from-cyan-600 via-blue-600 to-cyan-600 hover:from-cyan-700 hover:to-blue-700 text-white font-black text-sm rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2.5 active:scale-98 cursor-pointer"
-          >
-            <IconWave className="w-6 h-6 shrink-0 rounded-lg shadow-xs" />
-            <span>Ouvrir l'application Wave</span>
-            <span class="bg-white/20 px-2.5 py-0.5 rounded-lg text-xs font-black">{{ formatPrice(amount) }}</span>
-          </button>
-          <div
-            v-if="waveNotice"
-            class="mt-2.5 p-2.5 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-xl text-xs font-bold text-center shadow-sm flex items-center justify-center gap-1.5"
-          >
-            <Check class="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            <span>{{ waveNotice }}</span>
-          </div>
-        </div>
-
-        <!-- 2. Carte Élégante & Alignée (Fary Dione • 77 208 78 20) -->
-        <div class="bg-gradient-to-br from-blue-50/90 to-sky-50/50 border border-blue-200/90 rounded-3xl p-4 sm:p-5 space-y-3 shadow-sm">
-          <div class="flex items-center gap-2.5 pb-2 border-b border-blue-200/60">
-            <IconWave className="w-5 h-5 shrink-0 rounded" />
-            <span class="text-xs font-black text-blue-950 uppercase tracking-wider">Informations pour votre transfert Wave</span>
-          </div>
-
-          <!-- Ligne 1 : Nom du Compte Wave (Fary Dione) -->
-          <div class="bg-white rounded-2xl p-3 border border-blue-100 flex items-center justify-between shadow-xs">
-            <div class="space-y-0.5">
-              <span class="text-[10px] uppercase tracking-wider text-stone-400 font-bold block">1. Nom du compte Wave</span>
-              <span class="font-bold text-stone-900 text-sm sm:text-base">{{ boutiqueName }}</span>
-            </div>
-            <button
-              @click="copyText(boutiqueName, 'name')"
-              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
-              :class="copiedKey === 'name' ? 'bg-emerald-600 text-white shadow' : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200'"
-            >
-              <component :is="copiedKey === 'name' ? Check : Copy" class="w-3.5 h-3.5" />
-              <span>{{ copiedKey === 'name' ? 'Copié !' : 'Copier Nom' }}</span>
-            </button>
-          </div>
-
-          <!-- Ligne 2 : Numéro Wave (77 208 78 20) -->
-          <div class="bg-white rounded-2xl p-3 border-2 border-blue-500/40 flex items-center justify-between shadow-xs">
-            <div class="space-y-0.5">
-              <span class="text-[10px] uppercase tracking-wider text-blue-700 font-bold block">2. Téléphone Wave</span>
-              <span class="font-mono font-black text-blue-950 text-base sm:text-lg tracking-wide">77 208 78 20</span>
-            </div>
-            <button
-              @click="copyText(boutiquePhoneLocal, 'phone')"
-              class="px-3.5 py-2 rounded-xl text-xs font-black shadow transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
-              :class="copiedKey === 'phone' ? 'bg-emerald-600 text-white ring-2 ring-emerald-300' : 'bg-blue-600 hover:bg-blue-700 text-white'"
-            >
-              <component :is="copiedKey === 'phone' ? Check : Copy" class="w-3.5 h-3.5" />
-              <span>{{ copiedKey === 'phone' ? 'Copié !' : 'Copier Numéro' }}</span>
-            </button>
-          </div>
-
-          <!-- Ligne 3 : Montant exact -->
-          <div class="bg-white rounded-2xl p-3 border border-blue-100 flex items-center justify-between shadow-xs">
-            <div class="space-y-0.5">
-              <span class="text-[10px] uppercase tracking-wider text-stone-400 font-bold block">3. Montant à envoyer</span>
-              <span class="font-serif font-black text-stone-950 text-base sm:text-lg text-gold-700">{{ formatPrice(amount) }}</span>
-            </div>
-            <button
-              @click="copyText(amount.toString(), 'amount')"
-              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
-              :class="copiedKey === 'amount' ? 'bg-emerald-600 text-white shadow' : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200'"
-            >
-              <component :is="copiedKey === 'amount' ? Check : Copy" class="w-3.5 h-3.5" />
-              <span>{{ copiedKey === 'amount' ? 'Copié !' : 'Copier Montant' }}</span>
-            </button>
-          </div>
-
-          <!-- Ligne 4 : Référence Commande -->
-          <div class="bg-white rounded-2xl p-3 border border-blue-100 flex items-center justify-between shadow-xs">
-            <div class="space-y-0.5">
-              <span class="text-[10px] uppercase tracking-wider text-stone-400 font-bold block">4. Référence commande</span>
-              <span class="font-mono font-bold text-stone-800 text-xs sm:text-sm">{{ orderNumber }}</span>
-            </div>
-            <button
-              @click="copyText(orderNumber, 'ref')"
-              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
-              :class="copiedKey === 'ref' ? 'bg-emerald-600 text-white shadow' : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200'"
-            >
-              <component :is="copiedKey === 'ref' ? Check : Copy" class="w-3.5 h-3.5" />
-              <span>{{ copiedKey === 'ref' ? 'Copié !' : 'Copier' }}</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- 3. Option QR Code pour les clientes sur ordinateur -->
-        <div class="text-center pt-1 border-t border-stone-100">
-          <button
-            @click="showQrCode = !showQrCode"
-            class="text-xs text-blue-700 hover:text-blue-900 font-bold underline flex items-center justify-center gap-1.5 mx-auto"
-          >
-            <QrCode class="w-4 h-4" />
-            <span>{{ showQrCode ? 'Masquer le QR Code' : 'Vous êtes sur PC ? Afficher le QR Code à scanner' }}</span>
-          </button>
-
-          <div v-if="showQrCode" class="mt-4 p-4 bg-stone-50 rounded-2xl border border-stone-200 inline-block shadow-inner">
-            <img :src="qrCodeUrl" alt="QR Code Wave" class="w-48 h-48 mx-auto rounded-xl shadow" />
-            <p class="text-[10px] text-stone-500 mt-2">Scannez ce QR Code depuis l'appareil photo de votre application Wave.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- ============================================== -->
-      <!-- SECTION ORANGE MONEY                           -->
-      <!-- ============================================== -->
-      <div v-else class="space-y-4">
-        <!-- 1. BOUTONS MOBILES ORANGE MONEY -->
-        <div class="space-y-3">
-          <button
-            @click="copyOrangeMoneyPhone"
-            type="button"
-            class="w-full py-4 px-4 bg-gradient-to-r from-[#FF7900] via-orange-600 to-[#FF7900] hover:from-orange-700 hover:to-orange-800 text-white font-black text-sm rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2.5 active:scale-98 cursor-pointer"
-          >
-            <IconOrangeMoney className="w-6 h-6 shrink-0 rounded-lg shadow-xs" />
-            <span>Copier le Numéro Orange Money</span>
-            <span class="bg-white/20 px-2.5 py-0.5 rounded-lg text-xs font-black">{{ formatPrice(amount) }}</span>
-          </button>
-
-          <!-- Notification de confirmation de copie -->
-          <div
-            v-if="omNotice"
-            class="p-3 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-2xl text-xs font-bold text-center shadow-sm flex items-center justify-center gap-1.5"
-          >
-            <Check class="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-            <span>{{ omNotice }}</span>
-          </div>
-
-          <!-- Bouton Code Rapide USSD #144# -->
-          <a
-            href="tel:#144#"
-            class="w-full py-3 px-4 bg-stone-900 hover:bg-stone-850 text-white font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center gap-2"
-          >
-            <IconPhoneSolid className="w-3.5 h-3.5 text-orange-400" />
-            <span>Composer le #144# sur mon téléphone</span>
-          </a>
-        </div>
-
-        <!-- 2. Carte Élégante & Alignée Orange Money (Fary Dione • 77 208 78 20) -->
-        <div class="bg-gradient-to-br from-orange-50/90 to-amber-50/50 border border-orange-200/90 rounded-3xl p-4 sm:p-5 space-y-3 shadow-sm">
-          <div class="flex items-center gap-2.5 pb-2 border-b border-orange-200/60">
-            <IconOrangeMoney className="w-5 h-5 shrink-0 rounded" />
-            <span class="text-xs font-black text-orange-950 uppercase tracking-wider">Informations de transfert Orange Money</span>
-          </div>
-
-          <!-- Ligne 1 : Nom du Compte OM (Fary Dione) -->
-          <div class="bg-white rounded-2xl p-3 border border-orange-100 flex items-center justify-between shadow-xs">
-            <div class="space-y-0.5">
-              <span class="text-[10px] uppercase tracking-wider text-stone-400 font-bold block">1. Nom du compte OM</span>
-              <span class="font-bold text-stone-900 text-sm sm:text-base">{{ boutiqueName }}</span>
-            </div>
-            <button
-              @click="copyText(boutiqueName, 'name')"
-              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
-              :class="copiedKey === 'name' ? 'bg-emerald-600 text-white shadow' : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200'"
-            >
-              <component :is="copiedKey === 'name' ? Check : Copy" class="w-3.5 h-3.5" />
-              <span>{{ copiedKey === 'name' ? 'Copié !' : 'Copier Nom' }}</span>
-            </button>
-          </div>
-
-          <!-- Ligne 2 : Numéro Orange Money (77 208 78 20) -->
-          <div class="bg-white rounded-2xl p-3 border-2 border-orange-500/40 flex items-center justify-between shadow-xs">
-            <div class="space-y-0.5">
-              <span class="text-[10px] uppercase tracking-wider text-orange-700 font-bold block">2. Téléphone Orange Money</span>
-              <span class="font-mono font-black text-orange-950 text-base sm:text-lg tracking-wide">77 208 78 20</span>
-            </div>
-            <button
-              @click="copyText(boutiquePhoneLocal, 'phone')"
-              class="px-3.5 py-2 rounded-xl text-xs font-black shadow transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
-              :class="copiedKey === 'phone' ? 'bg-emerald-600 text-white ring-2 ring-emerald-300' : 'bg-orange-600 hover:bg-orange-700 text-white'"
-            >
-              <component :is="copiedKey === 'phone' ? Check : Copy" class="w-3.5 h-3.5" />
-              <span>{{ copiedKey === 'phone' ? 'Copié !' : 'Copier Numéro' }}</span>
-            </button>
-          </div>
-
-          <!-- Ligne 3 : Montant exact -->
-          <div class="bg-white rounded-2xl p-3 border border-orange-100 flex items-center justify-between shadow-xs">
-            <div class="space-y-0.5">
-              <span class="text-[10px] uppercase tracking-wider text-stone-400 font-bold block">3. Montant à envoyer</span>
-              <span class="font-serif font-black text-stone-950 text-base sm:text-lg text-gold-700">{{ formatPrice(amount) }}</span>
-            </div>
-            <button
-              @click="copyText(amount.toString(), 'amount')"
-              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
-              :class="copiedKey === 'amount' ? 'bg-emerald-600 text-white shadow' : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200'"
-            >
-              <component :is="copiedKey === 'amount' ? Check : Copy" class="w-3.5 h-3.5" />
-              <span>{{ copiedKey === 'amount' ? 'Copié !' : 'Copier Montant' }}</span>
-            </button>
-          </div>
-
-          <!-- Ligne 4 : Référence Commande -->
-          <div class="bg-white rounded-2xl p-3 border border-orange-100 flex items-center justify-between shadow-xs">
-            <div class="space-y-0.5">
-              <span class="text-[10px] uppercase tracking-wider text-stone-400 font-bold block">4. Référence commande</span>
-              <span class="font-mono font-bold text-stone-800 text-xs sm:text-sm">{{ orderNumber }}</span>
-            </div>
-            <button
-              @click="copyText(orderNumber, 'ref')"
-              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
-              :class="copiedKey === 'ref' ? 'bg-emerald-600 text-white shadow' : 'bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-200'"
-            >
-              <component :is="copiedKey === 'ref' ? Check : Copy" class="w-3.5 h-3.5" />
-              <span>{{ copiedKey === 'ref' ? 'Copié !' : 'Copier' }}</span>
-            </button>
-          </div>
-        </div>
-
-        <p class="text-[11px] text-stone-500 text-center">
-          Effectuez le transfert vers le <strong>77 208 78 20 (Fary Dione)</strong> puis cliquez sur le bouton vert ci-dessous pour confirmer sur WhatsApp.
+    <!-- Carte Principale WhatsApp & Récapitulatif -->
+    <div class="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-xl max-w-xl mx-auto space-y-6 text-left">
+      <!-- Gros Bouton d'Ouverture WhatsApp -->
+      <div class="space-y-3">
+        <a
+          :href="whatsappUrl"
+          target="_blank"
+          class="w-full py-4 px-5 bg-[#25D366] hover:bg-[#20ba59] active:scale-98 text-white font-black text-sm rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3 cursor-pointer group"
+        >
+          <IconWhatsApp className="w-6 h-6 text-white shrink-0 group-hover:scale-110 transition-transform" />
+          <span>Ouvrir la discussion WhatsApp (+221 77 208 78 20)</span>
+        </a>
+        <p class="text-[11px] text-stone-500 text-center font-light">
+          Si votre application WhatsApp ne s'est pas ouverte automatiquement, cliquez sur le bouton vert ci-dessus pour envoyer votre commande.
         </p>
       </div>
 
-      <!-- ============================================== -->
-      <!-- BOUTON WHATSAPP : ENVOYER LE REÇU EN 1 CLIC    -->
-      <!-- ============================================== -->
-      <div class="pt-2 border-t border-stone-100 space-y-3">
-        <a
-          :href="whatsappConfirmationUrl"
-          target="_blank"
-          class="w-full py-4 px-4 bg-[#25D366] hover:bg-[#20ba59] active:scale-95 text-white font-black text-sm rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2.5 cursor-pointer"
-        >
-          <IconWhatsApp className="w-5 h-5 text-white shrink-0" />
-          <span>Confirmer le paiement {{ isOrangeMoney ? 'Orange Money' : 'Wave' }} sur WhatsApp (+221 77 208 78 20)</span>
-        </a>
-      </div>
+      <!-- Informations de Commande & Articles -->
+      <div class="border-t border-stone-100 pt-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="text-xs uppercase font-bold tracking-wider text-stone-400">Articles Commandés</span>
+          <span class="font-serif font-black text-stone-950 text-base text-gold-700">
+            Total : {{ formatPrice(displayAmount) }}
+          </span>
+        </div>
 
-      <!-- Simulation pour environnement de test local -->
-      <div class="pt-3 border-t border-stone-100 bg-stone-50 p-3 rounded-xl text-center">
-        <p class="text-[10px] text-stone-400 font-bold uppercase mb-1.5">Test immédiat :</p>
-        <button
-          @click="simulatePayment"
-          :disabled="isSimulating || isPaid"
-          class="w-full py-2 px-3 text-xs font-bold rounded-lg transition-all"
-          :class="isPaid ? 'bg-emerald-700 text-white' : 'bg-stone-900 hover:bg-gold-600 text-white shadow'"
-        >
-          <span v-if="isPaid">✓ Paiement Marqué comme Réglé !</span>
-          <span v-else-if="isSimulating">Validation en cours...</span>
-          <span v-else>Simuler la confirmation automatique (Test)</span>
-        </button>
+        <!-- Liste des articles si disponibles dans la session -->
+        <div v-if="orderItems.length > 0" class="space-y-3 divide-y divide-stone-100">
+          <div
+            v-for="(item, idx) in orderItems"
+            :key="idx"
+            class="flex items-center gap-3 text-xs pt-3 first:pt-0"
+          >
+            <img
+              v-if="item.imageUrl"
+              :src="item.imageUrl"
+              :alt="item.productName"
+              class="w-12 h-12 object-cover rounded-xl bg-stone-100 border border-stone-200 shrink-0"
+            />
+            <div class="flex-1 min-w-0">
+              <p class="font-bold text-stone-900 truncate">{{ item.productName }}</p>
+              <p class="text-stone-500 text-[11px]">
+                {{ item.color }}
+                <span v-if="item.sizeOrShoeSize">• Pointure/Taille : {{ item.sizeOrShoeSize }}</span>
+                <span>(x{{ item.quantity }})</span>
+              </p>
+            </div>
+            <span class="font-bold text-stone-950 text-xs">
+              {{ formatPrice(item.price * item.quantity) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Coordonnées Cliente enregistrées -->
+        <div v-if="customerDetails.name" class="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-1.5 text-xs">
+          <p class="font-bold text-stone-900">Coordonnées de livraison :</p>
+          <p class="text-stone-600">Cliente : <strong>{{ customerDetails.name }}</strong></p>
+          <p class="text-stone-600">Téléphone : <strong class="font-mono">{{ customerDetails.phone }}</strong></p>
+          <p class="text-stone-600">Adresse : {{ customerDetails.address }} ({{ customerDetails.city }})</p>
+        </div>
+
+        <!-- Note Règlement à la Livraison -->
+        <div class="p-4 bg-amber-50/80 border border-amber-200/90 rounded-2xl flex items-start gap-3 text-xs">
+          <Truck class="w-5 h-5 text-amber-800 shrink-0 mt-0.5" />
+          <div class="space-y-0.5">
+            <p class="font-bold text-amber-950">Règlement à la réception du colis :</p>
+            <p class="text-stone-700 text-[11px] leading-relaxed">
+              Vous réglerez directement auprès du livreur à Dakar, en espèces ou par transfert Wave / Orange Money sur le numéro officiel <strong>77 208 78 20 (Fary Dione)</strong> lors de la remise de votre paquet.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Secondary Navigation -->
-    <div class="flex flex-wrap items-center justify-center gap-4 pt-4">
-      <router-link
-        to="/orders"
-        class="px-6 py-3 bg-stone-900 hover:bg-gold-600 text-white text-xs font-bold rounded-xl transition-all shadow"
-      >
-        Consulter mes commandes
-      </router-link>
+    <!-- Navigation Secondaire -->
+    <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
       <router-link
         to="/catalog"
-        class="px-6 py-3 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold rounded-xl transition-all"
+        class="px-6 py-3 bg-stone-900 hover:bg-gold-600 text-white text-xs font-bold rounded-xl transition-all shadow"
       >
         Continuer mes achats
+      </router-link>
+      <router-link
+        to="/"
+        class="px-6 py-3 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold rounded-xl transition-all"
+      >
+        Retour à l'accueil
       </router-link>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import {
-  CheckCircle2,
-  Sparkles,
-  ExternalLink,
-  Check,
-  Copy,
-  ShieldCheck,
-  QrCode,
-  Phone,
-  MessageCircle
-} from 'lucide-vue-next';
-import IconWave from '../components/icons/IconWave.vue';
-import IconOrangeMoney from '../components/icons/IconOrangeMoney.vue';
+import { CheckCircle2, Truck } from 'lucide-vue-next';
 import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
-import IconPhoneSolid from '../components/icons/IconPhoneSolid.vue';
-import { PaymentService } from '../services/api';
+import { useCurrencyStore } from '../stores/currency';
 
 const route = useRoute();
+const currencyStore = useCurrencyStore();
 
-const orderId = ref((route.query.orderId as string) || '');
-const orderNumber = ref((route.query.orderNumber as string) || 'JUM-2026');
-const provider = ref((route.query.provider as string) || 'WAVE');
-const amount = ref(parseFloat(route.query.amount as string) || 0);
-const qrCodeUrl = ref((route.query.qrCodeUrl as string) || '');
-const paymentUrl = ref((route.query.paymentUrl as string) || '');
-
-const boutiqueName = ref('Fary Dione');
-const boutiquePhone = ref('+221 77 208 78 20');
-const boutiquePhoneLocal = ref('772087820');
-const boutiquePhoneClean = ref('221772087820');
-
-const waveNotice = ref('');
-const omNotice = ref('');
-const copiedKey = ref<string | null>(null);
-
-const fallbackCopy = (text: string): boolean => {
-  try {
-    const textArea = document.createElement('textarea');
-    textArea.value = text;
-    textArea.style.position = 'fixed';
-    textArea.style.top = '0';
-    textArea.style.left = '0';
-    textArea.style.width = '2em';
-    textArea.style.height = '2em';
-    textArea.style.padding = '0';
-    textArea.style.border = 'none';
-    textArea.style.outline = 'none';
-    textArea.style.boxShadow = 'none';
-    textArea.style.background = 'transparent';
-    textArea.setAttribute('readonly', '');
-
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    textArea.setSelectionRange(0, 99999);
-
-    const successful = document.execCommand('copy');
-    document.body.removeChild(textArea);
-    return successful;
-  } catch (err) {
-    console.warn('Erreur fallback copy:', err);
-    return false;
-  }
-};
-
-const executeCopy = async (text: string): Promise<boolean> => {
-  // 1. Essayer avec l'API standard navigator.clipboard si disponible et autorisée
-  if (typeof navigator !== 'undefined' && navigator.clipboard && window.isSecureContext) {
-    try {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } catch (e) {
-      // Passer au fallback ci-dessous
-    }
-  }
-  // 2. Méthode universelle de secours (fonctionne 100% sur mobile en Wi-Fi HTTP 192.168.x.x et Safari)
-  return fallbackCopy(text);
-};
-
-const copyText = async (text: string, key: string) => {
-  await executeCopy(text);
-  copiedKey.value = key;
-  setTimeout(() => {
-    copiedKey.value = null;
-  }, 2500);
-};
-
-const openWaveApp = async () => {
-  // Copier le numéro local à 9 chiffres (772087820) pour qu'il soit directement valide à côté du drapeau +221 dans Wave
-  await executeCopy(boutiquePhoneLocal.value);
-  copiedKey.value = 'phone';
-  waveNotice.value = `✓ Numéro 77 208 78 20 copié ! Collez-le directement dans Wave.`;
-
-  // Ouvrir l'application Wave native sur le téléphone
-  setTimeout(() => {
-    window.location.href = 'wave://';
-  }, 180);
-};
-
-const copyOrangeMoneyPhone = async () => {
-  // Copier le numéro 77 208 78 20 pour le transfert Orange Money
-  await executeCopy(boutiquePhoneLocal.value);
-  copiedKey.value = 'phone';
-  omNotice.value = `✓ Numéro 77 208 78 20 copié ! Collez-le dans Orange Money ou composez le #144#.`;
-};
-
-const isOrangeMoney = computed(() => {
-  return (provider.value || '').toUpperCase().includes('ORANGE');
+const displayOrderNumber = ref('');
+const displayAmount = ref(0);
+const whatsappUrl = ref('');
+const orderItems = ref<any[]>([]);
+const customerDetails = ref({
+  name: '',
+  phone: '',
+  city: '',
+  address: '',
 });
-
-const showQrCode = ref(false);
-
-const whatsappConfirmationUrl = computed(() => {
-  const providerLabel = isOrangeMoney.value ? 'Orange Money' : 'Wave';
-  const msg = encodeURIComponent(
-    `Bonjour Jumelles Store, je viens d'effectuer le paiement ${providerLabel} de ${formatPrice(amount.value)} pour ma commande n° ${orderNumber.value}. Pouvez-vous confirmer la réception ?`
-  );
-  return `https://wa.me/${boutiquePhoneClean.value}?text=${msg}`;
-});
-
-const isSimulating = ref(false);
-const isPaid = ref(false);
 
 const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'XOF',
-    maximumFractionDigits: 0,
-  }).format(price);
+  return currencyStore.formatPrice(price);
 };
 
-const simulatePayment = async () => {
-  if (!orderId.value) return;
-  isSimulating.value = true;
-  try {
-    await PaymentService.simulateSuccess(orderId.value);
-    isPaid.value = true;
-  } catch (error) {
-    console.error('Erreur simulation:', error);
-  } finally {
-    isSimulating.value = false;
+onMounted(() => {
+  // Récupérer depuis sessionStorage si disponible
+  const saved = sessionStorage.getItem('jumelles_last_order');
+  if (saved) {
+    try {
+      const data = JSON.parse(saved);
+      displayOrderNumber.value = data.orderNumber || (route.query.orderNumber as string) || 'CMD-JUMELLES';
+      displayAmount.value = data.totalAmount || Number(route.query.amount) || 0;
+      whatsappUrl.value = data.whatsappUrl || '';
+      orderItems.value = data.items || [];
+      customerDetails.value = {
+        name: data.customerName || '',
+        phone: data.customerPhone || '',
+        city: data.shippingCity || '',
+        address: data.shippingAddress || '',
+      };
+    } catch (e) {
+      console.warn('Erreur parsing last order', e);
+    }
   }
-};
-</script>
 
+  if (!displayOrderNumber.value) {
+    displayOrderNumber.value = (route.query.orderNumber as string) || 'CMD-JUMELLES';
+  }
+  if (!displayAmount.value) {
+    displayAmount.value = Number(route.query.amount) || 0;
+  }
+  if (!whatsappUrl.value) {
+    const defaultMsg = `Bonjour Maison Jumelles ✨, je souhaite confirmer ma commande ${displayOrderNumber.value}.`;
+    whatsappUrl.value = `https://wa.me/221772087820?text=${encodeURIComponent(defaultMsg)}`;
+  }
+});
+</script>
