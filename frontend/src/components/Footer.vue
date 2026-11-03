@@ -1,7 +1,7 @@
 <template>
   <footer class="bg-gradient-to-b from-stone-900 to-stone-950 text-stone-300 pt-12 pb-10 border-t border-stone-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-12 pb-12 border-b border-stone-800/80">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-16 pb-12 border-b border-stone-800/80">
         <!-- Brand Info -->
         <div class="space-y-4">
           <div class="flex items-center gap-3">
@@ -80,35 +80,7 @@
           </ul>
         </div>
 
-        <!-- Moyens de Paiement & Assistance -->
-        <div class="space-y-4">
-          <h4 class="font-serif text-white font-bold mb-4 text-base tracking-wide">Paiements & Livraison</h4>
-          
-          <div class="space-y-3">
-            <!-- Moyens de paiement avec les vrais logos officiels -->
-            <div>
-              <p class="text-xs text-stone-400 mb-2 font-medium">Règlement 100% direct et sécurisé :</p>
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="inline-flex items-center gap-1.5 bg-sky-950/60 border border-cyan-500/40 text-cyan-300 px-3 py-1.5 rounded-xl text-xs font-bold shadow-xs">
-                  <IconWave className="w-4 h-4 shrink-0 rounded" />
-                  <span>Wave Sénégal</span>
-                </span>
-                <span class="inline-flex items-center gap-1.5 bg-orange-950/60 border border-orange-500/40 text-orange-300 px-3 py-1.5 rounded-xl text-xs font-bold shadow-xs">
-                  <IconOrangeMoney className="w-4 h-4 shrink-0 rounded" />
-                  <span>Orange Money</span>
-                </span>
-              </div>
-            </div>
 
-            <!-- Titulaire officiel vérifié -->
-            <div class="p-3 rounded-xl bg-stone-900 border border-stone-800 text-xs text-stone-400">
-              <span class="text-[10px] uppercase font-bold text-stone-500 block">Compte Officiel Vérifié</span>
-              <span class="text-stone-200 font-bold">Fary Dione</span>
-              <span class="mx-1">•</span>
-              <span class="font-mono text-stone-300">77 208 78 20</span>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Bottom Credits -->
@@ -143,6 +115,4 @@ import {
   Lock,
   HelpCircle,
 } from 'lucide-vue-next';
-import IconWave from './icons/IconWave.vue';
-import IconOrangeMoney from './icons/IconOrangeMoney.vue';
 </script>
