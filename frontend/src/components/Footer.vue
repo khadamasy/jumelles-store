@@ -135,7 +135,15 @@
       <!-- Bottom Credits -->
       <div class="pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-stone-500 gap-4">
         <p>© 2026 Jumelles Store Dakar. Tous droits réservés.</p>
-        <p class="text-stone-500">Maroquinerie d'exception & Souliers sur-mesure</p>
+        <div class="flex items-center gap-4 text-xs">
+          <router-link to="/faq-livraison" class="text-gold-400 hover:text-gold-300 font-bold transition-colors">
+            ⚡ FAQ & Guide de Livraison Dakar
+          </router-link>
+          <span>•</span>
+          <router-link to="/catalog" class="text-stone-400 hover:text-gold-400 transition-colors">
+            Tout le Catalogue
+          </router-link>
+        </div>
       </div>
     </div>
   </footer>

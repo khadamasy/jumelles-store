@@ -85,6 +85,13 @@
             Tout le Catalogue
           </router-link>
           <router-link
+            to="/faq-livraison"
+            class="text-stone-700 hover:text-gold-700 transition-colors py-1 relative flex items-center gap-1"
+            active-class="text-gold-700 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-gold-600"
+          >
+            <span>⚡</span> FAQ Livraison
+          </router-link>
+          <router-link
             v-if="authStore.isAdmin"
             to="/admin"
             class="bg-gradient-to-r from-amber-500 to-amber-600 text-stone-950 font-bold px-3.5 py-1.5 rounded-full text-xs shadow hover:from-amber-600 hover:to-amber-700 transition-all flex items-center gap-1.5"
