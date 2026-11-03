@@ -38,17 +38,24 @@
       <!-- SECTION WAVE : OUVERTURE DIRECTE PRÉ-REMPLIE    -->
       <!-- ============================================== -->
       <div v-if="provider === 'WAVE'" class="space-y-5">
-        <!-- 1. GROS BOUTON MOBILE PRIORITAIRE : Ouvre Wave avec numéro et montant direct -->
+        <!-- 1. GROS BOUTON MOBILE PRIORITAIRE : Ouvre Wave et copie le numéro -->
         <div>
-          <a
-            :href="waveDirectUrl"
-            class="w-full py-4 px-6 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 hover:from-blue-700 hover:to-blue-800 text-white font-black text-sm sm:text-base rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3 transform active:scale-95"
+          <button
+            @click="openWaveApp"
+            type="button"
+            class="w-full py-4 px-6 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-600 hover:from-blue-700 hover:to-blue-800 text-white font-black text-sm sm:text-base rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3 transform active:scale-95 cursor-pointer"
           >
             <span class="text-2xl">📱</span>
             <span>Ouvrir l'application Wave ({{ formatPrice(amount) }})</span>
-          </a>
+          </button>
+          <div
+            v-if="waveNotice"
+            class="mt-2.5 p-2.5 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-xl text-xs font-bold text-center shadow-sm"
+          >
+            {{ waveNotice }}
+          </div>
           <p class="text-[11px] text-stone-500 text-center mt-2 font-medium">
-            Le numéro de la boutique et le montant sont <strong>déjà pré-remplis</strong>. Vous avez juste à valider !
+            En cliquant, le numéro <strong>{{ boutiquePhone }}</strong> et le montant sont copiés pour votre transfert Wave.
           </p>
         </div>
 
@@ -212,12 +219,24 @@ const paymentUrl = ref((route.query.paymentUrl as string) || '');
 const boutiquePhone = ref((route.query.boutiquePhone as string) || '+221 77 208 78 20');
 const boutiquePhoneClean = ref('221772087820');
 
-// Lien direct Wave pour mobile : ouvre l'application avec le numéro de la boutique et le montant déjà renseignés !
-const waveDirectUrl = computed(() => {
-  const directFromQuery = route.query.waveDirectUrl as string;
-  if (directFromQuery) return directFromQuery;
-  return `https://wave.com/send?phone=${boutiquePhoneClean.value}&amount=${amount.value}`;
-});
+const waveNotice = ref('');
+
+const openWaveApp = async () => {
+  try {
+    // 1. Copie automatique du numéro officiel de la boutique dans le presse-papiers
+    await navigator.clipboard.writeText(boutiquePhoneClean.value);
+    copiedKey.value = 'phone';
+    waveNotice.value = `✓ Numéro ${boutiquePhone.value} copié ! Ouverture de Wave...`;
+  } catch (err) {
+    console.warn('Presse-papiers non accessible:', err);
+  }
+
+  // 2. Ouvrir l'application native Wave sur iPhone et Android
+  // Sur iOS Safari et Android Chrome, wave:// lance l'application Wave
+  setTimeout(() => {
+    window.location.href = 'wave://';
+  }, 150);
+};
 
 const showQrCode = ref(false);
 const copiedKey = ref<string | null>(null);

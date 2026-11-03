@@ -329,8 +329,7 @@ const handleCheckout = async () => {
         amount: createdOrder.totalAmount,
         qrCodeUrl: paymentData.qrCodeUrl || '',
         paymentUrl: paymentData.paymentUrl || '',
-        waveDirectUrl: paymentData.waveDirectUrl || `https://wave.com/send?phone=221772087820&amount=${createdOrder.totalAmount}`,
-        waveDeepLink: paymentData.waveDeepLink || `wave://send?phone=221772087820&amount=${createdOrder.totalAmount}`,
+        waveDeepLink: 'wave://',
         boutiquePhone: '+221 77 208 78 20',
       },
     });
