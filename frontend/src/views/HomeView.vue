@@ -46,26 +46,7 @@
       </div>
     </div>
 
-    <!-- 2. Raccourcis Stories / Fast-Fashion Mobile First (Instagram Style) -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center gap-4 sm:gap-6 overflow-x-auto pb-2 pt-1 custom-scrollbar">
-        <router-link
-          v-for="story in mobileStories"
-          :key="story.label"
-          :to="story.link"
-          class="flex flex-col items-center gap-1.5 shrink-0 group cursor-pointer"
-        >
-          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-0.5 bg-gradient-to-tr from-gold-600 via-gold-400 to-amber-200 group-hover:scale-105 transition-transform shadow-md">
-            <div class="w-full h-full rounded-full overflow-hidden bg-stone-900 border-2 border-white">
-              <img :src="story.image" :alt="story.label" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-            </div>
-          </div>
-          <span class="text-[11px] sm:text-xs font-bold text-stone-800 group-hover:text-gold-700 transition-colors whitespace-nowrap">
-            {{ story.label }}
-          </span>
-        </router-link>
-      </div>
-    </section>
+
 
     <!-- 3. Hero Section Éditoriale Haute Maroquinerie & Souliers -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -483,39 +464,7 @@ const products = ref<any[]>([]);
 const loading = ref(true);
 const activeCategory = ref<'ALL' | 'SAC' | 'CHAUSSURE'>('ALL');
 
-// Fast-Fashion Stories / Catégories Rapides pour Mobile First
-const mobileStories = [
-  {
-    label: 'Tous les Sacs',
-    link: '/catalog?type=SAC',
-    image: '/products/sac-birkin-camel.jpg',
-  },
-  {
-    label: 'Sacs Alma & Cabas',
-    link: '/catalog?category=sacs-a-main',
-    image: '/products/sac-alma-damier-ebene.jpg',
-  },
-  {
-    label: 'Mules Cœur Gala',
-    link: '/catalog?category=sandales-mules',
-    image: '/products/mules-talon-coeur-noir.jpg',
-  },
-  {
-    label: 'Mules Jacquard',
-    link: '/catalog?type=CHAUSSURE',
-    image: '/products/mules-h-jacquard-blanc-coffret.jpg',
-  },
-  {
-    label: 'Sandales Bijou',
-    link: '/catalog?type=CHAUSSURE',
-    image: '/products/tongs-cuir-bijou-dore.jpg',
-  },
-  {
-    label: 'Sacs Matelassés',
-    link: '/catalog?type=SAC',
-    image: '/products/sac-matelasse-chaine-collection.jpg',
-  },
-];
+
 
 onMounted(async () => {
   try {
