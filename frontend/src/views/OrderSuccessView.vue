@@ -146,33 +146,33 @@
       <!-- ============================================== -->
       <div v-else class="space-y-4">
         <!-- 1. BOUTONS MOBILES ORANGE MONEY -->
-        <div class="space-y-2.5">
+        <div class="space-y-3">
           <button
-            @click="openOrangeMoneyApp"
+            @click="copyOrangeMoneyPhone"
             type="button"
             class="w-full py-4 px-4 bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600 hover:from-orange-700 hover:to-orange-800 text-white font-black text-sm rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2.5 active:scale-98 cursor-pointer"
           >
-            <span class="text-xl">🍊</span>
-            <span>Ouvrir l'application Orange Money</span>
+            <span class="text-xl">📋</span>
+            <span>Copier le Numéro Orange Money</span>
             <span class="bg-white/20 px-2.5 py-0.5 rounded-lg text-xs font-black">{{ formatPrice(amount) }}</span>
           </button>
 
-          <!-- Bouton Code Rapide USSD #144# -->
-          <a
-            href="tel:*144%23"
-            @click="copyText(boutiquePhoneLocal, 'phone')"
-            class="w-full py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center gap-2"
-          >
-            <span>📞</span>
-            <span>Composer le #144# (Menu Rapide Orange Money)</span>
-          </a>
-
+          <!-- Notification de confirmation de copie -->
           <div
             v-if="omNotice"
-            class="mt-2.5 p-2.5 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-xl text-xs font-bold text-center shadow-sm"
+            class="p-3 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-2xl text-xs font-bold text-center shadow-sm"
           >
             {{ omNotice }}
           </div>
+
+          <!-- Bouton Code Rapide USSD #144# -->
+          <a
+            href="tel:#144#"
+            class="w-full py-3 px-4 bg-stone-900 hover:bg-stone-800 text-white font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center gap-2"
+          >
+            <span>📞</span>
+            <span>Composer le #144# sur mon téléphone</span>
+          </a>
         </div>
 
         <!-- 2. Carte Élégante & Alignée Orange Money (Fary Dione • 77 208 78 20) -->
@@ -383,16 +383,11 @@ const openWaveApp = async () => {
   }, 180);
 };
 
-const openOrangeMoneyApp = async () => {
+const copyOrangeMoneyPhone = async () => {
   // Copier le numéro 77 208 78 20 pour le transfert Orange Money
   await executeCopy(boutiquePhoneLocal.value);
   copiedKey.value = 'phone';
-  omNotice.value = `✓ Numéro 77 208 78 20 copié ! Collez-le dans Orange Money.`;
-
-  setTimeout(() => {
-    // Tente d'ouvrir l'application Orange Money Max It (ou Orange Money Afrique)
-    window.location.href = 'maxit://';
-  }, 180);
+  omNotice.value = `✓ Numéro 77 208 78 20 copié ! Collez-le dans Orange Money ou composez le #144#.`;
 };
 
 const showQrCode = ref(false);
