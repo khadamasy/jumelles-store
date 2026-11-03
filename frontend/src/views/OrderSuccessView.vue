@@ -60,37 +60,62 @@
         </div>
 
         <!-- 2. Récapitulatif clair avec boutons de copie en 1 clic -->
-        <div class="bg-blue-50/70 border border-blue-200 rounded-2xl p-4 space-y-3">
+        <div class="bg-blue-50/80 border border-blue-200 rounded-2xl p-4 space-y-3">
+          <p class="text-[11px] font-black text-blue-900 flex items-center gap-1.5 uppercase tracking-wider">
+            <span>💡</span> À renseigner dans Wave :
+          </p>
+
+          <!-- 1. Nom dans Wave -->
           <div class="flex items-center justify-between pb-2 border-b border-blue-100 text-xs">
-            <span class="font-bold text-stone-600">Numéro de la boutique :</span>
+            <span class="font-bold text-stone-600">1. Nom complet :</span>
             <div class="flex items-center gap-2">
-              <span class="font-mono font-black text-blue-950 text-sm select-all">{{ boutiquePhone }}</span>
+              <span class="font-bold text-blue-950 text-xs select-all">{{ boutiqueName }}</span>
               <button
-                @click="copyText(boutiquePhoneClean, 'phone')"
+                @click="copyText(boutiqueName, 'name')"
                 class="px-2.5 py-1 text-[11px] font-bold rounded-lg border transition-all cursor-pointer"
-                :class="copiedKey === 'phone' ? 'bg-emerald-600 text-white border-emerald-600 ring-2 ring-emerald-300' : 'bg-white text-blue-700 border-blue-300 hover:bg-blue-100'"
+                :class="copiedKey === 'name' ? 'bg-emerald-600 text-white border-emerald-600 ring-2 ring-emerald-300' : 'bg-white text-blue-700 border-blue-300 hover:bg-blue-100'"
               >
-                {{ copiedKey === 'phone' ? '✓ Copié !' : 'Copier' }}
+                {{ copiedKey === 'name' ? '✓ Copié !' : 'Copier Nom' }}
               </button>
             </div>
           </div>
 
+          <!-- 2. Numéro Wave (9 chiffres 772087820 pour coller directement après le +221) -->
           <div class="flex items-center justify-between pb-2 border-b border-blue-100 text-xs">
-            <span class="font-bold text-stone-600">Montant exact :</span>
+            <div>
+              <span class="font-bold text-stone-600 block">2. Téléphone Wave :</span>
+              <span class="text-[10px] text-blue-700 font-semibold">(Wave met déjà le +221)</span>
+            </div>
             <div class="flex items-center gap-2">
-              <span class="font-mono font-black text-blue-950 text-sm select-all">{{ formatPrice(amount) }}</span>
+              <span class="font-mono font-black text-blue-950 text-sm sm:text-base select-all">77 208 78 20</span>
+              <button
+                @click="copyText(boutiquePhoneLocal, 'phone')"
+                class="px-3 py-1.5 text-xs font-black rounded-lg border transition-all cursor-pointer shadow-sm"
+                :class="copiedKey === 'phone' ? 'bg-emerald-600 text-white border-emerald-600 ring-2 ring-emerald-300' : 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'"
+              >
+                {{ copiedKey === 'phone' ? '✓ Copié !' : 'Copier Numéro' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- 3. Montant exact -->
+          <div class="flex items-center justify-between pb-2 border-b border-blue-100 text-xs">
+            <span class="font-bold text-stone-600">3. Montant exact :</span>
+            <div class="flex items-center gap-2">
+              <span class="font-serif font-black text-blue-950 text-base select-all">{{ formatPrice(amount) }}</span>
               <button
                 @click="copyText(amount.toString(), 'amount')"
                 class="px-2.5 py-1 text-[11px] font-bold rounded-lg border transition-all cursor-pointer"
                 :class="copiedKey === 'amount' ? 'bg-emerald-600 text-white border-emerald-600 ring-2 ring-emerald-300' : 'bg-white text-blue-700 border-blue-300 hover:bg-blue-100'"
               >
-                {{ copiedKey === 'amount' ? '✓ Copié !' : 'Copier' }}
+                {{ copiedKey === 'amount' ? '✓ Copié !' : 'Copier Montant' }}
               </button>
             </div>
           </div>
 
+          <!-- 4. Référence commande -->
           <div class="flex items-center justify-between text-xs">
-            <span class="font-bold text-stone-600">Référence commande :</span>
+            <span class="font-bold text-stone-600">4. Référence commande :</span>
             <div class="flex items-center gap-2">
               <span class="font-mono font-bold text-stone-800 select-all">{{ orderNumber }}</span>
               <button
@@ -216,7 +241,9 @@ const amount = ref(parseFloat(route.query.amount as string) || 0);
 const qrCodeUrl = ref((route.query.qrCodeUrl as string) || '');
 const paymentUrl = ref((route.query.paymentUrl as string) || '');
 
-const boutiquePhone = ref((route.query.boutiquePhone as string) || '+221 77 208 78 20');
+const boutiqueName = ref('Jumelles Store');
+const boutiquePhone = ref('+221 77 208 78 20');
+const boutiquePhoneLocal = ref('772087820');
 const boutiquePhoneClean = ref('221772087820');
 
 const waveNotice = ref('');
@@ -275,9 +302,10 @@ const copyText = async (text: string, key: string) => {
 };
 
 const openWaveApp = async () => {
-  await executeCopy(boutiquePhoneClean.value);
+  // Copier le numéro local à 9 chiffres (772087820) pour qu'il soit directement valide à côté du drapeau +221 dans Wave
+  await executeCopy(boutiquePhoneLocal.value);
   copiedKey.value = 'phone';
-  waveNotice.value = `✓ Numéro ${boutiquePhone.value} copié dans votre presse-papiers !`;
+  waveNotice.value = `✓ Numéro 77 208 78 20 copié ! Collez-le directement dans Wave.`;
 
   // Ouvrir l'application Wave native sur le téléphone
   setTimeout(() => {
