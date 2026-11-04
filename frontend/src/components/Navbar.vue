@@ -33,6 +33,7 @@
           <!-- Mobile Hamburger Toggle -->
           <button
             @click="mobileMenuOpen = !mobileMenuOpen"
+            :aria-expanded="mobileMenuOpen"
             class="md:hidden p-2 text-stone-800 hover:text-stone-950 rounded-xl hover:bg-stone-100 transition-colors"
             aria-label="Ouvrir le menu de navigation"
           >
@@ -354,7 +355,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import {
   Home,
   Store,
@@ -380,4 +381,11 @@ const cartStore = useCartStore();
 const authStore = useAuthStore();
 const currencyStore = useCurrencyStore();
 const phoneStore = usePhoneStore();
+
+const handleEscape = (e: KeyboardEvent) => {
+  if (e.key === 'Escape') mobileMenuOpen.value = false;
+};
+
+onMounted(() => window.addEventListener('keydown', handleEscape));
+onUnmounted(() => window.removeEventListener('keydown', handleEscape));
 </script>

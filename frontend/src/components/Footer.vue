@@ -45,9 +45,9 @@
           </h4>
           <ul class="space-y-2.5 text-sm text-stone-400">
             <li><router-link to="/catalog?type=SAC" class="hover:text-gold-400 transition-colors">Sacs Cabas & Portés Main</router-link></li>
-            <li><router-link to="/catalog?category=pochettes-bandoulieres" class="hover:text-gold-400 transition-colors">Pochettes Bijou de Gala</router-link></li>
+            <li><router-link to="/catalog?category=pochettes-matelassees" class="hover:text-gold-400 transition-colors">Pochettes Bijou de Gala</router-link></li>
             <li><router-link to="/catalog?type=CHAUSSURE" class="hover:text-gold-400 transition-colors">Escarpins & Souliers (37-42)</router-link></li>
-            <li><router-link to="/catalog?category=sandales-mules" class="hover:text-gold-400 transition-colors">Sandales & Mules Dorées</router-link></li>
+            <li><router-link to="/catalog?category=sandales-plates" class="hover:text-gold-400 transition-colors">Sandales & Mules Dorées</router-link></li>
             <li><router-link to="/catalog" class="hover:text-gold-400 transition-colors text-xs font-bold text-gold-500">Voir tout le catalogue →</router-link></li>
           </ul>
         </div>

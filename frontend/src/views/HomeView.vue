@@ -112,7 +112,7 @@
           <div class="lg:col-span-5 grid grid-cols-2 gap-4">
             <!-- Produit 1 : Sac Birkin Camel -->
             <router-link
-              to="/product/sac-a-main-birkin-style-camel"
+              to="/product/sac-prestige-cuir-epsom-cadenas"
               class="group relative rounded-2xl overflow-hidden bg-stone-900 border border-gold-500/30 shadow-xl aspect-[3/4] flex flex-col justify-end p-4 transition-all hover:-translate-y-1"
             >
               <img
@@ -123,14 +123,14 @@
               <div class="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent"></div>
               <div class="relative z-10 space-y-1">
                 <span class="text-[9px] uppercase tracking-wider text-gold-400 font-bold block">Best-Seller</span>
-                <p class="font-serif font-bold text-xs sm:text-sm text-white line-clamp-1">Sac Birkin Camel</p>
+                <p class="font-serif font-bold text-xs sm:text-sm text-white line-clamp-1">Sac prestige cuir et cadenas</p>
                 <span class="text-xs font-extrabold text-gold-300 block">15 000 FCFA</span>
               </div>
             </router-link>
 
             <!-- Produit 2 : Mules Talon Cœur Noir -->
             <router-link
-              to="/product/mules-talon-coeur-noir-soiree"
+              to="/product/mules-stiletto-brides-coeur-diamant-strass"
               class="group relative rounded-2xl overflow-hidden bg-stone-900 border border-gold-500/30 shadow-xl aspect-[3/4] flex flex-col justify-end p-4 transition-all hover:-translate-y-1 mt-6"
             >
               <img
@@ -141,7 +141,7 @@
               <div class="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent"></div>
               <div class="relative z-10 space-y-1">
                 <span class="text-[9px] uppercase tracking-wider text-gold-400 font-bold block">Pointures 37-42</span>
-                <p class="font-serif font-bold text-xs sm:text-sm text-white line-clamp-1">Mules Talon Cœur Noir</p>
+                <p class="font-serif font-bold text-xs sm:text-sm text-white line-clamp-1">Mules stiletto brides cœur</p>
                 <span class="text-xs font-extrabold text-gold-300 block">12 000 FCFA</span>
               </div>
             </router-link>
