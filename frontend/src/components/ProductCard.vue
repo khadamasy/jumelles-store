@@ -1,135 +1,68 @@
 <template>
-  <div class="group relative bg-white rounded-3xl overflow-hidden border border-stone-200/90 shadow-sm hover:shadow-2xl hover:border-gold-400/80 transition-all duration-500 flex flex-col">
-    <!-- Image & Badges -->
-    <div class="relative aspect-[4/5] overflow-hidden bg-stone-100">
-      <img
-        :src="primaryImage"
-        :alt="product.name"
-        class="w-full h-full object-cover object-center group-hover:scale-108 transition-transform duration-700 ease-out"
-        loading="lazy"
-      />
-
-      <!-- Overlay gradient on hover -->
-      <div class="absolute inset-0 bg-gradient-to-t from-stone-950/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+  <article class="jm-card" style="flex: initial; max-width: none; width: 100%">
+    <div
+      class="img"
+      style="--g: linear-gradient(150deg, #c58a4a, #6b3f1f)"
+    >
+      <router-link :to="`/product/${product.slug || product.id}`" class="block w-full h-full">
+        <img
+          :src="primaryImage"
+          :alt="product.name"
+          loading="lazy"
+          class="w-full h-full object-cover"
+        />
+      </router-link>
 
       <!-- Badge Réduction Promo si prix d'origine supérieur -->
       <span
         v-if="product.originalPrice && product.originalPrice > product.basePrice"
-        class="absolute top-3.5 left-3.5 bg-rosewood-600 text-white text-[10px] tracking-wider uppercase font-black px-2.5 py-1 rounded-full shadow-md flex items-center gap-1 z-10"
+        class="absolute top-3 left-3 bg-rosewood-600 text-white text-[10px] tracking-wider uppercase font-black px-2.5 py-1 rounded-full shadow-md z-10"
       >
-        <Flame class="w-3 h-3 text-white" />
-        <span>-{{ Math.round((1 - product.basePrice / product.originalPrice) * 100) }}%</span>
+        -{{ Math.round((1 - product.basePrice / product.originalPrice) * 100) }}%
       </span>
 
-      <!-- Badge Coup de Coeur -->
+      <!-- Badge Rupture -->
       <span
-        v-else-if="product.isFeatured"
-        class="absolute top-3.5 left-3.5 bg-stone-950/90 text-gold-400 backdrop-blur-md text-[10px] tracking-widest uppercase font-black px-3 py-1 rounded-full border border-gold-500/40 shadow-sm flex items-center gap-1 z-10"
+        v-if="totalStock === 0"
+        class="absolute top-3 right-3 bg-rosewood-700/95 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md z-10"
       >
-        <Sparkles class="w-3 h-3 text-gold-400" />
-        <span>Coup de Cœur</span>
+        Rupture
       </span>
 
-      <!-- Badge Stock Restant -->
-      <span
-        v-if="totalStock <= 5 && totalStock > 0"
-        class="absolute top-3.5 right-3.5 bg-amber-600/95 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md backdrop-blur-sm z-10"
+      <!-- Bouton + Panier superposé sur l'image (identique à l'accueil) -->
+      <button
+        v-if="totalStock > 0"
+        type="button"
+        @click.stop="quickAdd"
+        aria-label="Ajouter au panier"
+        style="position: absolute; bottom: 10px; right: 10px; width: auto; min-height: 36px; padding: 0 12px; margin: 0; border-radius: 999px; background: rgba(23, 17, 14, 0.88); color: #f6ece0; border: 1px solid #d9ad5c; font-size: 12px; font-weight: 700; backdrop-filter: blur(6px); z-index: 2;"
       >
-        Plus que {{ totalStock }} en stock
-      </span>
-      <span
-        v-else-if="totalStock === 0"
-        class="absolute top-3.5 right-3.5 bg-rosewood-700/95 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-md z-10"
-      >
-        Rupture temporaire
-      </span>
-
-      <!-- Preview des pointures ou couleurs + bouton Ajouter au panier superposé sur l'image -->
-      <div class="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col gap-2 z-10">
-        <div class="flex flex-wrap gap-1">
-          <span
-            v-for="v in previewVariants"
-            :key="v.id"
-            class="bg-white/95 text-stone-900 text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm"
-          >
-            {{ isShoe ? v.sizeOrShoeSize : v.color }}
-          </span>
-        </div>
-        <button
-          v-if="totalStock > 0"
-          type="button"
-          @click.stop.prevent="quickAdd"
-          class="w-full py-2.5 px-3 bg-white/95 hover:bg-gold-500 text-stone-950 font-extrabold text-xs rounded-xl shadow-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-        >
-          <ShoppingBag class="w-3.5 h-3.5 text-gold-700" />
-          <span>+ Ajouter au panier</span>
-        </button>
-      </div>
+        + Panier
+      </button>
     </div>
 
-    <!-- Details -->
-    <div class="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4">
+    <div class="in">
       <div>
-        <div class="flex items-center justify-between text-[11px] uppercase tracking-wider text-stone-400 font-bold mb-1">
-          <span>{{ categoryName }}</span>
-          <span v-if="isShoe" class="text-gold-700 font-extrabold">Pointures 37-42</span>
-        </div>
-
         <router-link :to="`/product/${product.slug || product.id}`">
-          <h3 class="font-serif font-bold text-stone-900 group-hover:text-gold-700 transition-colors line-clamp-2 text-base leading-snug">
-            {{ product.name }}
-          </h3>
+          <h3>{{ product.name }}</h3>
         </router-link>
+        <span class="price">{{ formatFcfa(product.basePrice) }}</span>
       </div>
-
-      <div class="pt-3 border-t border-stone-100 space-y-3">
-        <div class="flex items-center justify-between gap-2">
-          <div>
-            <div v-if="product.originalPrice && product.originalPrice > product.basePrice" class="flex items-center gap-1.5">
-              <span class="text-[10px] text-rosewood-600 font-bold uppercase">Promo</span>
-              <span class="text-xs text-stone-400 line-through font-semibold">
-                {{ currencyStore.isEur ? currencyStore.toEurOnly(product.originalPrice) : currencyStore.toXofOnly(product.originalPrice) }}
-              </span>
-            </div>
-            <span v-else class="text-[10px] uppercase tracking-wider text-stone-400 font-bold block">Prix boutique</span>
-            <span class="font-serif font-black text-lg text-stone-950 block">
-              {{ currencyStore.isEur ? currencyStore.toEurOnly(product.basePrice) : currencyStore.toXofOnly(product.basePrice) }}
-            </span>
-            <span class="text-[11px] text-stone-500 font-semibold block">
-              {{ currencyStore.isEur ? currencyStore.toXofOnly(product.basePrice) : '≈ ' + currencyStore.toEurOnly(product.basePrice) }}
-            </span>
-          </div>
-
-          <router-link
-            :to="`/product/${product.slug || product.id}`"
-            class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-900 text-xs font-bold rounded-xl transition-all shrink-0"
-          >
-            <span>Détails</span>
-            <ArrowRight class="w-3.5 h-3.5" />
-          </router-link>
-        </div>
-
-        <button
-          type="button"
-          :disabled="totalStock === 0"
-          @click="quickAdd"
-          class="w-full py-2.5 px-4 bg-stone-950 hover:bg-gold-600 disabled:bg-stone-300 text-white text-xs font-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
-        >
-          <ShoppingBag class="w-3.5 h-3.5 text-gold-400" />
-          <span>Ajouter au panier</span>
-        </button>
-      </div>
+      <button
+        type="button"
+        :disabled="totalStock === 0"
+        @click="quickAdd"
+      >
+        {{ totalStock > 0 ? 'Ajouter au panier' : 'Indisponible' }}
+      </button>
     </div>
-  </div>
+  </article>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { ArrowRight, Sparkles, Flame, ShoppingBag } from 'lucide-vue-next';
-import { useCurrencyStore } from '../stores/currency';
 import { useCartStore } from '../stores/cart';
 
-const currencyStore = useCurrencyStore();
 const cartStore = useCartStore();
 
 const props = defineProps<{
@@ -141,15 +74,7 @@ const primaryImage = computed(() => {
     const primary = props.product.images.find((img: any) => img.isPrimary);
     return primary ? primary.minioUrl : props.product.images[0].minioUrl;
   }
-  return 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80';
-});
-
-const categoryName = computed(() => {
-  return props.product.category?.name || 'Maroquinerie & Souliers';
-});
-
-const isShoe = computed(() => {
-  return props.product.category?.type === 'CHAUSSURE' || props.product.categoryId?.includes('shoe');
+  return '/products/sac-birkin-camel.jpg';
 });
 
 const totalStock = computed(() => {
@@ -157,10 +82,7 @@ const totalStock = computed(() => {
   return props.product.variants.reduce((sum: number, v: any) => sum + (v.stockQuantity || 0), 0);
 });
 
-const previewVariants = computed(() => {
-  if (!props.product.variants) return [];
-  return props.product.variants.slice(0, 5);
-});
+const formatFcfa = (n: number) => `${new Intl.NumberFormat('fr-FR').format(n || 0)} FCFA`;
 
 const quickAdd = () => {
   const availableVariant =
@@ -179,13 +101,5 @@ const quickAdd = () => {
     quantity: 1,
     maxStock: availableVariant.stockQuantity || 10,
   });
-};
-
-const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'XOF',
-    maximumFractionDigits: 0,
-  }).format(price);
 };
 </script>
