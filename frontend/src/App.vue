@@ -52,7 +52,7 @@ import CartDrawer from './components/CartDrawer.vue';
 import PhoneServiceModal from './components/PhoneServiceModal.vue';
 import { useAuthStore } from './stores/auth';
 import { useCartStore } from './stores/cart';
-import { toAbsolutePhotoUrl } from './stores/phone';
+import { toAbsolutePhotoUrl, buildWhatsAppSendUrl } from './stores/phone';
 
 const authStore = useAuthStore();
 const cartStore = useCartStore();
@@ -61,16 +61,17 @@ let lastScrollY = 0;
 
 const dockWhatsAppUrl = computed(() => {
   if (cartStore.items.length > 0) {
+    const firstPhoto = toAbsolutePhotoUrl(cartStore.items[0]?.imageUrl);
     const summary = cartStore.items
       .map((i) => {
         const photoUrl = toAbsolutePhotoUrl(i.imageUrl);
-        return `${i.productName} (${i.color} / ${i.sizeOrShoeSize} x${i.quantity})${photoUrl ? `\n📷 Photo : ${photoUrl}` : ''}`;
+        return `${i.productName} (${i.color} / ${i.sizeOrShoeSize} x${i.quantity})${photoUrl ? `\nPhoto : ${photoUrl}` : ''}`;
       })
       .join('\n\n');
-    const msg = `Bonjour Jumelles Store, je souhaite commander par téléphone l'article suivant : Panier Jumelles Store: ${summary} - Total: ${cartStore.formattedSubtotal}`;
-    return `https://wa.me/221772087820?text=${encodeURIComponent(msg)}`;
+    const msg = `${firstPhoto ? firstPhoto + '\n\n' : ''}Bonjour Jumelles Store, je souhaite commander par téléphone l'article suivant : Panier Jumelles Store: ${summary} - Total: ${cartStore.formattedSubtotal}`;
+    return buildWhatsAppSendUrl(msg);
   }
-  return 'https://wa.me/221772087820?text=Bonjour%20Jumelles%20Store%2C%20je%20souhaite%20commander.';
+  return buildWhatsAppSendUrl('Bonjour Jumelles Store, je souhaite commander.');
 });
 
 const handleScroll = () => {

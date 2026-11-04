@@ -140,7 +140,7 @@ const orderCartByPhone = () => {
   const summary = cartStore.items
     .map((i) => {
       const photoUrl = phoneStore.toAbsolutePhotoUrl(i.imageUrl);
-      return `${i.productName} (${i.color} / ${i.sizeOrShoeSize} x${i.quantity})${photoUrl ? `\n📷 Photo : ${photoUrl}` : ''}`;
+      return `${i.productName} (${i.color} / ${i.sizeOrShoeSize} x${i.quantity})${photoUrl ? `\nPhoto : ${photoUrl}` : ''}`;
     })
     .join('\n\n');
   const firstPhoto = cartStore.items[0]?.imageUrl || '';

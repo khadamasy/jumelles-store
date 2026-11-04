@@ -333,19 +333,17 @@ const formatPrice = (price: number) => {
 
 const whatsappOrderUrl = computed(() => {
   if (!product.value || !selectedVariant.value) {
-    return 'https://wa.me/221772087820';
+    return 'https://api.whatsapp.com/send?phone=221772087820';
   }
   const photoUrl = phoneStore.toAbsolutePhotoUrl(activeImage.value);
-  const text = encodeURIComponent(
-    `Bonjour Jumelles Store, je souhaite commander par téléphone l'article suivant : ${product.value.name} (${selectedVariant.value.color} / ${selectedVariant.value.sizeOrShoeSize} x${quantity.value}) - Total: ${currencyStore.toXofOnly(currentPrice.value * quantity.value)}${photoUrl ? `\n📷 Photo : ${photoUrl}` : ''}`
-  );
-  return `https://wa.me/221772087820?text=${text}`;
+  const msg = `${photoUrl ? photoUrl + '\n\n' : ''}Bonjour Jumelles Store, je souhaite commander par téléphone l'article suivant : ${product.value.name} (${selectedVariant.value.color} / ${selectedVariant.value.sizeOrShoeSize} x${quantity.value}) - Total: ${currencyStore.toXofOnly(currentPrice.value * quantity.value)}${photoUrl ? `\nPhoto : ${photoUrl}` : ''}`;
+  return phoneStore.buildWhatsAppSendUrl(msg);
 });
 
 const orderProductByPhone = () => {
   if (!product.value || !selectedVariant.value) return;
   const photoUrl = phoneStore.toAbsolutePhotoUrl(activeImage.value);
-  const summary = `${product.value.name} (${selectedVariant.value.color} / ${selectedVariant.value.sizeOrShoeSize} x${quantity.value})${photoUrl ? `\n📷 Photo : ${photoUrl}` : ''} - Total: ${currencyStore.toXofOnly(currentPrice.value * quantity.value)}`;
+  const summary = `${product.value.name} (${selectedVariant.value.color} / ${selectedVariant.value.sizeOrShoeSize} x${quantity.value})${photoUrl ? `\nPhoto : ${photoUrl}` : ''} - Total: ${currencyStore.toXofOnly(currentPrice.value * quantity.value)}`;
   phoneStore.openModal(summary, activeImage.value);
 };
 

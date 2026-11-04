@@ -256,7 +256,7 @@ import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
 import { useCartStore } from '../stores/cart';
 import { useAuthStore } from '../stores/auth';
 import { useCurrencyStore } from '../stores/currency';
-import { toAbsolutePhotoUrl } from '../stores/phone';
+import { toAbsolutePhotoUrl, copyPhotoToClipboard, buildWhatsAppSendUrl } from '../stores/phone';
 import { OrderService } from '../services/api';
 
 const router = useRouter();
@@ -338,13 +338,20 @@ const handleCheckoutWhatsApp = async () => {
     }> = Array.isArray(serverOrder.items) ? serverOrder.items : [];
     const verifiedTotal: number = Number(serverOrder.totalAmount) || 0;
 
-    // 2. Formatage du message WhatsApp exclusivement à partir des montants et articles validés par le serveur + lien photo de chaque article
+    // 2. Formatage du message WhatsApp exclusivement à partir des montants et articles validés par le serveur + lien photo HTTPS public
     const cartPhotosByVariant = new Map(
       cartStore.items.map((ci) => [ci.variantId, toAbsolutePhotoUrl(ci.imageUrl)])
     );
     const cartPhotosByName = new Map(
       cartStore.items.map((ci) => [ci.productName, toAbsolutePhotoUrl(ci.imageUrl)])
     );
+    const firstLocalImage = cartStore.items[0]?.imageUrl || '';
+    const firstPublicPhotoUrl = firstLocalImage ? toAbsolutePhotoUrl(firstLocalImage) : '';
+
+    // Copier aussi l'image dans le presse-papiers (permet de faire Ctrl+V directement dans WhatsApp)
+    if (firstLocalImage) {
+      await copyPhotoToClipboard(firstLocalImage);
+    }
 
     const itemsListText = serverItems
       .map((item: any, index: number) => {
@@ -353,47 +360,58 @@ const handleCheckoutWhatsApp = async () => {
           cartPhotosByVariant.get(item.productVariantId) ||
           cartPhotosByName.get(item.productName) ||
           '';
-        return `  ${index + 1}. *${item.productName}*\n     ↳ Détails : ${item.variantDetails}\n     ↳ Quantité : x${item.quantity}\n     ↳ Prix vérifié : ${lineTotal}${photoUrl ? `\n     ↳ 📷 Photo : ${photoUrl}` : ''}`;
+        return `  ${index + 1}. *${item.productName}*\n     ↳ Détails : ${item.variantDetails}\n     ↳ Quantité : x${item.quantity}\n     ↳ Prix vérifié : ${lineTotal}${photoUrl ? `\n     ↳ Photo : ${photoUrl}` : ''}`;
       })
       .join('\n\n');
 
     const totalFormatted = currencyStore.toXofOnly(verifiedTotal);
 
     const whatsappMessage =
-`Bonjour Maison Jumelles ✨,
+`${firstPublicPhotoUrl ? firstPublicPhotoUrl + '\n\n' : ''}Bonjour Maison Jumelles,
 
 Je souhaite confirmer ma commande enregistrée sur votre site internet :
 
-📋 *RÉFÉRENCE COMMANDE :* ${orderNumber}
+*RÉFÉRENCE COMMANDE :* ${orderNumber}
 
-👤 *COORDONNÉES CLIENTE :*
+*COORDONNÉES CLIENTE :*
 • Nom : ${form.customerName.trim()}
 • Téléphone : ${form.customerPhone.trim()}
 • Ville : ${form.shippingCity}
 • Adresse de livraison : ${form.shippingAddress.trim()}${form.customerNote.trim() ? '\n• Note spéciale : ' + form.customerNote.trim() : ''}
 
-🛍️ *ARTICLES COMMANDÉS (PRIX SERVEUR) :*
+*ARTICLES COMMANDÉS (PRIX SERVEUR) :*
 ${itemsListText}
 
-💰 *TOTAL COMMANDE :* *${totalFormatted}*
-🚚 *LIVRAISON :* 24h Dakar (Offerte)
-💵 *RÈGLEMENT :* À la livraison
+*TOTAL COMMANDE :* *${totalFormatted}*
+*LIVRAISON :* 24h Dakar (Offerte)
+*RÈGLEMENT :* À la livraison
 
 Merci de me confirmer la prise en compte de ma commande et le créneau de livraison !`;
 
     const boutiqueWhatsAppPhone = '221772087820';
-    const whatsappUrl = `https://wa.me/${boutiqueWhatsAppPhone}?text=${encodeURIComponent(whatsappMessage)}`;
+    const whatsappUrl = buildWhatsAppSendUrl(whatsappMessage, boutiqueWhatsAppPhone);
+
+    const cartLocalImagesByVariant = new Map(
+      cartStore.items.map((ci) => [ci.variantId, ci.imageUrl])
+    );
+    const cartLocalImagesByName = new Map(
+      cartStore.items.map((ci) => [ci.productName, ci.imageUrl])
+    );
 
     // 3. Sauvegarder uniquement le récapitulatif non sensible pour la page de confirmation (lu une seule fois puis supprimé)
     const orderDataForSuccess = {
       orderNumber,
       totalAmount: verifiedTotal,
-      items: serverItems.map((si) => ({
+      items: serverItems.map((si: any) => ({
         productName: si.productName,
         color: si.variantDetails,
         sizeOrShoeSize: '',
         quantity: si.quantity,
         price: si.unitPrice,
+        imageUrl:
+          cartLocalImagesByVariant.get(si.productVariantId) ||
+          cartLocalImagesByName.get(si.productName) ||
+          firstLocalImage,
       })),
       whatsappUrl,
     };

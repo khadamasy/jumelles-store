@@ -26,11 +26,27 @@
         <a
           :href="whatsappUrl"
           target="_blank"
+          rel="noopener noreferrer"
           class="w-full py-4 px-5 bg-[#25D366] hover:bg-[#20ba59] active:scale-98 text-white font-black text-sm rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3 cursor-pointer group"
         >
           <IconWhatsApp className="w-6 h-6 text-white shrink-0 group-hover:scale-110 transition-transform" />
           <span>Ouvrir la discussion WhatsApp (+221 77 208 78 20)</span>
         </a>
+        <div
+          v-if="orderItems.length > 0 && orderItems[0]?.imageUrl"
+          class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between gap-3 text-xs text-emerald-900"
+        >
+          <span>
+            💡 <strong>Astuce :</strong> La photo de votre article est copiée ! Faites <strong>Ctrl + V</strong> (Coller) dans WhatsApp pour joindre l'image directement.
+          </span>
+          <button
+            type="button"
+            @click="handleCopyPhoto(orderItems[0].imageUrl)"
+            class="px-3 py-1.5 bg-white hover:bg-emerald-100 border border-emerald-300 rounded-lg font-bold text-[11px] shrink-0 cursor-pointer"
+          >
+            {{ photoCopied ? '✓ Photo copiée !' : 'Recopier la photo' }}
+          </button>
+        </div>
         <p class="text-[11px] text-stone-500 text-center font-light">
           Si votre application WhatsApp ne s'est pas ouverte automatiquement, cliquez sur le bouton vert ci-dessus pour envoyer votre commande.
         </p>
@@ -117,6 +133,7 @@ import { useRoute } from 'vue-router';
 import { CheckCircle2, Truck } from 'lucide-vue-next';
 import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
 import { useCurrencyStore } from '../stores/currency';
+import { copyPhotoToClipboard, buildWhatsAppSendUrl } from '../stores/phone';
 
 const route = useRoute();
 const currencyStore = useCurrencyStore();
@@ -125,12 +142,23 @@ const displayOrderNumber = ref('');
 const displayAmount = ref(0);
 const whatsappUrl = ref('');
 const orderItems = ref<any[]>([]);
+const photoCopied = ref(false);
 const customerDetails = ref({
   name: '',
   phone: '',
   city: '',
   address: '',
 });
+
+const handleCopyPhoto = async (imgUrl: string) => {
+  const ok = await copyPhotoToClipboard(imgUrl);
+  if (ok) {
+    photoCopied.value = true;
+    setTimeout(() => {
+      photoCopied.value = false;
+    }, 3000);
+  }
+};
 
 const formatPrice = (price: number) => {
   return currencyStore.formatPrice(price);
@@ -156,8 +184,8 @@ onMounted(() => {
     displayOrderNumber.value = (route.query.orderNumber as string) || 'CMD-JUMELLES';
   }
   if (!whatsappUrl.value) {
-    const defaultMsg = `Bonjour Maison Jumelles ✨, je souhaite confirmer ma commande ${displayOrderNumber.value}.`;
-    whatsappUrl.value = `https://wa.me/221772087820?text=${encodeURIComponent(defaultMsg)}`;
+    const defaultMsg = `Bonjour Maison Jumelles, je souhaite confirmer ma commande ${displayOrderNumber.value}.`;
+    whatsappUrl.value = buildWhatsAppSendUrl(defaultMsg);
   }
 });
 </script>
