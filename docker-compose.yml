@@ -1,11 +1,9 @@
-version: '3.8'
-
 services:
   # ==========================================
   # 1. Base de données PostgreSQL
   # ==========================================
   postgres:
-    image: postgres:16-alpine
+    image: postgres:16.3-alpine
     container_name: jumelles-postgres
     restart: always
     environment:
@@ -17,6 +15,11 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/prisma/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-jumelles_admin} -d ${POSTGRES_DB:-jumelles_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - jumelles-network
 
@@ -24,7 +27,7 @@ services:
   # 2. Stockage d'objets MinIO (Images & Médias)
   # ==========================================
   minio:
-    image: minio/minio:latest
+    image: minio/minio:RELEASE.2024-06-13T22-53-53Z
     container_name: jumelles-minio
     restart: always
     command: server /data --console-address ":9001"
@@ -32,22 +35,27 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Definissez MINIO_ROOT_USER dans .env}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Definissez MINIO_ROOT_PASSWORD dans .env}
     ports:
-      - "9000:9000"   # API S3 (lecture publique des images produits)
+      - "127.0.0.1:9000:9000"   # API S3 (accès interne uniquement)
       - "127.0.0.1:9001:9001"   # Console Web (accès local uniquement)
     volumes:
       - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - jumelles-network
 
   # Script d'initialisation des buckets MinIO
   minio-init:
-    image: minio/mc:latest
+    image: minio/mc:RELEASE.2024-06-12T14-34-03Z
     container_name: jumelles-minio-init
     depends_on:
-      - minio
+      minio:
+        condition: service_healthy
     entrypoint: >
       /bin/sh -c "
-      sleep 3;
       /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
       /usr/bin/mc mb myminio/jumelles-products --ignore-existing;
       /usr/bin/mc mb myminio/jumelles-invoices --ignore-existing;
@@ -64,7 +72,7 @@ services:
     image: quay.io/keycloak/keycloak:24.0.5
     container_name: jumelles-keycloak
     restart: always
-    command: start-dev --import-realm
+    command: start --import-realm --http-enabled=true --hostname-strict=false
     environment:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Definissez KEYCLOAK_ADMIN_PASSWORD dans .env}
@@ -74,14 +82,15 @@ services:
       KC_DB_URL_DATABASE: ${POSTGRES_DB:-jumelles_db}
       KC_DB_SCHEMA: keycloak
       KC_DB_USERNAME: ${POSTGRES_USER:-jumelles_admin}
-      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:?Definissez POSTGRES_PASSWORD dans .env}
       KC_HEALTH_ENABLED: "true"
     ports:
       - "127.0.0.1:8080:8080"
     volumes:
       - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm.json:ro
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - jumelles-network
 
@@ -97,30 +106,32 @@ services:
     environment:
       PORT: 4000
       NODE_ENV: production
+      TRUST_PROXY: "1"
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Definissez ADMIN_PASSWORD dans .env}
       JWT_SECRET: ${JWT_SECRET:?Definissez JWT_SECRET dans .env (32 caracteres minimum)}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-jumelles_admin}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-jumelles_db}?schema=public
+      DATABASE_URL: postgresql://${POSTGRES_USER:-jumelles_admin}:${POSTGRES_PASSWORD:?Definissez POSTGRES_PASSWORD dans .env}@postgres:5432/${POSTGRES_DB:-jumelles_db}?schema=public
       KEYCLOAK_AUTH_SERVER_URL: http://keycloak:8080
       KEYCLOAK_REALM: jumelles-store
       KEYCLOAK_CLIENT_ID: jumelles-backend
       MINIO_ENDPOINT: minio
       MINIO_PORT: 9000
       MINIO_USE_SSL: "false"
-      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
-      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:?Definissez MINIO_ROOT_USER dans .env}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:?Definissez MINIO_ROOT_PASSWORD dans .env}
       MINIO_BUCKET_PRODUCTS: jumelles-products
     ports:
-      - "4000:4000"
+      - "127.0.0.1:4000:4000"
     depends_on:
-      - postgres
-      - minio
-      - keycloak
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
     networks:
       - jumelles-network
 
   # ==========================================
-  # 5. Application Frontend Vue.js 3
+  # 5. Application Frontend Vue.js 3 (Nginx)
   # ==========================================
   frontend:
     build:

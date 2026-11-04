@@ -13,7 +13,13 @@ export const securityHeaders = (req: Request, res: Response, next: NextFunction)
   res.setHeader('Cross-Origin-Resource-Policy', 'same-site');
   // L'API ne sert que du JSON : aucune ressource active autorisée
   res.setHeader('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'");
-  res.setHeader('Cache-Control', 'no-store');
+  const isPublicCatalogGet =
+    req.method === 'GET' &&
+    (req.path.startsWith('/api/products') || req.path.startsWith('/api/categories'));
+  res.setHeader(
+    'Cache-Control',
+    isPublicCatalogGet ? 'public, max-age=60, stale-while-revalidate=120' : 'no-store'
+  );
   if (process.env.NODE_ENV === 'production') {
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   }
@@ -28,7 +34,14 @@ interface Bucket {
   resetAt: number;
 }
 
-export const rateLimit = (options: { windowMs: number; max: number; message: string; name: string }) => {
+export const rateLimit = (options: {
+  windowMs: number;
+  max: number;
+  message: string;
+  name: string;
+  keySuffix?: (req: Request) => string;
+  skipSuccessfulRequests?: boolean;
+}) => {
   const buckets = new Map<string, Bucket>();
 
   // Nettoyage périodique pour éviter toute fuite mémoire
@@ -40,8 +53,9 @@ export const rateLimit = (options: { windowMs: number; max: number; message: str
   }, Math.max(options.windowMs, 60_000)).unref();
 
   return (req: Request, res: Response, next: NextFunction) => {
-    const ip = req.ip || req.socket.remoteAddress || 'unknown';
-    const key = `${options.name}:${ip}`;
+    const ip = req.ip || req.socket?.remoteAddress || 'unknown';
+    const suffix = options.keySuffix ? `:${options.keySuffix(req)}` : '';
+    const key = `${options.name}:${ip}${suffix}`;
     const now = Date.now();
 
     let bucket = buckets.get(key);
@@ -59,6 +73,15 @@ export const rateLimit = (options: { windowMs: number; max: number; message: str
       res.setHeader('Retry-After', String(Math.ceil((bucket.resetAt - now) / 1000)));
       return res.status(429).json({ success: false, message: options.message });
     }
+
+    if (options.skipSuccessfulRequests && typeof res.on === 'function') {
+      res.on('finish', () => {
+        if (res.statusCode < 400 && bucket && bucket.count > 0) {
+          bucket.count -= 1;
+        }
+      });
+    }
+
     next();
   };
 };
@@ -85,13 +108,21 @@ export const isValidPhone = (v: unknown): v is string => {
   return digits.length >= 8 && digits.length <= 15;
 };
 
-/** URL d'image autorisée : chemin local /products/... ou http(s) */
+/**
+ * URL d'image autorisée :
+ * - Chemin local relatif strict (/products/..., /uploads/...) sans "//" ni ".."
+ * - Ou URL absolue appartenant exclusivement au domaine MinIO/CDN configuré (MINIO_PUBLIC_URL)
+ */
 export const isSafeImageUrl = (v: unknown): v is string => {
-  if (typeof v !== 'string' || v.length > 1000) return false;
-  if (/^\/[a-zA-Z0-9/_\-.]+$/.test(v) && !v.includes('..')) return true;
+  if (typeof v !== 'string' || v.length < 2 || v.length > 500) return false;
+  if (v.startsWith('//') || v.includes('..') || v.includes('\\')) return false;
+  if (/^\/[a-zA-Z0-9][a-zA-Z0-9/_\-.]*$/.test(v)) return true;
   try {
     const u = new URL(v);
-    return u.protocol === 'https:' || u.protocol === 'http:';
+    if (u.protocol !== 'https:' && u.protocol !== 'http:') return false;
+    const allowedBase = process.env.MINIO_PUBLIC_URL || 'http://localhost:9000';
+    const allowedOrigin = new URL(allowedBase).origin;
+    return u.origin === allowedOrigin;
   } catch {
     return false;
   }

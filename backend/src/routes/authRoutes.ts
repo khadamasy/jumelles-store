@@ -5,11 +5,12 @@ import { rateLimit } from '../middlewares/security';
 
 const router = Router();
 
-// Anti brute-force : 5 tentatives par 15 minutes et par adresse IP
+// Anti brute-force : 5 tentatives échouées par 15 minutes et par adresse IP
 const loginLimiter = rateLimit({
   name: 'admin-login',
   windowMs: 15 * 60 * 1000,
   max: 5,
+  skipSuccessfulRequests: true,
   message: 'Trop de tentatives de connexion. Réessayez dans 15 minutes.',
 });
 

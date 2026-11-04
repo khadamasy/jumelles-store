@@ -144,15 +144,9 @@ onMounted(() => {
     try {
       const data = JSON.parse(saved);
       displayOrderNumber.value = data.orderNumber || (route.query.orderNumber as string) || 'CMD-JUMELLES';
-      displayAmount.value = data.totalAmount || Number(route.query.amount) || 0;
+      displayAmount.value = Number(data.totalAmount) || 0;
       whatsappUrl.value = data.whatsappUrl || '';
-      orderItems.value = data.items || [];
-      customerDetails.value = {
-        name: data.customerName || '',
-        phone: data.customerPhone || '',
-        city: data.shippingCity || '',
-        address: data.shippingAddress || '',
-      };
+      orderItems.value = Array.isArray(data.items) ? data.items : [];
     } catch (e) {
       console.warn('Erreur parsing last order', e);
     }
@@ -160,9 +154,6 @@ onMounted(() => {
 
   if (!displayOrderNumber.value) {
     displayOrderNumber.value = (route.query.orderNumber as string) || 'CMD-JUMELLES';
-  }
-  if (!displayAmount.value) {
-    displayAmount.value = Number(route.query.amount) || 0;
   }
   if (!whatsappUrl.value) {
     const defaultMsg = `Bonjour Maison Jumelles ✨, je souhaite confirmer ma commande ${displayOrderNumber.value}.`;

@@ -12,9 +12,32 @@ export interface CartItem {
   maxStock: number;
 }
 
+const loadCartFromStorage = (): CartItem[] => {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = window.localStorage.getItem('jumelles_cart');
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (item) =>
+        item &&
+        typeof item.variantId === 'string' &&
+        typeof item.productName === 'string' &&
+        typeof item.price === 'number' &&
+        Number.isFinite(item.price) &&
+        typeof item.quantity === 'number' &&
+        item.quantity > 0
+    );
+  } catch {
+    window.localStorage.removeItem('jumelles_cart');
+    return [];
+  }
+};
+
 export const useCartStore = defineStore('cart', {
   state: () => ({
-    items: JSON.parse(localStorage.getItem('jumelles_cart') || '[]') as CartItem[],
+    items: loadCartFromStorage(),
     isDrawerOpen: false,
   }),
 

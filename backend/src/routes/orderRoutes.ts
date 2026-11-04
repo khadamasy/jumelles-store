@@ -11,11 +11,15 @@ import { rateLimit } from '../middlewares/security';
 
 const router = Router();
 
-// Anti-spam / anti-épuisement des stocks : 8 commandes par heure et par IP
+// Anti-spam / anti-épuisement des stocks : 8 commandes par heure par couple (IP + téléphone)
 const orderLimiter = rateLimit({
   name: 'create-order',
   windowMs: 60 * 60 * 1000,
   max: 8,
+  keySuffix: (req) =>
+    typeof req.body?.customerPhone === 'string'
+      ? req.body.customerPhone.replace(/\D/g, '').slice(-9)
+      : '',
   message: 'Trop de commandes envoyées. Contactez-nous directement sur WhatsApp au +221 77 208 78 20.',
 });
 

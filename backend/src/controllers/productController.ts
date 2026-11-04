@@ -11,22 +11,24 @@ const toStock = (v: unknown, fallback: number) => {
 
 export const getProducts = async (req: Request, res: Response) => {
   try {
-    const { category, type, shoeSize, color, search, featured, minPrice, maxPrice } = req.query;
+    const { category, type, shoeSize, color, search, featured, minPrice, maxPrice, page, limit } = req.query;
 
     let products = [...memoryStore.products].filter((p) => p.isActive);
 
     // Filtre par Univers / Type (SAC ou CHAUSSURE)
-    if (type) {
+    if (typeof type === 'string' && type.trim()) {
+      const upperType = type.trim().toUpperCase();
       const allowedCategories = memoryStore.categories
-        .filter((c) => c.type === (type as string).toUpperCase())
+        .filter((c) => c.type === upperType)
         .map((c) => c.id);
       products = products.filter((p) => allowedCategories.includes(p.categoryId));
     }
 
     // Filtre par catégorie (slug ou id)
-    if (category) {
+    if (typeof category === 'string' && category.trim()) {
+      const catQuery = category.trim();
       const foundCategory = memoryStore.categories.find(
-        (c) => c.slug === category || c.id === category
+        (c) => c.slug === catQuery || c.id === catQuery
       );
       if (foundCategory) {
         products = products.filter((p) => p.categoryId === foundCategory.id);
@@ -34,23 +36,24 @@ export const getProducts = async (req: Request, res: Response) => {
     }
 
     // Filtre par Pointure de chaussure (ex: 37, 38)
-    if (shoeSize) {
+    if (typeof shoeSize === 'string' && shoeSize.trim()) {
+      const sizeQuery = shoeSize.trim();
       products = products.filter((p) =>
-        p.variants.some((v) => v.sizeOrShoeSize === shoeSize && v.stockQuantity > 0)
+        p.variants.some((v) => v.sizeOrShoeSize === sizeQuery && v.stockQuantity > 0)
       );
     }
 
     // Filtre par Couleur
-    if (color) {
-      const colorQuery = (color as string).toLowerCase();
+    if (typeof color === 'string' && color.trim()) {
+      const colorQuery = color.trim().toLowerCase();
       products = products.filter((p) =>
         p.variants.some((v) => v.color.toLowerCase().includes(colorQuery))
       );
     }
 
     // Filtre par mot clé de recherche
-    if (search) {
-      const query = (search as string).toLowerCase();
+    if (typeof search === 'string' && search.trim()) {
+      const query = search.trim().toLowerCase();
       products = products.filter(
         (p) =>
           p.name.toLowerCase().includes(query) ||
@@ -64,18 +67,30 @@ export const getProducts = async (req: Request, res: Response) => {
     }
 
     // Filtre par fourchette de prix
-    if (minPrice) {
-      const min = parseFloat(minPrice as string);
-      products = products.filter((p) => p.basePrice >= min);
+    if (typeof minPrice === 'string' && minPrice.trim()) {
+      const min = parseFloat(minPrice);
+      if (Number.isFinite(min)) {
+        products = products.filter((p) => p.basePrice >= min);
+      }
     }
-    if (maxPrice) {
-      const max = parseFloat(maxPrice as string);
-      products = products.filter((p) => p.basePrice <= max);
+    if (typeof maxPrice === 'string' && maxPrice.trim()) {
+      const max = parseFloat(maxPrice);
+      if (Number.isFinite(max)) {
+        products = products.filter((p) => p.basePrice <= max);
+      }
+    }
+
+    const total = products.length;
+    if (typeof limit === 'string') {
+      const parsedLimit = Math.min(100, Math.max(1, parseInt(limit, 10) || 24));
+      const parsedPage = typeof page === 'string' ? Math.max(1, parseInt(page, 10) || 1) : 1;
+      const offset = (parsedPage - 1) * parsedLimit;
+      products = products.slice(offset, offset + parsedLimit);
     }
 
     res.json({
       success: true,
-      total: products.length,
+      total,
       data: products,
     });
   } catch (error: any) {
@@ -88,7 +103,7 @@ export const getProductByIdOrSlug = async (req: Request, res: Response) => {
   try {
     const { idOrSlug } = req.params;
     const product = memoryStore.products.find(
-      (p) => p.id === idOrSlug || p.slug === idOrSlug
+      (p) => (p.id === idOrSlug || p.slug === idOrSlug) && p.isActive
     );
 
     if (!product) {
@@ -117,8 +132,8 @@ export const getAvailableShoeSizes = async (req: Request, res: Response) => {
       .filter((c) => c.type === 'CHAUSSURE')
       .map((c) => c.id);
 
-    const shoeProducts = memoryStore.products.filter((p) =>
-      shoeCategories.includes(p.categoryId)
+    const shoeProducts = memoryStore.products.filter(
+      (p) => p.isActive && shoeCategories.includes(p.categoryId)
     );
 
     const sizesSet = new Set<string>();

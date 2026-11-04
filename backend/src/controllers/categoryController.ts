@@ -6,7 +6,7 @@ export const getCategories = async (req: Request, res: Response) => {
     const { type } = req.query;
     let categories = memoryStore.categories;
 
-    if (type && (type === 'SAC' || type === 'CHAUSSURE')) {
+    if (typeof type === 'string' && (type === 'SAC' || type === 'CHAUSSURE')) {
       categories = categories.filter((c) => c.type === type);
     }
 
@@ -16,7 +16,8 @@ export const getCategories = async (req: Request, res: Response) => {
       data: categories,
     });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('[category]', error);
+    res.status(500).json({ success: false, message: 'Erreur interne.' });
   }
 };
 
@@ -31,7 +32,8 @@ export const getCategoryBySlug = async (req: Request, res: Response) => {
 
     res.json({ success: true, data: category });
   } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error('[category]', error);
+    res.status(500).json({ success: false, message: 'Erreur interne.' });
   }
 };
 

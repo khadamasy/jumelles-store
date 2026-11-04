@@ -5,11 +5,11 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-export const pool = process.env.DATABASE_URL
-  ? new Pool({ connectionString: process.env.DATABASE_URL })
-  : (null as unknown as Pool);
+export const pool = new Pool(
+  process.env.DATABASE_URL ? { connectionString: process.env.DATABASE_URL } : {}
+);
 
-let isPgConnected = false;
+let isPgAvailable = true;
 const DATA_DIR = path.resolve(__dirname, '../../data');
 const SNAPSHOT_FILE = path.join(DATA_DIR, 'store.json');
 const INIT_SQL_FILE = path.resolve(__dirname, '../../prisma/init.sql');
@@ -487,47 +487,9 @@ export const memoryStore = {
     }
   ] as Product[],
 
-  orders: [
-    {
-      id: 'ord-1001',
-      orderNumber: 'JUM-2026-0001',
-      customerName: 'Fatou Ndiaye',
-      customerEmail: 'fatou.ndiaye@example.com',
-      customerPhone: '+221 77 208 78 20',
-      shippingAddress: 'Almadies, Villa 42 en face pharmacie',
-      shippingCity: 'Dakar',
-      totalAmount: 15000,
-      status: 'PAID',
-      items: [
-        {
-          id: 'item-1',
-          orderId: 'ord-1001',
-          productVariantId: 'var-birk-1',
-          productName: 'Sac à Main Prestige Cuir Epsom & Cadenas Métallique',
-          variantDetails: 'Camel Caramel / Format Médium (30cm)',
-          quantity: 1,
-          unitPrice: 15000,
-          totalPrice: 15000
-        }
-      ],
-      createdAt: new Date().toISOString()
-    }
-  ] as Order[],
+  orders: [] as Order[],
 
-  transactions: [
-    {
-      id: 'txn-1',
-      orderId: 'ord-1001',
-      provider: 'WAVE',
-      transactionReference: 'WAVE-REF-JUM-9841',
-      operatorTransactionId: 'WV_TXN_88492048',
-      amount: 15000,
-      currency: 'XOF',
-      status: 'SUCCESSFUL',
-      paymentUrl: 'https://pay.wave.com/c/mock-jumelles-001',
-      createdAt: new Date().toISOString()
-    }
-  ] as PaymentTransaction[],
+  transactions: [] as PaymentTransaction[],
 
   phoneCallbacks: [] as PhoneCallbackRequest[],
 };
@@ -664,13 +626,19 @@ const loadFromPostgres = async (): Promise<boolean> => {
 
 /** Synchronise l'état courant vers PostgreSQL dans une transaction atomique */
 const syncToPostgres = async () => {
-  if (!pool || !isPgConnected) return;
-  const client = await pool.connect();
+  if (!pool || !isPgAvailable) return;
+  let client: any = null;
   try {
-    await client.query('BEGIN');
+    if (typeof pool.connect === 'function') {
+      client = await pool.connect();
+    }
+    const runner = client && typeof client.query === 'function' ? client : pool;
+    if (typeof runner.query !== 'function') return;
+
+    await runner.query('BEGIN');
 
     for (const c of memoryStore.categories) {
-      await client.query(
+      await runner.query(
         `INSERT INTO categories (id, name, slug, type, description)
          VALUES ($1, $2, $3, $4, $5)
          ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, slug = EXCLUDED.slug, type = EXCLUDED.type, description = EXCLUDED.description`,
@@ -681,13 +649,13 @@ const syncToPostgres = async () => {
     // Supprimer les produits retirés du catalogue
     const productIds = memoryStore.products.map((p) => p.id);
     if (productIds.length > 0) {
-      await client.query('DELETE FROM products WHERE NOT (id = ANY($1::varchar[]))', [productIds]);
+      await runner.query('DELETE FROM products WHERE NOT (id = ANY($1::varchar[]))', [productIds]);
     } else {
-      await client.query('DELETE FROM products');
+      await runner.query('DELETE FROM products');
     }
 
     for (const p of memoryStore.products) {
-      await client.query(
+      await runner.query(
         `INSERT INTO products (id, category_id, name, slug, description, base_price, original_price, is_active, is_featured, updated_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP)
          ON CONFLICT (id) DO UPDATE SET
@@ -714,7 +682,9 @@ const syncToPostgres = async () => {
       );
 
       for (const v of p.variants) {
-        await client.query(
+        // Verrouillage de ligne sur le stock avant mise à jour (anti-survente concurrente)
+        await runner.query('SELECT id, stock_quantity FROM product_variants WHERE id = $1 FOR UPDATE', [v.id]);
+        await runner.query(
           `INSERT INTO product_variants (id, product_id, size_or_shoe_size, color, sku, stock_quantity, price_adjustment)
            VALUES ($1, $2, $3, $4, $5, $6, $7)
            ON CONFLICT (id) DO UPDATE SET
@@ -727,9 +697,9 @@ const syncToPostgres = async () => {
         );
       }
 
-      await client.query('DELETE FROM product_images WHERE product_id = $1', [p.id]);
+      await runner.query('DELETE FROM product_images WHERE product_id = $1', [p.id]);
       for (const [idx, img] of p.images.entries()) {
-        await client.query(
+        await runner.query(
           `INSERT INTO product_images (id, product_id, minio_url, alt_text, is_primary, display_order)
            VALUES ($1, $2, $3, $4, $5, $6)`,
           [img.id, p.id, img.minioUrl, img.altText || p.name, Boolean(img.isPrimary), idx]
@@ -738,7 +708,7 @@ const syncToPostgres = async () => {
     }
 
     for (const o of memoryStore.orders) {
-      await client.query(
+      await runner.query(
         `INSERT INTO orders (id, order_number, customer_name, customer_email, customer_phone, shipping_address, shipping_city, total_amount, status, created_at, updated_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP)
          ON CONFLICT (id) DO UPDATE SET status = EXCLUDED.status, updated_at = CURRENT_TIMESTAMP`,
@@ -757,7 +727,7 @@ const syncToPostgres = async () => {
       );
 
       for (const item of o.items) {
-        await client.query(
+        await runner.query(
           `INSERT INTO order_items (id, order_id, product_variant_id, product_name, variant_details, quantity, unit_price, total_price)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
            ON CONFLICT (id) DO NOTHING`,
@@ -776,7 +746,7 @@ const syncToPostgres = async () => {
     }
 
     for (const call of memoryStore.phoneCallbacks) {
-      await client.query(
+      await runner.query(
         `INSERT INTO phone_callbacks (id, customer_name, customer_phone, product_interest, notes, status, created_at)
          VALUES ($1, $2, $3, $4, $5, $6, $7)
          ON CONFLICT (id) DO UPDATE SET status = EXCLUDED.status`,
@@ -792,25 +762,29 @@ const syncToPostgres = async () => {
       );
     }
 
-    await client.query('COMMIT');
+    await runner.query('COMMIT');
   } catch (err: any) {
-    await client.query('ROLLBACK');
-    console.error(`[PostgreSQL Sync] Erreur de synchronisation : ${err.message}`);
+    isPgAvailable = false;
+    try {
+      if (client && typeof client.query === 'function') await client.query('ROLLBACK');
+    } catch {
+      // ignore rollback error when connection failed
+    }
   } finally {
-    client.release();
+    if (client && typeof client.release === 'function') {
+      client.release();
+    }
   }
 };
 
 /**
  * Persiste toutes les modifications (commandes, stocks, articles, rappels) :
- * 1. Sur PostgreSQL si DATABASE_URL est connecté
+ * 1. Sur PostgreSQL via requêtes SQL paramétrées et transactionnelles (avec SELECT ... FOR UPDATE)
  * 2. Sur disque local (backend/data/store.json) pour ne rien perdre au redémarrage
  */
 export const persistStore = async (): Promise<void> => {
   saveSnapshotToDisk();
-  if (isPgConnected) {
-    await syncToPostgres();
-  }
+  await syncToPostgres();
 };
 
 /**
@@ -832,10 +806,10 @@ export const initDatabase = async (): Promise<void> => {
     }
   }
 
-  if (pool) {
+  if (pool && process.env.DATABASE_URL) {
     try {
       const hadData = await loadFromPostgres();
-      isPgConnected = true;
+      isPgAvailable = true;
       if (!hadData) {
         await syncToPostgres();
         console.log('[PostgreSQL] Base initialisée avec le catalogue Jumelles Store.');
@@ -844,7 +818,7 @@ export const initDatabase = async (): Promise<void> => {
       }
       saveSnapshotToDisk();
     } catch (err: any) {
-      isPgConnected = false;
+      isPgAvailable = false;
       console.warn(`[PostgreSQL] Non joignable (${err.message}). Persistance disque locale active (${SNAPSHOT_FILE}).`);
       saveSnapshotToDisk();
     }

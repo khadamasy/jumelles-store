@@ -83,11 +83,23 @@ export const requireAuth = (req: AuthenticatedRequest, res: Response, next: Next
     return unauthorized(res);
   }
 
-  return jwt.verify(token, getKey, { algorithms: ['RS256'] }, (err, decoded) => {
-    if (err || !decoded || typeof decoded === 'string') return unauthorized(res);
-    req.user = decoded as AuthenticatedUser;
-    next();
-  });
+  const expectedIssuer = `${process.env.KEYCLOAK_AUTH_SERVER_URL || process.env.KEYCLOAK_URL || 'http://localhost:8080'}/realms/${process.env.KEYCLOAK_REALM || 'jumelles-store'}`;
+  const expectedClient = process.env.KEYCLOAK_CLIENT_ID || 'jumelles-backend';
+
+  return jwt.verify(
+    token,
+    getKey,
+    { algorithms: ['RS256'], issuer: expectedIssuer },
+    (err, decoded) => {
+      if (err || !decoded || typeof decoded === 'string') return unauthorized(res);
+      const claims = decoded as AuthenticatedUser & { azp?: string; aud?: string | string[] };
+      if (claims.azp && claims.azp !== expectedClient && claims.azp !== 'jumelles-frontend') {
+        return unauthorized(res);
+      }
+      req.user = claims;
+      next();
+    }
+  );
 };
 
 /**
@@ -99,8 +111,9 @@ export const requireRole = (role: string) => {
       return res.status(401).json({ success: false, message: 'Non authentifié.' });
     }
 
-    const roles = req.user.realm_access?.roles || [];
-    if (!roles.includes(role)) {
+    const rawRoles = req.user.realm_access?.roles;
+    const roles = Array.isArray(rawRoles) ? rawRoles : [];
+    if (!roles.some((r) => typeof r === 'string' && r === role)) {
       return res.status(403).json({
         success: false,
         message: 'Accès refusé : droits insuffisants.',

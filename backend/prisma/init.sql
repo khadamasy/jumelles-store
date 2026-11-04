@@ -1,4 +1,5 @@
 -- Initialisation de la base de données Jumelles Store
+CREATE SCHEMA IF NOT EXISTS keycloak;
 
 -- 1. Table des Catégories
 CREATE TABLE IF NOT EXISTS categories (

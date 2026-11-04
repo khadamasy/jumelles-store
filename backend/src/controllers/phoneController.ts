@@ -40,9 +40,17 @@ export const requestCallback = async (req: Request, res: Response) => {
 
     const cleanPhone = cleanText(customerPhone, 25);
 
-    // Plafond anti-saturation de la mémoire
+    // Plafond anti-saturation : ne jamais écraser une demande PENDING légitime
     if (memoryStore.phoneCallbacks.length >= 2000) {
-      memoryStore.phoneCallbacks.length = 1999;
+      const calledIdx = memoryStore.phoneCallbacks.findIndex((c) => c.status === 'CALLED');
+      if (calledIdx !== -1) {
+        memoryStore.phoneCallbacks.splice(calledIdx, 1);
+      } else {
+        return res.status(429).json({
+          success: false,
+          message: 'Trop de demandes de rappel en attente. Contactez-nous directement sur WhatsApp au +221 77 208 78 20.',
+        });
+      }
     }
 
     const newRequest: PhoneCallbackRequest = {

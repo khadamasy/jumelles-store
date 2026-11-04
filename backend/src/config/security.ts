@@ -46,8 +46,19 @@ export const verifyAdminPassword = (candidate: unknown): boolean => {
   return crypto.timingSafeEqual(a, b);
 };
 
-/** Avertissement si les identifiants MinIO ne sont pas définis en production */
-if (isProduction && (!process.env.MINIO_SECRET_KEY || process.env.MINIO_SECRET_KEY.length < 16)) {
-  console.warn('[SÉCURITÉ] MINIO_SECRET_KEY absent ou trop court : définissez un secret fort en production.');
+/** Blocage en production si les identifiants MinIO sont absents, trop courts ou par défaut */
+const minioAccess = process.env.MINIO_ACCESS_KEY || process.env.MINIO_ROOT_USER || '';
+const minioSecret = process.env.MINIO_SECRET_KEY || process.env.MINIO_ROOT_PASSWORD || '';
+if (
+  isProduction &&
+  (!minioSecret ||
+    minioSecret.length < 16 ||
+    minioSecret.toLowerCase().includes('minioadmin') ||
+    minioAccess.toLowerCase() === 'minioadmin')
+) {
+  console.error(
+    '[SÉCURITÉ] MINIO_SECRET_KEY absent, trop court (< 16 caractères) ou par défaut (minioadmin). Arrêt du serveur.'
+  );
+  process.exit(1);
 }
 

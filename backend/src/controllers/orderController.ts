@@ -204,13 +204,22 @@ export const getAllOrders = async (req: Request, res: Response) => {
   });
 };
 
+const ALLOWED_STATUS_TRANSITIONS: Record<Order['status'], Order['status'][]> = {
+  PENDING: ['PAID', 'PREPARING', 'SHIPPED', 'CANCELLED'],
+  PAID: ['PREPARING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
+  PREPARING: ['SHIPPED', 'DELIVERED', 'CANCELLED'],
+  SHIPPED: ['DELIVERED'],
+  DELIVERED: [],
+  CANCELLED: [],
+};
+
 export const updateOrderStatus = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { status } = req.body || {};
 
-    const allowed = ['PENDING', 'PAID', 'PREPARING', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
-    if (typeof status !== 'string' || !allowed.includes(status)) {
+    const allowed: Order['status'][] = ['PENDING', 'PAID', 'PREPARING', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
+    if (typeof status !== 'string' || !allowed.includes(status as Order['status'])) {
       return res.status(400).json({ success: false, message: 'Statut invalide.' });
     }
 
@@ -219,8 +228,25 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, message: 'Commande introuvable.' });
     }
 
-    // Remise en stock automatique en cas d'annulation
-    if (status === 'CANCELLED' && order.status !== 'CANCELLED') {
+    const targetStatus = status as Order['status'];
+    if (order.status === targetStatus) {
+      return res.json({
+        success: true,
+        message: `Statut inchangé : ${targetStatus}`,
+        data: order,
+      });
+    }
+
+    const validNextStatuses = ALLOWED_STATUS_TRANSITIONS[order.status] || [];
+    if (!validNextStatuses.includes(targetStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Transition de statut non autorisée (${order.status} -> ${targetStatus}).`,
+      });
+    }
+
+    // Remise en stock unique lors de l'annulation avant expédition
+    if (targetStatus === 'CANCELLED' && !(order as any).stockRestored) {
       for (const item of order.items) {
         for (const p of memoryStore.products) {
           const v = p.variants.find((variant) => variant.id === item.productVariantId);
@@ -230,14 +256,15 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
           }
         }
       }
+      (order as any).stockRestored = true;
     }
 
-    order.status = status as Order['status'];
+    order.status = targetStatus;
     await persistStore();
 
     res.json({
       success: true,
-      message: `Statut de la commande ${order.orderNumber} mis à jour : ${status}`,
+      message: `Statut de la commande ${order.orderNumber} mis à jour : ${targetStatus}`,
       data: order,
     });
   } catch (error) {

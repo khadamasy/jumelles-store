@@ -206,6 +206,15 @@
             </div>
           </div>
 
+          <!-- Message d'erreur intégré à l'interface -->
+          <div
+            v-if="errorMessage"
+            role="alert"
+            class="p-3.5 rounded-2xl bg-red-50 border border-red-200 text-red-800 text-xs font-medium"
+          >
+            {{ errorMessage }}
+          </div>
+
           <!-- GROS BOUTON WHATSAPP -->
           <div class="space-y-3 pt-2">
             <button
@@ -222,7 +231,7 @@
             </button>
 
             <p class="text-[11px] text-stone-400 text-center font-light">
-              Cliquez pour être redirigée sur WhatsApp avec tous les détails de vos articles déjà prêts.
+              Cliquez pour enregistrer votre commande et l'envoyer sur WhatsApp avec les montants vérifiés.
             </p>
           </div>
 
@@ -255,6 +264,7 @@ const authStore = useAuthStore();
 const currencyStore = useCurrencyStore();
 
 const isSubmitting = ref(false);
+const errorMessage = ref('');
 
 const form = reactive({
   customerName: '',
@@ -285,8 +295,9 @@ const formatPrice = (price: number) => {
 };
 
 const handleCheckoutWhatsApp = async () => {
-  if (!form.customerName || !form.customerPhone || !form.shippingAddress) {
-    alert('Veuillez renseigner votre nom complet, votre numéro de téléphone et votre adresse de livraison.');
+  errorMessage.value = '';
+  if (!form.customerName.trim() || !form.customerPhone.trim() || !form.shippingAddress.trim()) {
+    errorMessage.value = 'Veuillez renseigner votre nom complet, votre numéro de téléphone et votre adresse de livraison.';
     return;
   }
 
@@ -295,58 +306,61 @@ const handleCheckoutWhatsApp = async () => {
     const cleanPhone = form.customerPhone.replace(/\D/g, '');
     const clientEmail = form.customerEmail?.trim() || `${cleanPhone || 'client'}@client.jumelles.sn`;
 
-    // 1. Sauvegarde de la commande sur l'API pour que l'administration garde la trace
+    // 1. Enregistrement obligatoire côté serveur (recalcul des prix et vérification du stock)
     const orderPayload = {
-      customerName: form.customerName,
+      customerName: form.customerName.trim(),
       customerEmail: clientEmail,
-      customerPhone: form.customerPhone,
+      customerPhone: form.customerPhone.trim(),
       shippingCity: form.shippingCity,
-      shippingAddress: form.customerNote
-        ? `${form.shippingAddress} (Note: ${form.customerNote})`
-        : form.shippingAddress,
+      shippingAddress: form.customerNote.trim()
+        ? `${form.shippingAddress.trim()} (Note: ${form.customerNote.trim()})`
+        : form.shippingAddress.trim(),
       items: cartStore.items.map((item) => ({
         productVariantId: item.variantId,
         quantity: item.quantity,
       })),
     };
 
-    let orderNumber = `CMD-${Date.now().toString().slice(-6)}`;
-    try {
-      const orderRes = await OrderService.create(orderPayload);
-      if (orderRes.data?.data?.orderNumber) {
-        orderNumber = orderRes.data.data.orderNumber;
-      }
-    } catch (apiErr) {
-      console.warn('Création API commande (continuation WhatsApp):', apiErr);
+    const orderRes = await OrderService.create(orderPayload);
+    const serverOrder = orderRes.data?.data;
+    if (!serverOrder || !serverOrder.orderNumber) {
+      throw new Error('La commande n\'a pas pu être validée par le serveur.');
     }
 
-    // 2. Formatage du message WhatsApp détaillé avec tous les articles
-    const itemsListText = cartStore.items
+    const orderNumber: string = serverOrder.orderNumber;
+    const serverItems: Array<{
+      productName: string;
+      variantDetails: string;
+      quantity: number;
+      unitPrice: number;
+      totalPrice: number;
+    }> = Array.isArray(serverOrder.items) ? serverOrder.items : [];
+    const verifiedTotal: number = Number(serverOrder.totalAmount) || 0;
+
+    // 2. Formatage du message WhatsApp exclusivement à partir des montants et articles validés par le serveur
+    const itemsListText = serverItems
       .map((item, index) => {
-        const details = item.sizeOrShoeSize
-          ? `${item.color} • Pointure/Taille : ${item.sizeOrShoeSize}`
-          : item.color;
-        const lineTotal = formatPrice(item.price * item.quantity);
-        return `  ${index + 1}. *${item.productName}*\n     ↳ Détails : ${details}\n     ↳ Quantité : x${item.quantity}\n     ↳ Prix : ${lineTotal}`;
+        const lineTotal = currencyStore.toXofOnly(item.totalPrice);
+        return `  ${index + 1}. *${item.productName}*\n     ↳ Détails : ${item.variantDetails}\n     ↳ Quantité : x${item.quantity}\n     ↳ Prix vérifié : ${lineTotal}`;
       })
       .join('\n\n');
 
-    const totalFormatted = currencyStore.toXofOnly(cartStore.subtotal);
+    const totalFormatted = currencyStore.toXofOnly(verifiedTotal);
 
     const whatsappMessage =
 `Bonjour Maison Jumelles ✨,
 
-Je souhaite confirmer ma commande passée sur votre site internet :
+Je souhaite confirmer ma commande enregistrée sur votre site internet :
 
 📋 *RÉFÉRENCE COMMANDE :* ${orderNumber}
 
 👤 *COORDONNÉES CLIENTE :*
-• Nom : ${form.customerName}
-• Téléphone : ${form.customerPhone}
+• Nom : ${form.customerName.trim()}
+• Téléphone : ${form.customerPhone.trim()}
 • Ville : ${form.shippingCity}
-• Adresse de livraison : ${form.shippingAddress}${form.customerNote ? '\n• Note spéciale : ' + form.customerNote : ''}
+• Adresse de livraison : ${form.shippingAddress.trim()}${form.customerNote.trim() ? '\n• Note spéciale : ' + form.customerNote.trim() : ''}
 
-🛍️ *ARTICLES COMMANDÉS :*
+🛍️ *ARTICLES COMMANDÉS (PRIX SERVEUR) :*
 ${itemsListText}
 
 💰 *TOTAL COMMANDE :* *${totalFormatted}*
@@ -358,15 +372,17 @@ Merci de me confirmer la prise en compte de ma commande et le créneau de livrai
     const boutiqueWhatsAppPhone = '221772087820';
     const whatsappUrl = `https://wa.me/${boutiqueWhatsAppPhone}?text=${encodeURIComponent(whatsappMessage)}`;
 
-    // 3. Sauvegarder pour la page de succès
+    // 3. Sauvegarder uniquement le récapitulatif non sensible pour la page de confirmation (lu une seule fois puis supprimé)
     const orderDataForSuccess = {
       orderNumber,
-      customerName: form.customerName,
-      customerPhone: form.customerPhone,
-      shippingCity: form.shippingCity,
-      shippingAddress: form.shippingAddress,
-      totalAmount: cartStore.subtotal,
-      items: [...cartStore.items],
+      totalAmount: verifiedTotal,
+      items: serverItems.map((si) => ({
+        productName: si.productName,
+        color: si.variantDetails,
+        sizeOrShoeSize: '',
+        quantity: si.quantity,
+        price: si.unitPrice,
+      })),
       whatsappUrl,
     };
     sessionStorage.setItem('jumelles_last_order', JSON.stringify(orderDataForSuccess));
@@ -374,22 +390,17 @@ Merci de me confirmer la prise en compte de ma commande et le créneau de livrai
     // Vider le panier
     cartStore.clearCart();
 
-    // 4. Rediriger immédiatement sur WhatsApp
-    window.location.href = whatsappUrl;
-
-    // Rediriger également vers la vue succès en arrière-plan
-    setTimeout(() => {
-      router.push({
-        path: '/order-success',
-        query: {
-          orderNumber,
-          amount: orderDataForSuccess.totalAmount,
-        },
-      });
-    }, 800);
+    // 4. Ouvrir WhatsApp et afficher la page de confirmation
+    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    await router.push({
+      path: '/order-success',
+      query: { orderNumber },
+    });
   } catch (error: any) {
-    console.error('Erreur validation WhatsApp:', error);
-    alert('Une erreur est survenue lors de la transmission de la commande.');
+    errorMessage.value =
+      error?.response?.data?.message ||
+      error?.message ||
+      'Impossible d\'enregistrer la commande. Vérifiez votre connexion ou contactez-nous au +221 77 208 78 20.';
   } finally {
     isSubmitting.value = false;
   }

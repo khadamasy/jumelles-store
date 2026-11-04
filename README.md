@@ -1,17 +1,17 @@
 # 🛍️ Jumelles Store - Plateforme E-Commerce Complète
 
-Plateforme e-commerce haut de gamme spécialisée dans la vente de **sacs (maroquinerie)** et de **chaussures (escarpins, sandales, baskets)**, intégrant **Keycloak** (IAM), **MinIO** (stockage photos), **PostgreSQL**, et les paiements mobiles **Wave** et **Orange Money**.
+Plateforme e-commerce haut de gamme spécialisée dans la vente de **sacs (maroquinerie)** et de **chaussures (escarpins, sandales, mules)** à Dakar (Sénégal), intégrant **PostgreSQL** (persistance transactionnelle des commandes et des stocks), **MinIO** (stockage photos), l'authentification par **cookie `HttpOnly`** / **Keycloak** (IAM), et un **tunnel de commande validé côté serveur avec confirmation directe sur WhatsApp**.
 
 ---
 
 ## 🏗️ Architecture Globale
 
-- **Frontend :** Vue.js 3 (Composition API, Pinia, Vue Router, Tailwind CSS, Keycloak-js)
-- **Backend API :** Node.js & Express (TypeScript, Multer, MinIO SDK, Wave API, Orange Money API)
-- **Authentification & Rôles :** Keycloak 24 (Realm `jumelles-store`, rôles `ROLE_ADMIN`, `ROLE_CLIENT`)
-- **Stockage Médias :** MinIO S3 (Buckets `jumelles-products` et `jumelles-invoices`)
-- **Base de Données :** PostgreSQL 16 (Schéma relationnel avec catégories, variantes de pointures, commandes, transactions)
-- **Conteneurisation :** Docker & Docker Compose
+- **Frontend :** Vue.js 3 (Composition API, Pinia, Vue Router avec découpage dynamique, Tailwind CSS)
+- **Backend API :** Node.js & Express (TypeScript, Multer avec vérification par magic bytes, MinIO SDK, PostgreSQL `pg`)
+- **Authentification & Rôles :** Session administrateur par cookie `HttpOnly; SameSite=Strict` + protection CSRF `X-Requested-With`, et support OIDC Keycloak 24 (`ROLE_ADMIN`, `ROLE_CLIENT`)
+- **Stockage Médias :** MinIO S3 (Bucket `jumelles-products`) + stockage disque local de secours
+- **Base de Données :** PostgreSQL 16 (Schéma relationnel complet `init.sql` : `categories`, `products`, `product_variants`, `product_images`, `orders`, `order_items`, `phone_callbacks` avec verrouillage `SELECT ... FOR UPDATE`)
+- **Conteneurisation :** Docker & Docker Compose (Nginx reverse-proxy `/api/` et `/uploads/`, conteneurs non-root et `healthcheck`)
 
 ---
 
