@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jumelles Store – Administration (Données réelles)</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light;
+--bg:#f6f2ec;--card:#fff;--tx:#241d19;--mut:#6f625a;--bd:#e7ddd1;--gold:#a97a2c;--goldbg:#f6ecd9;--ink:#17110e;--ok:#23794a;--okb:#e2f3e8;--warn:#a8670f;--warnb:#fbefd6;--bad:#b33a3a;--badb:#f9e2e2;--info:#2c5d9b;--infob:#e2ecf9;--sh:0 4px 16px rgba(36,29,25,.07)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#13100e;--card:#1d1814;--tx:#f3e9de;--mut:#b3a498;--bd:#352c26;--gold:#e0b360;--goldbg:#3a2e17;--ink:#0b0807;--ok:#6fd09a;--okb:#1d3a2a;--warn:#f0bd68;--warnb:#3d3119;--bad:#f09090;--badb:#432525;--info:#8fb8ee;--infob:#1f3047;--sh:0 4px 16px rgba(0,0,0,.4)}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#13100e;--card:#1d1814;--tx:#f3e9de;--mut:#b3a498;--bd:#352c26;--gold:#e0b360;--goldbg:#3a2e17;--ink:#0b0807;--ok:#6fd09a;--okb:#1d3a2a;--warn:#f0bd68;--warnb:#3d3119;--bad:#f09090;--badb:#432525;--info:#8fb8ee;--infob:#1f3047;--sh:0 4px 16px rgba(0,0,0,.4)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:84px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:31;background:var(--bg)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:8px}
+.top{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--bd);padding:10px 16px;display:flex;align-items:center;gap:10px}
+.top h1{font:700 18px Georgia,serif;margin:0;flex:1;letter-spacing:.02em}
+.top small{display:block;font:600 11px system-ui;color:var(--mut)}
+.demo{font:700 11px system-ui;background:var(--okb);color:var(--ok);border-radius:999px;padding:4px 10px}
+main{padding:14px 16px;max-width:1100px;margin:0 auto}
+.view{display:none}.view.on{display:block;animation:in .3s}
+@keyframes in{from{opacity:0;transform:translateY(8px)}}
+h2{font:700 17px Georgia,serif;margin:22px 0 10px}
+.seg{display:flex;gap:6px;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:4px;width:max-content;max-width:100%;overflow-x:auto}
+.seg button{border:0;background:transparent;min-height:40px;padding:0 14px;border-radius:10px;font-weight:600;color:var(--mut);cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.k{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px;box-shadow:var(--sh)}
+.k span{font-size:12px;color:var(--mut);display:block}
+.k b{display:block;font:700 22px Georgia,serif;margin-top:2px;word-break:break-word}
+.k em{font-style:normal;font-size:12px;font-weight:700}
+.k.a{border-color:var(--warn)}
+.k.wide{grid-column:1/-1}
+.panel{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px;box-shadow:var(--sh)}
+svg.chart{width:100%;height:120px;display:block}
+.bars rect{fill:var(--gold);transition:height .5s,y .5s}
+.lbls{display:flex;justify-content:space-between;font-size:11px;color:var(--mut);margin-top:4px}
+.row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd)}
+.row:last-child{border:0}.row .g{flex:1;min-width:0}.row .g b,.row .g span{display:block;overflow:hidden;text-overflow:ellipsis}
+.row .g span{font-size:13px;color:var(--mut)}
+.rk{width:26px;height:26px;border-radius:50%;background:var(--goldbg);color:var(--gold);display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.bar2{height:6px;background:var(--bd);border-radius:3px;margin-top:6px;overflow:hidden}.bar2 i{display:block;height:100%;background:var(--gold)}
+.tools{display:grid;gap:10px;margin:12px 0}
+input[type=search],input[type=email],input[type=password]{width:100%;min-height:46px;padding:0 14px;border-radius:14px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:16px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--bd);background:var(--card);font-weight:600;white-space:nowrap;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.list{display:grid;gap:10px}
+.oc{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px;box-shadow:var(--sh);display:grid;gap:8px}
+.oc .hd{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.oc .id{font:700 13px ui-monospace,monospace;color:var(--mut)}
+.st{font:700 12px system-ui;padding:4px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:5px}
+.st.PENDING{background:var(--warnb);color:var(--warn)}
+.st.CONFIRMED{background:var(--infob);color:var(--info)}
+.st.SHIPPED{background:var(--goldbg);color:var(--gold)}
+.st.DELIVERED{background:var(--okb);color:var(--ok)}
+.st.CANCELLED{background:var(--badb);color:var(--bad)}
+.oc .who{font-weight:700;font-size:16px}
+.oc .meta{font-size:13px;color:var(--mut)}
+.oc .ft{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-top:8px;border-top:1px solid var(--bd)}
+.oc .amt{font:700 17px Georgia,serif;color:var(--gold)}
+.act{display:flex;gap:6px;flex-wrap:wrap}
+.btn{min-height:42px;padding:0 14px;border-radius:12px;border:1px solid var(--bd);background:var(--card);font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.btn:active{transform:scale(.97)}
+.btn.p{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+.btn.bad{background:var(--badb);color:var(--bad);border-color:transparent}
+.stk{display:flex;align-items:center;gap:12px}
+.stk img{width:56px;height:56px;border-radius:12px;object-fit:cover;flex:none;background:var(--bd)}
+.stk .q{font:700 18px Georgia,serif;min-width:34px;text-align:center}
+.stk .q.low{color:var(--warn)}.stk .q.zero{color:var(--bad)}
+.step{display:flex;align-items:center;gap:4px}
+.step button{width:40px;height:40px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);font-weight:700;font-size:18px;cursor:pointer}
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:25;background:var(--card);border-top:1px solid var(--bd);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.bnav button{border:0;background:transparent;min-height:52px;border-radius:12px;display:grid;place-items:center;gap:2px;font-size:11px;font-weight:700;color:var(--mut);cursor:pointer;position:relative}
+.bnav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.bnav button[aria-current="page"]{color:var(--tx);background:var(--goldbg)}
+.bnav .dot{position:absolute;top:6px;right:24%;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--warn);color:#fff;font:700 11px/18px system-ui}
+#sheet{position:fixed;inset:0;z-index:40;background:rgba(15,10,7,.55);display:grid;align-items:end;opacity:0;visibility:hidden;transition:opacity .25s,visibility 0s .25s}
+#sheet.open{opacity:1;visibility:visible;transition:opacity .25s}
+#sheet .box{background:var(--card);border-radius:22px 22px 0 0;padding:18px 16px calc(22px + env(safe-area-inset-bottom,0px));max-height:86vh;overflow:auto;transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1);max-width:560px;width:100%;margin:0 auto}
+#sheet.open .box{transform:none}
+#toast{position:fixed;left:50%;bottom:88px;transform:translate(-50%,16px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;font-weight:600;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:50;white-space:nowrap}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+#loginGate{max-width:420px;margin:48px auto;background:var(--card);border:1px solid var(--bd);border-radius:22px;padding:24px;box-shadow:var(--sh)}
+@media (min-width:860px){
+  body{padding-bottom:24px;padding-left:220px}
+  .bnav{top:0;bottom:0;right:auto;width:220px;grid-template-columns:1fr;grid-auto-rows:max-content;align-content:start;padding:18px 12px;border-top:0;border-right:1px solid var(--bd);gap:6px}
+  .bnav::before{content:"JUMELLES · ADMIN";font:700 13px Georgia,serif;letter-spacing:.14em;padding:8px 12px 16px;color:var(--gold)}
+  .bnav button{grid-template-columns:24px 1fr;justify-items:start;padding:0 12px;font-size:14px;min-height:46px}
+  .bnav .dot{position:static;margin-left:auto}
+  .kpis{grid-template-columns:repeat(4,1fr)}
+  .k.wide{grid-column:span 2}
+  .grid2{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;align-items:start}
+  .list{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>Administration <small id="sub">Tableau de bord · Dakar</small></h1>
+  <span class="demo">Données réelles</span>
+  <button class="btn" id="themeBtn" aria-label="Changer de thème">🌓</button>
+</header>
+
+<div id="loginGate" hidden>
+  <h2 style="margin-top:0">Espace Gérance</h2>
+  <p style="color:var(--mut);font-size:13px">Connectez-vous avec l'email et le mot de passe administrateur de votre boutique.</p>
+  <form id="loginForm" style="display:grid;gap:10px">
+    <input type="email" id="admEmail" placeholder="Email administrateur" required>
+    <input type="password" id="admPwd" placeholder="Mot de passe" required>
+    <div id="loginErr" style="color:var(--bad);font-size:13px" hidden></div>
+    <button type="submit" class="btn p" style="justify-content:center">Se connecter</button>
+  </form>
+</div>
+
+<main id="appMain" hidden>
+  <!-- VUE 1 : TABLEAU DE BORD -->
+  <section class="view on" id="v-dash" aria-labelledby="t-dash">
+    <div class="seg" role="group" aria-label="Période">
+      <button type="button" data-p="1" aria-pressed="false">Aujourd'hui</button>
+      <button type="button" data-p="7" aria-pressed="true">7 jours</button>
+      <button type="button" data-p="30" aria-pressed="false">30 jours</button>
+    </div>
+
+    <div class="kpis" id="kpis"></div>
+
+    <div class="grid2">
+      <div>
+        <h2 id="t-dash">Chiffre d'affaires quotidien (FCFA)</h2>
+        <div class="panel">
+          <svg class="chart" id="chart" viewBox="0 0 320 110" role="img" aria-label="Histogramme des ventes"></svg>
+          <div class="lbls" id="lbls"></div>
+        </div>
+      </div>
+      <div>
+        <h2>Meilleures ventes</h2>
+        <div class="panel" id="topProd"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VUE 2 : COMMANDES -->
+  <section class="view" id="v-orders" aria-labelledby="t-orders">
+    <h2 id="t-orders" style="margin-top:4px">Commandes clients</h2>
+    <div class="tools">
+      <input type="search" id="qOrder" placeholder="Rechercher : réf. JUM-…, nom, 77…">
+      <div class="chips" id="stChips"></div>
+    </div>
+    <div class="list" id="orderList"></div>
+  </section>
+
+  <!-- VUE 3 : STOCK -->
+  <section class="view" id="v-stock" aria-labelledby="t-stock">
+    <h2 id="t-stock" style="margin-top:4px">Stock et prix (mise à jour immédiate)</h2>
+    <div class="list" id="stockList"></div>
+  </section>
+
+  <!-- VUE 4 : RAPPELS -->
+  <section class="view" id="v-cb" aria-labelledby="t-cb">
+    <h2 id="t-cb" style="margin-top:4px">Demandes de rappel téléphonique</h2>
+    <div class="list" id="cbList"></div>
+  </section>
+</main>
+
+<!-- Navigation principale -->
+<nav class="bnav" aria-label="Sections d'administration">
+  <button type="button" data-v="dash" aria-current="page">
+    <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3zm10 8h8V11h-8zM3 21h8v-6H3zm10-10h8V3h-8z"/></svg>
+    <span>Tableau</span>
+  </button>
+  <button type="button" data-v="orders">
+    <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2M9 5h6m-6 7h6m-6 4h4"/></svg>
+    <span>Commandes</span><i class="dot" id="pendDot">0</i>
+  </button>
+  <button type="button" data-v="stock">
+    <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></svg>
+    <span>Stock</span><i class="dot" id="lowDot" hidden>!</i>
+  </button>
+  <button type="button" data-v="cb">
+    <svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7A2 2 0 0 1 22 16.9z"/></svg>
+    <span>Rappels</span><i class="dot" id="cbDot">0</i>
+  </button>
+</nav>
+
+<!-- Feuille détail commande -->
+<div id="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle">
+  <div class="box" id="shBox"></div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const API_BASE = location.origin.includes('localhost:3000') ? '/api' : 'http://localhost:4000/api';
+let TOKEN = localStorage.getItem('jumelles_admin_jwt_v1') || '';
+
+const ST = {
+  PENDING:  {l:"À confirmer", next:"CONFIRMED", nl:"Confirmer la commande", cls:"p"},
+  CONFIRMED:{l:"Confirmée",   next:"SHIPPED",   nl:"Remettre au livreur",   cls:"p"},
+  SHIPPED:  {l:"En livraison",next:"DELIVERED", nl:"Marquer livrée (encaissée)", cls:"ok"},
+  DELIVERED:{l:"Livrée",      next:null},
+  CANCELLED:{l:"Annulée",     next:null}
+};
+
+let O = [];
+let STOCK = [];
+let CB = [];
+let period = 7, stFilter = "ALL", query = "";
+const $ = s => document.querySelector(s);
+const fmt = n => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " FCFA";
+const toast = m => { const t=$("#toast"); t.textContent=m; t.classList.add("on"); clearTimeout(toast.t); toast.t=setTimeout(()=>t.classList.remove("on"),2200); };
+
+async function apiFetch(path, opts = {}) {
+  const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+  if (TOKEN) headers['Authorization'] = 'Bearer ' + TOKEN;
+  const res = await fetch(API_BASE + path, { ...opts, headers });
+  if (res.status === 401 || res.status === 403) {
+    TOKEN = '';
+    localStorage.removeItem('jumelles_admin_jwt_v1');
+    showLogin();
+    throw new Error('Non autorisé');
+  }
+  return res.json();
+}
+
+function showLogin() {
+  $("#loginGate").hidden = false;
+  $("#appMain").hidden = true;
+}
+
+async function loadRealData() {
+  try {
+    const [prodRes, ordRes, cbRes] = await Promise.all([
+      apiFetch('/products'),
+      apiFetch('/orders'),
+      apiFetch('/phone/callback')
+    ]);
+    const products = prodRes.data || [];
+    const orders = ordRes.data || [];
+    const callbacks = cbRes.data || [];
+
+    STOCK = products.map(p => ({
+      id: p.id,
+      n: p.name,
+      cat: p.category === 'Sacs' ? 'Sacs' : 'Chaussures',
+      p: Number(p.price) || 0,
+      q: Number(p.stock) || 0,
+      img: (Array.isArray(p.images) && p.images[0]) ? p.images[0] : ''
+    }));
+
+    const now = Date.now();
+    O = orders.map(o => {
+      const createdMs = new Date(o.createdAt).getTime();
+      const diffHours = Math.max(0, Math.round((now - createdMs) / 3600000));
+      const diffDays = Math.floor((now - createdMs) / 86400000);
+      const firstItem = (Array.isArray(o.items) && o.items[0]) ? o.items[0] : null;
+      const itemLabel = (Array.isArray(o.items) && o.items.length > 0)
+        ? o.items.map(it => `${it.name}${it.quantity > 1 ? ' ×' + it.quantity : ''}`).join(' + ')
+        : 'Commande boutique';
+      const variantParts = [];
+      if (firstItem && firstItem.color) variantParts.push(firstItem.color);
+      if (firstItem && firstItem.size) variantParts.push('T.' + firstItem.size);
+
+      return {
+        rawId: o.id,
+        id: o.orderNumber || o.id,
+        who: o.customerName,
+        tel: o.customerPhone,
+        zone: `${o.neighborhood || ''}${o.city ? ' (' + o.city + ')' : ''}`.trim(),
+        item: itemLabel,
+        v: variantParts.join(' · ') || 'Format Classique',
+        amt: Number(o.totalAmount) || 0,
+        st: o.status,
+        d: diffDays,
+        h: diffHours === 0 ? "À l'instant" : (diffHours < 24 ? `Il y a ${diffHours} h` : `Il y a ${diffDays} j`)
+      };
+    });
+
+    CB = callbacks.map(c => ({
+      id: c.id,
+      who: c.fullName || 'Cliente Jumelles',
+      tel: c.phone,
+      note: c.note || 'Demande de rappel téléphonique',
+      when: new Date(c.createdAt).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }),
+      done: c.status === 'CALLED'
+    }));
+
+    $("#loginGate").hidden = true;
+    $("#appMain").hidden = false;
+    renderDash(); renderChips(); renderOrders(); renderStock(); renderCB(); syncBadges();
+  } catch (e) {
+    showLogin();
+  }
+}
+
+$("#loginForm").onsubmit = async (e) => {
+  e.preventDefault();
+  $("#loginErr").hidden = true;
+  try {
+    const res = await fetch(API_BASE + '/auth/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: $("#admEmail").value, password: $("#admPwd").value })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      $("#loginErr").textContent = data.message || 'Identifiants incorrects';
+      $("#loginErr").hidden = false;
+      return;
+    }
+    TOKEN = data.data.token;
+    localStorage.setItem('jumelles_admin_jwt_v1', TOKEN);
+    await loadRealData();
+  } catch (err) {
+    $("#loginErr").textContent = 'Erreur de connexion au serveur';
+    $("#loginErr").hidden = false;
+  }
+};
+
+function renderDash(){
+  const sub = O.filter(o => o.d < period);
+  const valid = sub.filter(o => o.st !== "CANCELLED");
+  const rev = valid.reduce((s,o)=>s+o.amt,0);
+  const deliv = sub.filter(o => o.st === "DELIVERED").reduce((s,o)=>s+o.amt,0);
+  const pend = O.filter(o => o.st === "PENDING").length;
+  const avg = valid.length ? Math.round(rev/valid.length) : 0;
+
+  $("#kpis").innerHTML = `
+    <div class="k wide"><span>Chiffre d'affaires (${period===1?"aujourd'hui":period+" derniers jours"})</span><b>${fmt(rev)}</b><em style="color:var(--ok)">${ fmt(deliv) } déjà encaissés à la livraison</em></div>
+    <div class="k ${pend?'a':''}"><span>À confirmer maintenant</span><b>${pend}</b><em style="color:var(--warn)">${pend?"Appeler sous 15 min":"Tout est traité"}</em></div>
+    <div class="k"><span>Commandes reçues</span><b>${valid.length}</b><em style="color:var(--mut)">Panier moyen ${fmt(avg)}</em></div>
+  `;
+
+  const days = ["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"];
+  const series = [0,0,0,0,0,0,0];
+  O.filter(o => o.st !== "CANCELLED" && o.d < 7).forEach(o => {
+    const idx = Math.max(0, Math.min(6, 6 - o.d));
+    series[idx] += o.amt;
+  });
+  const max = Math.max(...series, 1);
+  $("#chart").innerHTML = `<g class="bars">${series.map((v,i)=>{
+    const h = Math.max(4, Math.round((v/max)*92));
+    return `<rect x="${i*45+8}" y="${102-h}" width="30" height="${h}" rx="6"><title>${days[i]} : ${fmt(v)}</title></rect>`;
+  }).join("")}</g>`;
+  $("#lbls").innerHTML = days.map((d,i)=>`<span>${d}<br><b style="color:var(--tx)">${Math.round(series[i]/1000)}k</b></span>`).join("");
+
+  const counts = {};
+  valid.forEach(o => { const k = o.item.split("×")[0].split("+")[0].trim(); counts[k] = (counts[k]||0) + o.amt; });
+  const top = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,4);
+  const tmax = top[0]?.[1] || 1;
+  $("#topProd").innerHTML = top.length ? top.map(([name,val],i)=>`
+    <div class="row">
+      <span class="rk">${i+1}</span>
+      <div class="g"><b>${name}</b><span>${fmt(val)}</span><div class="bar2"><i style="width:${Math.round(val/tmax*100)}%"></i></div></div>
+    </div>`).join("") : `<p style="color:var(--mut);margin:0">Aucune vente sur cette période.</p>`;
+}
+
+document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".seg button").forEach(x=>x.setAttribute("aria-pressed","false"));
+  b.setAttribute("aria-pressed","true");
+  period = +b.dataset.p;
+  renderDash();
+});
+
+function renderChips(){
+  const counts = {ALL:O.length};
+  Object.keys(ST).forEach(k => counts[k] = O.filter(o=>o.st===k).length);
+  const items = [["ALL","Toutes"], ...Object.entries(ST).map(([k,v])=>[k,v.l])];
+  $("#stChips").innerHTML = items.map(([k,l])=>
+    `<button type="button" class="chip" data-st="${k}" aria-pressed="${stFilter===k}">${l} (${counts[k]||0})</button>`
+  ).join("");
+  $("#stChips").querySelectorAll(".chip").forEach(c=>c.onclick=()=>{stFilter=c.dataset.st;renderChips();renderOrders();});
+}
+
+function renderOrders(){
+  const q = query.trim().toLowerCase();
+  const list = O.filter(o => (stFilter==="ALL" || o.st===stFilter) &&
+    (!q || o.id.toLowerCase().includes(q) || o.who.toLowerCase().includes(q) || o.tel.includes(q) || o.zone.toLowerCase().includes(q)));
+
+  $("#orderList").innerHTML = list.map(o=>{
+    const s = ST[o.st] || ST.PENDING;
+    return `<article class="oc" data-id="${o.rawId}">
+      <div class="hd"><span class="id">${o.id} · ${o.h}</span><span class="st ${o.st}">${s.l}</span></div>
+      <div class="who">${o.who}</div>
+      <div class="meta">📍 ${o.zone} · 📞 ${o.tel}</div>
+      <div class="meta">🛍️ ${o.item} <em>(${o.v})</em></div>
+      <div class="ft">
+        <span class="amt">${fmt(o.amt)}</span>
+        <div class="act">
+          <button type="button" class="btn" data-open="${o.rawId}">Gérer</button>
+          ${s.next ? `<button type="button" class="btn ${s.cls}" data-step="${o.rawId}">${s.nl}</button>` : ""}
+        </div>
+      </div>
+    </article>`;
+  }).join("") || `<p style="color:var(--mut)">Aucune commande ne correspond à ce filtre.</p>`;
+}
+
+$("#qOrder").oninput = e => { query = e.target.value; renderOrders(); };
+
+$("#orderList").onclick = e => {
+  const step = e.target.closest("[data-step]");
+  if(step){ advance(step.dataset.step); return; }
+  const open = e.target.closest("[data-open]");
+  if(open) openOrder(open.dataset.open);
+};
+
+async function advance(rawId, to){
+  const o = O.find(x=>x.rawId===rawId); if(!o) return;
+  const nextStatus = to || ST[o.st].next;
+  try {
+    await apiFetch(`/orders/${rawId}/status`, { method: 'PATCH', body: JSON.stringify({ status: nextStatus }) });
+    o.st = nextStatus;
+    toast(`${o.id} → ${ST[o.st].l}`);
+    renderChips(); renderOrders(); renderDash(); syncBadges();
+  } catch (e) {
+    toast("Erreur lors de la mise à jour");
+  }
+}
+
+function openOrder(rawId){
+  const o = O.find(x=>x.rawId===rawId); const s = ST[o.st] || ST.PENDING;
+  const waMsg = encodeURIComponent(`Bonjour ${o.who}, ici Jumelles Store concernant votre commande ${o.id} (${o.item} – ${fmt(o.amt)}).`);
+  $("#shBox").innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+      <h2 id="shTitle" style="margin:0">${o.id}</h2>
+      <span class="st ${o.st}">${s.l}</span>
+    </div>
+    <p style="margin:6px 0 14px;color:var(--mut)">${o.who} · ${o.zone} · ${o.h}</p>
+    <div class="panel" style="margin-bottom:12px">
+      <b>${o.item}</b>
+      <div style="color:var(--mut);font-size:13px">${o.v} · Paiement à la livraison</div>
+      <div style="font:700 20px Georgia,serif;color:var(--gold);margin-top:6px">${fmt(o.amt)}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+      <a class="btn" href="tel:+221${o.tel.replace(/\s/g,'')}">📞 Appeler</a>
+      <a class="btn" target="_blank" rel="noopener" href="https://api.whatsapp.com/send?phone=221${o.tel.replace(/\s/g,'')}&text=${waMsg}">💬 WhatsApp</a>
+    </div>
+    <div style="display:grid;gap:8px">
+      ${s.next ? `<button type="button" class="btn ${s.cls}" id="shNext" style="justify-content:center">${s.nl}</button>` : ""}
+      ${o.st!=="CANCELLED" && o.st!=="DELIVERED" ? `<button type="button" class="btn bad" id="shCancel" style="justify-content:center">Annuler la commande</button>` : ""}
+      <button type="button" class="btn" id="shClose" style="justify-content:center">Fermer</button>
+    </div>`;
+  $("#sheet").classList.add("open");
+  $("#shClose").onclick = closeSheet;
+  const n=$("#shNext"); if(n) n.onclick=()=>{advance(rawId);closeSheet();};
+  const c=$("#shCancel"); if(c) c.onclick=()=>{advance(rawId,"CANCELLED");closeSheet();};
+}
+function closeSheet(){ $("#sheet").classList.remove("open"); }
+$("#sheet").onclick = e => { if(e.target.id==="sheet") closeSheet(); };
+
+function renderStock(){
+  $("#stockList").innerHTML = STOCK.map(p=>{
+    const cls = p.q===0 ? "zero" : p.q<=3 ? "low" : "";
+    const tag = p.q===0 ? `<span class="st CANCELLED">Rupture</span>` : p.q<=3 ? `<span class="st PENDING">Stock bas</span>` : `<span class="st DELIVERED">En stock</span>`;
+    return `<div class="oc stk" data-p="${p.id}">
+      <img src="${p.img}" alt="${p.n}" loading="lazy">
+      <div style="flex:1;min-width:0">
+        <b>${p.n}</b>
+        <div class="meta">${p.cat} · ${fmt(p.p)}</div>
+        <div style="margin-top:4px">${tag}</div>
+      </div>
+      <div class="step" aria-label="Quantité en stock">
+        <button type="button" data-d="-1" aria-label="Retirer 1">−</button>
+        <span class="q ${cls}">${p.q}</span>
+        <button type="button" data-d="1" aria-label="Ajouter 1">+</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+$("#stockList").onclick = async e => {
+  const b = e.target.closest("[data-d]"); if(!b) return;
+  const id = b.closest("[data-p]").dataset.p;
+  const p = STOCK.find(x=>x.id===id);
+  const newStock = Math.max(0, p.q + (+b.dataset.d));
+  try {
+    await apiFetch(`/products/${id}/stock`, { method: 'PATCH', body: JSON.stringify({ stock: newStock }) });
+    p.q = newStock;
+    renderStock(); syncBadges();
+    toast(`${p.n} : ${p.q} en stock`);
+  } catch (err) {
+    toast("Erreur mise à jour stock");
+  }
+};
+
+function renderCB(){
+  $("#cbList").innerHTML = CB.map(c=>`
+    <div class="oc">
+      <div class="hd"><span class="who">${c.who}</span><span class="st ${c.done?'DELIVERED':'PENDING'}">${c.done?'Rappelé':'En attente'}</span></div>
+      <div class="meta">📞 ${c.tel} · ${c.when}</div>
+      <div class="meta">💬 ${c.note}</div>
+      <div class="ft">
+        <a class="btn" href="tel:+221${c.tel.replace(/\s/g,'')}">📞 Appeler</a>
+        <button type="button" class="btn ${c.done?'':'ok'}" data-cb="${c.id}">${c.done?'Remettre en attente':'Marquer rappelé'}</button>
+      </div>
+    </div>`).join("");
+}
+$("#cbList").onclick = async e => {
+  const b = e.target.closest("[data-cb]"); if(!b) return;
+  const c = CB.find(x=>x.id===b.dataset.cb);
+  const nextStatus = c.done ? 'PENDING' : 'CALLED';
+  try {
+    await apiFetch(`/phone/callback/${c.id}`, { method: 'PATCH', body: JSON.stringify({ status: nextStatus }) });
+    c.done = !c.done;
+    renderCB(); syncBadges();
+    toast(c.done ? `${c.who} marqué comme rappelé` : "Remis en attente");
+  } catch (err) {
+    toast("Erreur mise à jour rappel");
+  }
+};
+
+function syncBadges(){
+  const pend = O.filter(o=>o.st==="PENDING").length;
+  const low  = STOCK.filter(p=>p.q<=3).length;
+  const cb   = CB.filter(c=>!c.done).length;
+  const pd=$("#pendDot"); pd.textContent=pend; pd.hidden=!pend;
+  const ld=$("#lowDot");  ld.textContent=low;  ld.hidden=!low;
+  const cd=$("#cbDot");   cd.textContent=cb;   cd.hidden=!cb;
+}
+
+document.querySelectorAll(".bnav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".bnav button").forEach(x=>x.removeAttribute("aria-current"));
+  b.setAttribute("aria-current","page");
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("on"));
+  $("#v-"+b.dataset.v).classList.add("on");
+  $("#sub").textContent = b.querySelector("span").textContent + " · Dakar";
+  window.scrollTo({top:0,behavior:"smooth"});
+});
+
+$("#themeBtn").onclick=()=>{
+  const r=document.documentElement;
+  const dark=r.getAttribute("data-theme")==="dark"||(!r.getAttribute("data-theme")&&matchMedia("(prefers-color-scheme:dark)").matches);
+  r.setAttribute("data-theme",dark?"light":"dark");
+};
+addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet();});
+
+loadRealData();
+</script>
+</body>
+</html>

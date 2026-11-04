@@ -2,7 +2,7 @@
   <!-- ============================================================== -->
   <!-- ÉCRAN DE CONNEXION SÉCURISÉ DE LA GÉRANCE                      -->
   <!-- ============================================================== -->
-  <div v-if="!authStore.isAdmin" class="min-h-[70vh] flex items-center justify-center px-4 py-12">
+  <div v-if="!authStore.isAdmin" class="min-h-[75vh] flex items-center justify-center px-4 py-12">
     <form
       @submit.prevent="handleAdminLogin"
       class="w-full max-w-sm bg-white rounded-3xl border border-stone-200 shadow-2xl p-8 space-y-6"
@@ -74,68 +74,482 @@
     </form>
   </div>
 
-  <div v-else class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
-    <!-- Header Admin avec Espace Gérance & Direction -->
-    <div class="relative overflow-hidden bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 rounded-3xl p-6 sm:p-8 text-white border border-stone-800 shadow-2xl">
-      <div class="absolute -right-16 -top-16 w-64 h-64 bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
-        <div class="space-y-2">
-          <div class="inline-flex items-center gap-2 bg-gold-500/15 text-gold-400 border border-gold-400/30 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-            <Crown class="w-3.5 h-3.5 text-gold-400" />
-            <span>Espace Gérance & Direction Jumelles Store</span>
-          </div>
-          <h1 class="font-serif text-2xl sm:text-4xl font-bold tracking-tight text-white">
-            Tableau de Bord & Gestion des Articles
-          </h1>
-          <p class="text-xs sm:text-sm text-stone-300 font-light max-w-2xl">
-            Pilotez votre catalogue de maroquinerie et souliers de luxe en temps réel : modifiez vos fiches articles, réapprovisionnez les pointures et gérez vos expéditions.
-          </p>
-          <div class="flex items-center gap-2 text-xs text-gold-400/90 pt-1 font-medium">
-            <Phone class="w-3.5 h-3.5 text-gold-400" />
-            <span>Ligne directe gérance boutique :</span>
-            <span class="font-bold underline text-gold-300">+221 77 208 78 20</span>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-2 self-start lg:self-center">
-          <div class="flex items-center gap-2.5 bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 px-4 py-2.5 rounded-2xl text-xs font-semibold">
-            <CheckCircle2 class="w-4 h-4 text-emerald-400" />
-            <span>{{ authStore.user?.email || 'Session sécurisée' }}</span>
-          </div>
-          <button
-            @click="openCredentialsModal"
-            class="px-4 py-2.5 bg-gold-500/20 hover:bg-gold-500 text-gold-300 hover:text-stone-950 border border-gold-400/40 rounded-2xl text-xs font-bold transition-colors cursor-pointer"
-          >
-            Modifier Email / Mot de passe
-          </button>
-          <button
-            @click="authStore.logout()"
-            class="px-4 py-2.5 bg-white/10 hover:bg-rosewood-600 border border-white/20 text-white rounded-2xl text-xs font-bold transition-colors cursor-pointer"
-          >
-            Déconnexion
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Notification Toast de Succès / Erreur -->
-    <div
-      v-if="toastMessage"
-      class="p-4 rounded-2xl text-xs sm:text-sm font-semibold flex items-center justify-between shadow-lg transition-all"
-      :class="toastType === 'success' ? 'bg-emerald-50 text-emerald-900 border border-emerald-300' : 'bg-rosewood-50 text-rosewood-900 border border-rosewood-300'"
-    >
-      <div class="flex items-center gap-2.5">
-        <CheckCircle2 v-if="toastType === 'success'" class="w-5 h-5 text-emerald-600 shrink-0" />
-        <AlertTriangle v-else class="w-5 h-5 text-rosewood-600 shrink-0" />
-        <span>{{ toastMessage }}</span>
-      </div>
-      <button @click="toastMessage = ''" class="text-xs font-bold px-2 py-1 hover:opacity-70">
-        <X class="w-4 h-4" />
+  <!-- ============================================================== -->
+  <!-- ADMINISTRATION MOBILE-FIRST CONNECTÉE AUX VRAIES DONNÉES        -->
+  <!-- ============================================================== -->
+  <div v-else class="adm-root">
+    <header class="adm-top">
+      <h1>
+        Jumelles Store
+        <small>Administration · {{ authStore.user?.email || 'Gérance' }}</small>
+      </h1>
+      <span class="adm-live">Données réelles</span>
+      <router-link to="/" class="adm-b" style="min-height: 36px; padding: 0 10px; font-size: 13px">
+        ← Boutique
+      </router-link>
+      <button
+        type="button"
+        class="adm-b"
+        style="min-height: 36px; padding: 0 10px; font-size: 13px"
+        @click="openCredentialsModal"
+      >
+        Identifiants
       </button>
+      <button
+        type="button"
+        class="adm-b"
+        style="min-height: 36px; padding: 0 10px; font-size: 13px"
+        @click="authStore.logout()"
+      >
+        Déconnexion
+      </button>
+    </header>
+
+    <main class="adm-main">
+      <!-- 1. TABLEAU DE BORD -->
+      <section class="adm-view" :class="{ on: activeView === 'v-dash' }" aria-label="Tableau de bord">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px">
+          <div class="adm-seg" role="group" aria-label="Période">
+            <button
+              v-for="p in periods"
+              :key="p.days"
+              type="button"
+              :aria-pressed="selectedPeriod === p.days"
+              @click="selectedPeriod = p.days"
+            >
+              {{ p.label }}
+            </button>
+          </div>
+          <button type="button" class="adm-b" style="min-height: 38px; font-size: 13px" @click="loadData">
+            Actualiser les données
+          </button>
+        </div>
+
+        <div class="adm-kpis">
+          <div class="adm-k wide">
+            <span>Chiffre d’affaires</span>
+            <b>{{ formatMoney(periodRevenue) }}</b>
+            <em style="color: var(--adm-mut)">
+              {{ periodPaidOrders.length }} commande(s) payées ou en cours
+            </em>
+          </div>
+          <div class="adm-k">
+            <span>Commandes</span>
+            <b>{{ periodOrders.length }}</b>
+          </div>
+          <div class="adm-k" :class="{ a: pendingOrdersCount > 0 }">
+            <span>En attente</span>
+            <b>{{ pendingOrdersCount }}</b>
+          </div>
+          <div class="adm-k">
+            <span>Panier moyen</span>
+            <b>{{ periodPaidOrders.length ? formatMoney(Math.round(periodRevenue / periodPaidOrders.length)) : '–' }}</b>
+          </div>
+          <div class="adm-k" :class="{ a: criticalStockItems.length > 0 }">
+            <span>Stock critique</span>
+            <b>{{ criticalStockItems.length }}</b>
+          </div>
+        </div>
+
+        <div class="adm-two">
+          <div>
+            <h2>Chiffre d’affaires par jour</h2>
+            <div class="adm-panel">
+              <svg
+                class="adm-chart"
+                viewBox="0 0 300 120"
+                preserveAspectRatio="none"
+                role="img"
+                aria-label="Histogramme du chiffre d’affaires"
+              >
+                <g class="bars">
+                  <rect
+                    v-for="(bar, idx) in chartBars"
+                    :key="idx"
+                    :x="bar.x"
+                    :y="bar.y"
+                    :width="bar.w"
+                    :height="bar.h"
+                    rx="3"
+                  >
+                    <title>{{ bar.label }} : {{ formatMoney(bar.value) }}</title>
+                  </rect>
+                </g>
+              </svg>
+              <div class="adm-lbls">
+                <span>{{ chartBars[0]?.label || '' }}</span>
+                <span>{{ chartBars[chartBars.length - 1]?.label || '' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h2>Top ventes (articles commandés)</h2>
+            <div class="adm-panel">
+              <template v-if="topProducts.length > 0">
+                <div v-for="(tp, idx) in topProducts" :key="tp.name" class="adm-row">
+                  <div class="adm-rk">{{ idx + 1 }}</div>
+                  <div class="g">
+                    <b>{{ tp.name }}</b>
+                    <div class="adm-bar2">
+                      <i :style="{ width: `${tp.pct}%` }"></i>
+                    </div>
+                  </div>
+                  <b>{{ tp.qty }}</b>
+                </div>
+              </template>
+              <div v-else class="adm-empty">Aucune vente enregistrée sur cette période.</div>
+            </div>
+          </div>
+        </div>
+
+        <h2>À traiter maintenant</h2>
+        <div class="adm-list">
+          <template v-if="todoOrders.length > 0">
+            <article v-for="o in todoOrders" :key="o.id" class="adm-o">
+              <div class="h">
+                <div>
+                  <div class="n">{{ o.orderNumber }}</div>
+                  <div class="m">
+                    {{ o.customerName }} · {{ o.shippingCity }} · {{ formatAgo(o.createdAt) }}
+                  </div>
+                  <div class="m" v-if="o.shippingAddress">Adresse : {{ o.shippingAddress }}</div>
+                </div>
+                <span class="adm-st" :class="`s-${o.status}`">{{ statusLabels[o.status] || o.status }}</span>
+              </div>
+              <div class="it">
+                {{ formatOrderItems(o) }}
+              </div>
+              <div class="f">
+                <span class="tot">{{ formatMoney(o.totalAmount) }}</span>
+              </div>
+              <div class="adm-acts">
+                <button
+                  v-if="allowedNext(o.status).length > 0"
+                  type="button"
+                  class="adm-b p"
+                  @click="openStatusSheet(o)"
+                >
+                  {{ primaryNextText(o.status) }}
+                </button>
+                <a
+                  class="adm-b"
+                  :href="`tel:${cleanDigits(o.customerPhone)}`"
+                  :aria-label="`Appeler ${o.customerName}`"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2z" />
+                  </svg>
+                  Appeler
+                </a>
+                <a
+                  class="adm-b w"
+                  :href="customerWhatsAppUrl(o)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 20l1.3-4.2A8 8 0 1 1 8.2 19L4 20z" />
+                  </svg>
+                  WhatsApp
+                </a>
+              </div>
+            </article>
+          </template>
+          <div v-else class="adm-empty" style="grid-column: 1 / -1">
+            Aucune commande en attente à traiter pour le moment.
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. COMMANDES RÉELLES -->
+      <section class="adm-view" :class="{ on: activeView === 'v-ord' }" aria-label="Commandes">
+        <div class="adm-tools">
+          <input
+            v-model="orderQuery"
+            type="search"
+            placeholder="Rechercher : n°, nom ou téléphone"
+            aria-label="Rechercher une commande"
+          />
+          <div class="adm-chips" role="group" aria-label="Filtrer par statut">
+            <button
+              v-for="st in statusFilters"
+              :key="st.key"
+              type="button"
+              class="adm-chip"
+              :aria-pressed="orderStatusFilter === st.key"
+              @click="orderStatusFilter = st.key"
+            >
+              {{ st.label }}<i>{{ st.count }}</i>
+            </button>
+          </div>
+        </div>
+
+        <div class="adm-list">
+          <template v-if="filteredOrders.length > 0">
+            <article v-for="o in filteredOrders" :key="o.id" class="adm-o">
+              <div class="h">
+                <div>
+                  <div class="n">{{ o.orderNumber }}</div>
+                  <div class="m">
+                    {{ o.customerName }} ({{ o.customerPhone }}) · {{ o.shippingCity }} · {{ formatAgo(o.createdAt) }}
+                  </div>
+                  <div class="m" v-if="o.shippingAddress">Adresse : {{ o.shippingAddress }}</div>
+                </div>
+                <span class="adm-st" :class="`s-${o.status}`">{{ statusLabels[o.status] || o.status }}</span>
+              </div>
+              <div class="it">
+                {{ formatOrderItems(o) }}
+              </div>
+              <div class="f">
+                <span class="tot">{{ formatMoney(o.totalAmount) }}</span>
+              </div>
+              <div class="adm-acts">
+                <button
+                  v-if="allowedNext(o.status).length > 0"
+                  type="button"
+                  class="adm-b p"
+                  @click="openStatusSheet(o)"
+                >
+                  {{ primaryNextText(o.status) }}
+                </button>
+                <a
+                  class="adm-b"
+                  :href="`tel:${cleanDigits(o.customerPhone)}`"
+                  :aria-label="`Appeler ${o.customerName}`"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2z" />
+                  </svg>
+                  Appeler
+                </a>
+                <a
+                  class="adm-b w"
+                  :href="customerWhatsAppUrl(o)"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 20l1.3-4.2A8 8 0 1 1 8.2 19L4 20z" />
+                  </svg>
+                  WhatsApp
+                </a>
+              </div>
+            </article>
+          </template>
+          <div v-else class="adm-empty" style="grid-column: 1 / -1">
+            Aucune commande réelle ne correspond à ce filtre.
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. STOCK RÉEL & CATALOGUE -->
+      <section class="adm-view" :class="{ on: activeView === 'v-stk' }" aria-label="Stock et Catalogue">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px">
+          <h2 style="margin: 6px 0">Stock critique (4 ou moins)</h2>
+          <button type="button" class="adm-b p" @click="isCreateModalOpen = true">
+            + Ajouter un nouvel article
+          </button>
+        </div>
+
+        <div class="adm-panel" style="margin-bottom: 24px">
+          <template v-if="criticalStockItems.length > 0">
+            <div v-for="s in criticalStockItems" :key="s.variantId" class="adm-row">
+              <div class="g">
+                <b>{{ s.productName }}</b>
+                <span>{{ s.variantLabel }}</span>
+              </div>
+              <span class="adm-low" :class="s.stock === 0 ? 'l0' : 'l1'">
+                {{ s.stock === 0 ? 'Rupture' : `${s.stock} restant(s)` }}
+              </span>
+              <button
+                type="button"
+                class="adm-b"
+                style="min-height: 34px; padding: 0 10px; font-size: 12px"
+                @click="quickReplenish(s.productId, s.variantId, 5)"
+              >
+                +5 en stock
+              </button>
+            </div>
+          </template>
+          <div v-else class="adm-empty">
+            Aucun article en stock critique (toutes vos variantes ont plus de 4 pièces en stock).
+          </div>
+        </div>
+
+        <h2>Tous les articles du catalogue ({{ products.length }})</h2>
+        <div class="adm-list">
+          <article v-for="p in products" :key="p.id" class="adm-o">
+            <div class="h" style="gap: 12px">
+              <img
+                :src="getProductThumbnail(p)"
+                :alt="p.name"
+                style="width: 56px; height: 56px; border-radius: 12px; object-fit: cover; flex: none; border: 1px solid var(--adm-bd)"
+              />
+              <div style="flex: 1; min-width: 0">
+                <div style="font-weight: 700; font-size: 15px">{{ p.name }}</div>
+                <div class="m">{{ p.category?.name || 'Catalogue' }} · {{ formatMoney(p.basePrice) }}</div>
+                <div class="m">
+                  Stock total : {{ getTotalStock(p) }} pièce(s) ({{ p.variants?.length || 0 }} variante(s))
+                </div>
+              </div>
+            </div>
+            <div class="adm-acts">
+              <button type="button" class="adm-b p" @click="openEditProductModal(p)">
+                Modifier prix / fiche
+              </button>
+              <button type="button" class="adm-b" @click="openManageStockModal(p)">
+                Gérer stock & pointures
+              </button>
+              <button type="button" class="adm-b d" @click="handleDeleteProduct(p.id)">
+                Supprimer
+              </button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- 4. DEMANDES DE RAPPEL RÉELLES -->
+      <section class="adm-view" :class="{ on: activeView === 'v-cb' }" aria-label="Rappels">
+        <h2 style="margin-top: 6px">Demandes de rappel téléphonique ({{ phoneCallbacks.length }})</h2>
+        <div class="adm-list">
+          <template v-if="phoneCallbacks.length > 0">
+            <article v-for="cb in phoneCallbacks" :key="cb.id" class="adm-o">
+              <div class="h">
+                <div>
+                  <b>{{ cb.customerName || 'Cliente' }} ({{ cb.customerPhone }})</b>
+                  <div class="m">{{ cb.productInterest || 'Demande de rappel' }}</div>
+                  <div class="m">{{ formatAgo(cb.createdAt) }}</div>
+                </div>
+                <span class="adm-st" :class="cb.status === 'CALLED' ? 's-DELIVERED' : 's-PENDING'">
+                  {{ cb.status === 'CALLED' ? 'Traitée' : 'À rappeler' }}
+                </span>
+              </div>
+              <div class="adm-acts">
+                <a class="adm-b p" :href="`tel:${cleanDigits(cb.customerPhone)}`">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2z" />
+                  </svg>
+                  Rappeler
+                </a>
+                <button
+                  v-if="cb.status !== 'CALLED'"
+                  type="button"
+                  class="adm-b"
+                  @click="handleCallStatus(cb.id, 'CALLED')"
+                >
+                  Marquer traitée
+                </button>
+              </div>
+            </article>
+          </template>
+          <div v-else class="adm-empty" style="grid-column: 1 / -1">
+            Aucune demande de rappel téléphonique enregistrée.
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- BARRE DE NAVIGATION BASSE (MOBILE) / LATÉRALE (ORDINATEUR) -->
+    <nav class="adm-nav" aria-label="Sections">
+      <button
+        type="button"
+        :aria-current="activeView === 'v-dash' ? 'page' : undefined"
+        @click="switchView('v-dash')"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10" />
+        </svg>
+        Tableau
+      </button>
+
+      <button
+        type="button"
+        :aria-current="activeView === 'v-ord' ? 'page' : undefined"
+        @click="switchView('v-ord')"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 8h12l-1 12H7L6 8zM9 8a3 3 0 0 1 6 0" />
+        </svg>
+        Commandes
+        <span v-if="pendingOrdersCount > 0" class="dot" :aria-label="`${pendingOrdersCount} à traiter`">
+          {{ pendingOrdersCount }}
+        </span>
+      </button>
+
+      <button
+        type="button"
+        :aria-current="activeView === 'v-stk' ? 'page' : undefined"
+        @click="switchView('v-stk')"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 7l9-4 9 4v10l-9 4-9-4V7zM3 7l9 4 9-4M12 11v10" />
+        </svg>
+        Stock
+        <span v-if="criticalStockItems.length > 0" class="dot">
+          {{ criticalStockItems.length }}
+        </span>
+      </button>
+
+      <button
+        type="button"
+        :aria-current="activeView === 'v-cb' ? 'page' : undefined"
+        @click="switchView('v-cb')"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2z" />
+        </svg>
+        Rappels
+        <span v-if="pendingCallbacksCount > 0" class="dot">
+          {{ pendingCallbacksCount }}
+        </span>
+      </button>
+    </nav>
+
+    <!-- FENÊTRE DE CHANGEMENT DE STATUT (#sheet) -->
+    <div id="adm-sheet" :class="{ on: !!sheetOrder }" role="dialog" aria-modal="true" aria-labelledby="sh-t">
+      <div class="bg" @click="closeStatusSheet"></div>
+      <div v-if="sheetOrder && !confirmingCancel" class="pn">
+        <h3 id="sh-t">Changer le statut</h3>
+        <div class="m" style="color: var(--adm-mut)">
+          {{ sheetOrder.orderNumber }} · {{ sheetOrder.customerName }}<br />
+          Actuel :
+          <span class="adm-st" :class="`s-${sheetOrder.status}`">
+            {{ statusLabels[sheetOrder.status] || sheetOrder.status }}
+          </span>
+        </div>
+        <div class="opts">
+          <button
+            v-for="nextSt in allowedNext(sheetOrder.status)"
+            :key="nextSt"
+            type="button"
+            class="adm-b"
+            :class="nextSt === 'CANCELLED' ? 'd' : 'p'"
+            @click="selectNextStatus(nextSt)"
+          >
+            {{ nextStatusText[nextSt] }}
+          </button>
+          <button type="button" class="adm-b" @click="closeStatusSheet">Fermer</button>
+        </div>
+      </div>
+
+      <div v-else-if="sheetOrder && confirmingCancel" class="pn">
+        <h3 id="sh-t">Annuler cette commande ?</h3>
+        <div class="adm-warnbox">
+          Les articles de cette commande seront remis en stock automatiquement. L’action est définitive : une commande annulée ne peut plus être rouverte.
+        </div>
+        <div class="opts">
+          <button type="button" class="adm-b d" @click="applyStatusChange(sheetOrder.id, 'CANCELLED')">
+            Oui, annuler la commande
+          </button>
+          <button type="button" class="adm-b" @click="confirmingCancel = false">
+            Non, revenir
+          </button>
+        </div>
+      </div>
     </div>
 
-    <!-- Modal Modification Email / Mot de passe Admin -->
+    <!-- MODAL MODIFICATION EMAIL / MOT DE PASSE ADMIN -->
     <div
       v-if="showCredentialsModal"
       class="fixed inset-0 z-50 bg-stone-950/70 backdrop-blur-sm flex items-center justify-center p-4"
@@ -143,17 +557,15 @@
     >
       <form
         @submit.prevent="handleUpdateCredentials"
-        class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 border border-stone-200 shadow-2xl space-y-5"
+        class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 border border-stone-200 shadow-2xl space-y-5 text-stone-900"
       >
         <div class="flex items-center justify-between border-b border-stone-100 pb-3">
-          <h3 class="font-serif text-xl font-bold text-stone-900">Identifiants Administrateur</h3>
+          <h3 class="font-serif text-xl font-bold">Identifiants Administrateur</h3>
           <button type="button" @click="showCredentialsModal = false" class="text-stone-400 hover:text-stone-700 font-bold">✕</button>
         </div>
-
         <p class="text-xs text-stone-500">
-          Définissez l'adresse email et le mot de passe qui seront demandés pour accéder à l'Espace Gérance.
+          Définissez l'adresse email et le mot de passe demandés pour accéder à l'Espace Gérance.
         </p>
-
         <div>
           <label class="block text-xs font-bold text-stone-700 mb-1">Nouvelle Adresse Email Admin *</label>
           <input
@@ -161,10 +573,9 @@
             type="email"
             required
             placeholder="Ex: votre-email@gmail.com"
-            class="w-full px-4 py-3 rounded-xl border border-stone-300 text-sm outline-none focus:ring-2 focus:ring-gold-500/40"
+            class="w-full px-4 py-3 rounded-xl border border-stone-300 text-sm outline-none"
           />
         </div>
-
         <div>
           <label class="block text-xs font-bold text-stone-700 mb-1">Nouveau Mot de passe Admin *</label>
           <input
@@ -173,1568 +584,635 @@
             required
             minlength="4"
             placeholder="Choisissez votre mot de passe"
-            class="w-full px-4 py-3 rounded-xl border border-stone-300 text-sm outline-none focus:ring-2 focus:ring-gold-500/40"
+            class="w-full px-4 py-3 rounded-xl border border-stone-300 text-sm outline-none"
           />
         </div>
-
         <div class="flex items-center justify-end gap-3 pt-2">
-          <button
-            type="button"
-            @click="showCredentialsModal = false"
-            class="px-4 py-2.5 rounded-xl border border-stone-300 text-xs font-bold text-stone-700 hover:bg-stone-50"
-          >
-            Annuler
-          </button>
-          <button
-            type="submit"
-            :disabled="authStore.isLoading"
-            class="px-5 py-2.5 rounded-xl bg-stone-950 hover:bg-gold-600 text-white text-xs font-bold shadow cursor-pointer"
-          >
-            Enregistrer mes identifiants
-          </button>
+          <button type="button" @click="showCredentialsModal = false" class="adm-b">Annuler</button>
+          <button type="submit" :disabled="authStore.isLoading" class="adm-b p">Enregistrer</button>
         </div>
       </form>
     </div>
 
-    <!-- KPI Cards Grid -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-      <div class="bg-white p-5 sm:p-6 rounded-3xl border border-stone-200/80 shadow-2xs">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-[11px] uppercase tracking-wider text-stone-400 font-bold">Chiffre d'Affaires</span>
-          <TrendingUp class="w-4 h-4 text-emerald-600" />
-        </div>
-        <p class="font-serif text-2xl sm:text-3xl font-black text-emerald-600">{{ formatPrice(stats.totalRevenue) }}</p>
-        <span class="text-[11px] text-stone-500 mt-1 block">Commandes validées & livrées</span>
-      </div>
-
-      <div class="bg-white p-5 sm:p-6 rounded-3xl border border-stone-200/80 shadow-2xs">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-[11px] uppercase tracking-wider text-stone-400 font-bold">Total Articles</span>
-          <Package class="w-4 h-4 text-stone-700" />
-        </div>
-        <p class="font-serif text-2xl sm:text-3xl font-black text-stone-900">{{ products.length }}</p>
-        <span class="text-[11px] text-stone-500 mt-1 block">{{ bagsCount }} sacs • {{ shoesCount }} souliers</span>
-      </div>
-
-      <div class="bg-white p-5 sm:p-6 rounded-3xl border border-stone-200/80 shadow-2xs">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-[11px] uppercase tracking-wider text-stone-400 font-bold">Commandes à Traiter</span>
-          <Clock class="w-4 h-4 text-amber-600" />
-        </div>
-        <p class="font-serif text-2xl sm:text-3xl font-black text-amber-600">{{ stats.pendingOrders }}</p>
-        <span class="text-[11px] text-stone-500 mt-1 block">Sur {{ stats.totalOrders }} commandes au total</span>
-      </div>
-
-      <div class="bg-white p-5 sm:p-6 rounded-3xl border border-stone-200/80 shadow-2xs">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-[11px] uppercase tracking-wider text-stone-400 font-bold">Alertes Stocks</span>
-          <AlertCircle class="w-4 h-4 text-rosewood-600" />
-        </div>
-        <p class="font-serif text-2xl sm:text-3xl font-black text-rosewood-600">{{ stats.lowStockCount }}</p>
-        <span class="text-[11px] text-stone-500 mt-1 block">Variantes avec stock &lt; 5 unités</span>
-      </div>
-    </div>
-
-    <!-- Navigation Tabs Principaux -->
-    <div class="flex flex-wrap border-b border-stone-200 gap-4 sm:gap-8 text-sm font-bold">
-      <button
-        @click="activeTab = 'products'"
-        class="pb-4 border-b-2 transition-all flex items-center gap-2"
-        :class="activeTab === 'products' ? 'border-gold-600 text-stone-950 font-black' : 'border-transparent text-stone-400 hover:text-stone-700'"
-      >
-        <Package class="w-4 h-4" />
-        <span>Catalogue & Gestion des Articles ({{ products.length }})</span>
-      </button>
-
-      <button
-        @click="activeTab = 'orders'"
-        class="pb-4 border-b-2 transition-all flex items-center gap-2"
-        :class="activeTab === 'orders' ? 'border-gold-600 text-stone-950 font-black' : 'border-transparent text-stone-400 hover:text-stone-700'"
-      >
-        <ShoppingBag class="w-4 h-4" />
-        <span>Commandes Clients ({{ orders.length }})</span>
-      </button>
-
-      <button
-        @click="activeTab = 'phone-calls'"
-        class="pb-4 border-b-2 transition-all flex items-center gap-2"
-        :class="activeTab === 'phone-calls' ? 'border-gold-600 text-stone-950 font-black' : 'border-transparent text-stone-400 hover:text-stone-700'"
-      >
-        <PhoneCall class="w-4 h-4" />
-        <span>Rappels Téléphoniques ({{ pendingCallsCount }})</span>
-      </button>
-    </div>
-
-    <!-- ============================================================== -->
-    <!-- TAB 1 : CATALOGUE ET GESTION ULTRA-MODERNE DES ARTICLES        -->
-    <!-- ============================================================== -->
-    <div v-if="activeTab === 'products'" class="space-y-6">
-      <!-- Toolbar avec Recherche, Filtres Catégories et Bouton d'Ajout -->
-      <div class="bg-white p-5 rounded-3xl border border-stone-200/80 shadow-2xs space-y-4">
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <!-- Barre de Recherche en direct -->
-          <div class="relative flex-1 max-w-md">
-            <Search class="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              v-model="productSearchQuery"
-              type="text"
-              placeholder="Rechercher par nom d'article, référence ou matière..."
-              class="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-stone-200 text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 bg-stone-50/50"
-            />
-            <button
-              v-if="productSearchQuery"
-              @click="productSearchQuery = ''"
-              class="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 text-xs font-bold"
-            >
-              <X class="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <!-- Bouton Action Primaire: Créer un Nouvel Article -->
-          <div class="flex items-center gap-3">
-            <button
-              @click="openCreateProductModal"
-              class="px-4 sm:px-5 py-2.5 bg-stone-950 hover:bg-gold-600 text-white text-xs font-bold rounded-2xl shadow-md transition-all flex items-center gap-2 cursor-pointer"
-            >
-              <Plus class="w-4 h-4 text-gold-400" />
-              <span>+ Nouvel Article</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Filtres par Catégorie et par Santé du Stock -->
-        <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-stone-100 text-xs">
-          <!-- Filtres Catégorie -->
-          <div class="flex flex-wrap items-center gap-1.5">
-            <span class="text-stone-400 font-semibold mr-1 flex items-center gap-1">
-              <Filter class="w-3 h-3" /> Rayon :
-            </span>
-            <button
-              @click="categoryFilter = 'ALL'"
-              class="px-3 py-1 rounded-xl font-bold transition-all"
-              :class="categoryFilter === 'ALL' ? 'bg-stone-900 text-white shadow-2xs' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'"
-            >
-              Tous ({{ products.length }})
-            </button>
-            <button
-              @click="categoryFilter = 'SAC'"
-              class="px-3 py-1 rounded-xl font-bold transition-all"
-              :class="categoryFilter === 'SAC' ? 'bg-stone-900 text-white shadow-2xs' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'"
-            >
-              Sacs & Maroquinerie ({{ bagsCount }})
-            </button>
-            <button
-              @click="categoryFilter = 'CHAUSSURE'"
-              class="px-3 py-1 rounded-xl font-bold transition-all"
-              :class="categoryFilter === 'CHAUSSURE' ? 'bg-stone-900 text-white shadow-2xs' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'"
-            >
-              Souliers & Talons ({{ shoesCount }})
-            </button>
-          </div>
-
-          <!-- Filtres Stock -->
-          <div class="flex items-center gap-1.5">
-            <span class="text-stone-400 font-semibold mr-1">Stock :</span>
-            <button
-              @click="stockFilter = 'ALL'"
-              class="px-2.5 py-1 rounded-xl font-semibold transition-all"
-              :class="stockFilter === 'ALL' ? 'bg-stone-800 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'"
-            >
-              Tous
-            </button>
-            <button
-              @click="stockFilter = 'LOW'"
-              class="px-2.5 py-1 rounded-xl font-semibold transition-all flex items-center gap-1"
-              :class="stockFilter === 'LOW' ? 'bg-amber-600 text-white' : 'bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100'"
-            >
-              <AlertTriangle class="w-3 h-3" />
-              <span>Faibles (≤ 5)</span>
-            </button>
-            <button
-              @click="stockFilter = 'OUT'"
-              class="px-2.5 py-1 rounded-xl font-semibold transition-all flex items-center gap-1"
-              :class="stockFilter === 'OUT' ? 'bg-rosewood-600 text-white' : 'bg-rosewood-50 text-rosewood-800 border border-rosewood-200 hover:bg-rosewood-100'"
-            >
-              <AlertCircle class="w-3 h-3" />
-              <span>Ruptures</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tableau Épuré des Articles -->
-      <div class="bg-white rounded-3xl border border-stone-200/80 shadow-2xs overflow-hidden">
-        <div v-if="filteredProducts.length === 0" class="p-12 text-center space-y-3">
-          <Package class="w-12 h-12 text-stone-300 mx-auto" />
-          <h3 class="font-serif text-lg font-bold text-stone-800">Aucun article ne correspond à votre filtre</h3>
-          <p class="text-xs text-stone-400">Essayez de réinitialiser la recherche ou de changer les filtres.</p>
-          <button
-            @click="productSearchQuery = ''; categoryFilter = 'ALL'; stockFilter = 'ALL'"
-            class="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-bold"
-          >
-            Réinitialiser les filtres
-          </button>
-        </div>
-
-        <div v-else class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-stone-50/80 text-stone-400 uppercase tracking-wider border-b border-stone-200/80 font-bold">
-              <tr>
-                <th class="py-3.5 px-4 sm:px-6">Article & Visuel</th>
-                <th class="py-3.5 px-4">Rayon</th>
-                <th class="py-3.5 px-4">Prix Public</th>
-                <th class="py-3.5 px-4">Stock Global</th>
-                <th class="py-3.5 px-4">Pointures / Formats</th>
-                <th class="py-3.5 px-4 sm:px-6 text-right">Actions de Gestion</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-stone-100">
-              <tr
-                v-for="product in filteredProducts"
-                :key="product.id"
-                class="hover:bg-stone-50/60 transition-colors group"
-              >
-                <!-- Visuel & Nom de l'Article -->
-                <td class="py-4 px-4 sm:px-6">
-                  <div class="flex items-center gap-3.5">
-                    <div class="relative w-14 h-14 rounded-2xl overflow-hidden bg-stone-100 border border-stone-200 shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
-                      <img
-                        :src="getProductThumbnail(product)"
-                        :alt="product.name"
-                        class="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                    </div>
-                    <div class="space-y-0.5 max-w-xs">
-                      <div class="flex items-center gap-1.5 flex-wrap">
-                        <span
-                          v-if="product.isFeatured"
-                          class="inline-flex items-center gap-1 text-[10px] font-black uppercase text-amber-800 bg-amber-100 border border-amber-300 px-1.5 py-0.2 rounded"
-                        >
-                          <Sparkles class="w-2.5 h-2.5 text-amber-600" />
-                          <span>Pièce Phare</span>
-                        </span>
-                        <span class="text-[10px] font-mono text-stone-400">{{ product.id }}</span>
-                      </div>
-                      <p class="font-serif font-bold text-stone-950 text-sm line-clamp-1 group-hover:text-gold-700 transition-colors">
-                        {{ product.name }}
-                      </p>
-                      <p class="text-[11px] text-stone-400 line-clamp-1 font-light">
-                        {{ product.description }}
-                      </p>
-                    </div>
-                  </div>
-                </td>
-
-                <!-- Catégorie -->
-                <td class="py-4 px-4 whitespace-nowrap">
-                  <span
-                    class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold border"
-                    :class="isShoe(product) ? 'bg-purple-50 text-purple-900 border-purple-200' : 'bg-amber-50 text-amber-900 border-amber-200'"
-                  >
-                    {{ isShoe(product) ? '👠 Souliers' : '👜 Maroquinerie' }}
-                  </span>
-                </td>
-
-                <!-- Prix et Promotion -->
-                <td class="py-4 px-4 whitespace-nowrap">
-                  <div class="space-y-0.5">
-                    <p class="font-serif font-black text-stone-950 text-sm">
-                      {{ formatPrice(product.basePrice) }}
-                    </p>
-                    <div v-if="product.originalPrice && product.originalPrice > product.basePrice" class="flex items-center gap-1.5">
-                      <span class="line-through text-[11px] text-stone-400 font-semibold">{{ formatPrice(product.originalPrice) }}</span>
-                      <span class="text-[10px] font-bold text-rosewood-700 bg-rosewood-50 px-1.5 py-0.2 rounded border border-rosewood-200">
-                        -{{ Math.round((1 - product.basePrice / product.originalPrice) * 100) }}%
-                      </span>
-                    </div>
-                    <button
-                      @click="openQuickPriceModal(product)"
-                      class="text-[10px] text-stone-500 hover:text-gold-700 font-bold underline cursor-pointer flex items-center gap-1 pt-0.5"
-                    >
-                      <Pencil class="w-2.5 h-2.5" />
-                      <span>Modifier tarif</span>
-                    </button>
-                  </div>
-                </td>
-
-                <!-- Stock Total & Badge État -->
-                <td class="py-4 px-4 whitespace-nowrap">
-                  <div class="space-y-1">
-                    <div class="flex items-center gap-1.5">
-                      <span
-                        class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold"
-                        :class="getProductStockBadge(product)"
-                      >
-                        <span class="w-1.5 h-1.5 rounded-full" :class="getProductStockDot(product)"></span>
-                        <span>{{ getTotalStock(product) }} unité(s)</span>
-                      </span>
-                    </div>
-                    <span class="text-[10px] text-stone-400 block font-medium">
-                      {{ (product.variants || []).length }} variante(s)
-                    </span>
-                  </div>
-                </td>
-
-                <!-- Variantes / Pointures résumées -->
-                <td class="py-4 px-4">
-                  <div class="flex flex-wrap gap-1 max-w-xs">
-                    <span
-                      v-for="v in (product.variants || []).slice(0, 6)"
-                      :key="v.id"
-                      class="px-1.5 py-0.5 rounded text-[10px] font-semibold border"
-                      :class="v.stockQuantity === 0 ? 'bg-rosewood-50 text-rosewood-700 border-rosewood-200 line-through' : v.stockQuantity <= 5 ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-stone-100 text-stone-700 border-stone-200'"
-                      :title="`${v.color} - ${v.sizeOrShoeSize} : ${v.stockQuantity} en stock`"
-                    >
-                      {{ v.sizeOrShoeSize }} ({{ v.stockQuantity }})
-                    </span>
-                    <span v-if="(product.variants || []).length > 6" class="text-[10px] text-stone-400 font-bold self-center">
-                      +{{ (product.variants || []).length - 6 }}
-                    </span>
-                  </div>
-                </td>
-
-                <!-- Actions Rapides -->
-                <td class="py-4 px-4 sm:px-6 text-right whitespace-nowrap">
-                  <div class="inline-flex items-center gap-1.5 justify-end">
-                    <!-- Gérer Stock & Variantes (Drawer / Modal) -->
-                    <button
-                      @click="openManageStockModal(product)"
-                      class="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-900 rounded-xl text-xs font-bold transition-all border border-stone-200/80 flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                      title="Gérer les stocks et ajouter des pointures"
-                    >
-                      <Layers class="w-3.5 h-3.5 text-stone-600" />
-                      <span>Stocks & Tailles</span>
-                    </button>
-
-                    <!-- Éditer Fiche Complète -->
-                    <button
-                      @click="openEditProductModal(product)"
-                      class="px-2.5 py-1.5 bg-gold-50 hover:bg-gold-100 text-gold-950 rounded-xl text-xs font-bold transition-all border border-gold-300/80 flex items-center gap-1 cursor-pointer shadow-2xs"
-                      title="Modifier les détails de l'article"
-                    >
-                      <Pencil class="w-3.5 h-3.5 text-gold-800" />
-                      <span class="hidden sm:inline">Modifier</span>
-                    </button>
-
-                    <!-- Supprimer -->
-                    <button
-                      @click="handleDeleteProduct(product.id)"
-                      class="p-1.5 text-stone-400 hover:text-rosewood-600 hover:bg-rosewood-50 rounded-lg transition-colors cursor-pointer"
-                      title="Supprimer cet article"
-                    >
-                      <Trash2 class="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============================================================== -->
-    <!-- TAB 2 : SUIVI ET EXPÉDITIONS DES COMMANDES CLIENTS             -->
-    <!-- ============================================================== -->
-    <div v-if="activeTab === 'orders'" class="space-y-6">
-      <div class="bg-white rounded-3xl border border-stone-200/80 shadow-2xs overflow-hidden">
-        <div class="p-6 border-b border-stone-100 flex items-center justify-between">
-          <div>
-            <h3 class="font-serif text-lg font-bold text-stone-900">Commandes Reçues</h3>
-            <p class="text-xs text-stone-400">Suivez et validez les commandes WhatsApp des clientes</p>
-          </div>
-          <span class="text-xs font-bold bg-stone-100 text-stone-700 px-3 py-1 rounded-full">
-            {{ orders.length }} commande(s)
-          </span>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm">
-            <thead class="bg-stone-50 text-stone-500 text-xs uppercase tracking-wider border-b border-stone-100">
-              <tr>
-                <th class="px-6 py-4">N° Commande</th>
-                <th class="px-6 py-4">Acheteur / Contact</th>
-                <th class="px-6 py-4">Montant Total</th>
-                <th class="px-6 py-4">Statut Actuel</th>
-                <th class="px-6 py-4">Mettre à Jour le Statut</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-stone-100">
-              <tr v-for="order in orders" :key="order.id" class="hover:bg-stone-50/50">
-                <td class="px-6 py-4 font-mono font-bold text-stone-900">
-                  {{ order.orderNumber }}
-                </td>
-                <td class="px-6 py-4">
-                  <p class="font-bold text-stone-900">{{ order.customerName }}</p>
-                  <p class="text-xs text-stone-500">{{ order.customerPhone }} • {{ order.shippingCity }}</p>
-                </td>
-                <td class="px-6 py-4 font-bold text-stone-950 font-serif">
-                  {{ formatPrice(order.totalAmount) }}
-                </td>
-                <td class="px-6 py-4">
-                  <span
-                    class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
-                    :class="getOrderBadgeClass(order.status)"
-                  >
-                    {{ order.status }}
-                  </span>
-                </td>
-                <td class="px-6 py-4">
-                  <select
-                    :value="order.status"
-                    @change="handleStatusChange(order.id, ($event.target as HTMLSelectElement).value)"
-                    class="px-3 py-2 rounded-xl border border-stone-300 text-xs font-bold bg-white focus:outline-none focus:ring-2 focus:ring-gold-500 shadow-sm"
-                  >
-                    <option value="PENDING">PENDING (En attente)</option>
-                    <option value="PAID">PAID (Confirmée / Payée)</option>
-                    <option value="PREPARING">PREPARING (En cours de préparation)</option>
-                    <option value="SHIPPED">SHIPPED (Colis Expédié)</option>
-                    <option value="DELIVERED">DELIVERED (Livrée au client)</option>
-                    <option value="CANCELLED">CANCELLED (Commande Annulée)</option>
-                  </select>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============================================================== -->
-    <!-- TAB 3 : DEMANDES DE RAPPEL TÉLÉPHONIQUE & COMMANDES EXPRESS     -->
-    <!-- ============================================================== -->
-    <div v-if="activeTab === 'phone-calls'" class="space-y-6">
-      <div class="bg-white rounded-3xl border border-stone-200/80 shadow-2xs overflow-hidden">
-        <div class="p-6 border-b border-stone-100 flex items-center justify-between">
-          <div>
-            <div class="flex items-center gap-2">
-              <PhoneCall class="w-5 h-5 text-gold-600" />
-              <h3 class="font-serif text-lg font-bold text-stone-900">Demandes de Rappel Téléphonique</h3>
-            </div>
-            <p class="text-xs text-stone-400 mt-0.5">Clientes ayant demandé à être rappelées au <strong>+221 77 208 78 20</strong></p>
-          </div>
-          <span class="text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300 px-3 py-1 rounded-full">
-            {{ pendingCallsCount }} appel(s) en attente
-          </span>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm">
-            <thead class="bg-stone-50 text-stone-500 text-xs uppercase tracking-wider border-b border-stone-100">
-              <tr>
-                <th class="px-6 py-4">Nom de la cliente</th>
-                <th class="px-6 py-4">Téléphone</th>
-                <th class="px-6 py-4">Article d'intérêt</th>
-                <th class="px-6 py-4">Date & Heure</th>
-                <th class="px-6 py-4">Statut</th>
-                <th class="px-6 py-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-stone-100">
-              <tr v-for="call in phoneCallbacks" :key="call.id" class="hover:bg-stone-50/50">
-                <td class="px-6 py-4 font-bold text-stone-900">
-                  {{ call.customerName }}
-                </td>
-                <td class="px-6 py-4 font-mono font-bold text-stone-950">
-                  <a :href="'tel:' + call.customerPhone" class="text-blue-600 hover:underline flex items-center gap-1.5 font-bold">
-                    <Phone class="w-3.5 h-3.5 text-blue-600" />
-                    <span>{{ call.customerPhone }}</span>
-                  </a>
-                </td>
-                <td class="px-6 py-4 text-xs text-stone-600">
-                  {{ call.productInterest || 'Commande d\'articles' }}
-                </td>
-                <td class="px-6 py-4 text-xs text-stone-400">
-                  {{ new Date(call.createdAt).toLocaleString('fr-FR') }}
-                </td>
-                <td class="px-6 py-4">
-                  <span
-                    class="px-2.5 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1"
-                    :class="call.status === 'PENDING' ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'"
-                  >
-                    <Clock v-if="call.status === 'PENDING'" class="w-3 h-3 text-amber-700" />
-                    <Check v-else class="w-3 h-3 text-emerald-700" />
-                    <span>{{ call.status === 'PENDING' ? 'À rappeler' : 'Contactée' }}</span>
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-right">
-                  <div class="inline-flex items-center gap-2">
-                    <button
-                      v-if="call.status === 'PENDING'"
-                      @click="handleCallStatus(call.id, 'CALLED')"
-                      class="px-3 py-1.5 bg-stone-900 hover:bg-gold-600 text-white rounded-lg text-xs font-bold shadow-2xs transition-colors cursor-pointer"
-                    >
-                      Marquer appelée
-                    </button>
-                    <button
-                      v-else
-                      @click="handleCallStatus(call.id, 'PENDING')"
-                      class="px-2 py-1.5 text-stone-400 hover:text-stone-700 text-xs cursor-pointer"
-                    >
-                      Remettre en attente
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============================================================== -->
-    <!-- MODAL 1 : GESTION DES STOCKS & POINTURES D'UN ARTICLE          -->
-    <!-- ============================================================== -->
-    <div v-if="manageStockModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/70 backdrop-blur-sm">
-      <div class="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl space-y-6 p-6 sm:p-8 border border-stone-200">
-        <!-- Header Modal -->
-        <div class="flex items-center justify-between border-b border-stone-100 pb-4">
-          <div class="flex items-center gap-3">
-            <img
-              :src="getProductThumbnail(manageStockModal)"
-              :alt="manageStockModal.name"
-              class="w-12 h-12 rounded-xl object-cover border border-stone-200 shrink-0"
-            />
-            <div>
-              <span class="text-[10px] uppercase font-bold tracking-wider text-gold-700 bg-gold-50 px-2 py-0.5 rounded border border-gold-200">
-                Gestion des Stocks & Tailles
-              </span>
-              <h3 class="font-serif font-bold text-lg text-stone-950 mt-0.5 line-clamp-1">
-                {{ manageStockModal.name }}
-              </h3>
-            </div>
-          </div>
-          <button @click="manageStockModal = null" class="p-2 text-stone-400 hover:text-stone-700 rounded-xl hover:bg-stone-100">
-            <X class="w-5 h-5" />
-          </button>
-        </div>
-
-        <!-- Tableau des Variantes / Pointures -->
-        <div class="space-y-3">
-          <div class="flex items-center justify-between text-xs">
-            <h4 class="font-bold text-stone-900">Variantes et Pointures Disponibles :</h4>
-            <span class="text-stone-500 font-semibold">Total : <strong class="text-stone-950">{{ getTotalStock(manageStockModal) }} pièce(s)</strong></span>
-          </div>
-
-          <div class="border border-stone-200 rounded-2xl overflow-hidden shadow-2xs">
-            <table class="w-full text-left text-xs">
-              <thead class="bg-stone-50 text-stone-500 uppercase tracking-wider font-semibold border-b border-stone-200">
-                <tr>
-                  <th class="py-2.5 px-4">Pointure / Taille</th>
-                  <th class="py-2.5 px-4">Couleur</th>
-                  <th class="py-2.5 px-4">Stock Actuel</th>
-                  <th class="py-2.5 px-4 text-right">Réapprovisionnement Rapide</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-stone-100">
-                <tr v-for="variant in manageStockModal.variants" :key="variant.id" class="hover:bg-stone-50/50">
-                  <td class="py-3 px-4 font-bold text-stone-900">
-                    {{ isShoe(manageStockModal) ? 'Pointure ' + variant.sizeOrShoeSize : variant.sizeOrShoeSize }}
-                  </td>
-                  <td class="py-3 px-4 text-stone-600">
-                    {{ variant.color }}
-                  </td>
-                  <td class="py-3 px-4">
-                    <span
-                      class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold"
-                      :class="getStockBadgeClass(variant.stockQuantity)"
-                    >
-                      <span class="w-1.5 h-1.5 rounded-full" :class="getStockDotClass(variant.stockQuantity)"></span>
-                      <span>{{ variant.stockQuantity }} en stock</span>
-                    </span>
-                  </td>
-                  <td class="py-3 px-4 text-right">
-                    <div class="inline-flex items-center gap-1.5 justify-end">
-                      <button
-                        @click="quickReplenish(manageStockModal.id, variant.id, 5)"
-                        class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-lg border border-emerald-300 transition-colors text-[11px]"
-                        title="Ajouter 5 unités"
-                      >
-                        +5
-                      </button>
-                      <button
-                        @click="quickReplenish(manageStockModal.id, variant.id, 10)"
-                        class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-lg border border-emerald-300 transition-colors text-[11px]"
-                        title="Ajouter 10 unités"
-                      >
-                        +10
-                      </button>
-                      <button
-                        @click="quickReplenish(manageStockModal.id, variant.id, 20)"
-                        class="px-2 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-lg border border-emerald-300 transition-colors text-[11px]"
-                        title="Ajouter 20 unités"
-                      >
-                        +20
-                      </button>
-                      <div class="flex items-center gap-1 ml-1">
-                        <input
-                          v-model.number="variantInputs[variant.id]"
-                          type="number"
-                          placeholder="Qté"
-                          class="w-14 px-2 py-1 text-xs border border-stone-300 rounded-lg text-center outline-none focus:ring-1 focus:ring-gold-500"
-                        />
-                        <button
-                          @click="submitCustomReplenish(manageStockModal.id, variant.id)"
-                          class="px-2.5 py-1 bg-stone-900 hover:bg-gold-600 text-white font-bold rounded-lg text-xs transition-colors"
-                        >
-                          OK
-                        </button>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Formulaire d'ajout d'une nouvelle pointure ou couleur -->
-        <div class="p-5 bg-stone-50 rounded-2xl border border-stone-200/80 space-y-4">
-          <h4 class="font-bold text-xs uppercase tracking-wider text-stone-700 flex items-center gap-1.5">
-            <Plus class="w-3.5 h-3.5 text-gold-600" />
-            <span>Ajouter une Nouvelle Pointure ou Couleur</span>
-          </h4>
-          <form @submit.prevent="submitAddVariant" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
-              <label class="block text-[11px] font-bold text-stone-600 mb-1">
-                {{ isShoe(manageStockModal) ? 'Pointure (ex: 37 à 42) *' : 'Taille / Format *' }}
-              </label>
-              <input
-                v-model="newVariantData.sizeOrShoeSize"
-                type="text"
-                :placeholder="isShoe(manageStockModal) ? 'Ex: 39' : 'Ex: Moyen'"
-                class="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs outline-none focus:ring-1 focus:ring-gold-500 bg-white"
-                required
-              />
-            </div>
-            <div>
-              <label class="block text-[11px] font-bold text-stone-600 mb-1">Couleur *</label>
-              <input
-                v-model="newVariantData.color"
-                type="text"
-                placeholder="Ex: Noir Verni"
-                class="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs outline-none focus:ring-1 focus:ring-gold-500 bg-white"
-                required
-              />
-            </div>
-            <div>
-              <label class="block text-[11px] font-bold text-stone-600 mb-1">Stock initial *</label>
-              <div class="flex items-center gap-2">
-                <input
-                  v-model.number="newVariantData.stockQuantity"
-                  type="number"
-                  placeholder="10"
-                  class="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs outline-none focus:ring-1 focus:ring-gold-500 bg-white"
-                  required
-                />
-                <button
-                  type="submit"
-                  class="px-4 py-2 bg-stone-900 hover:bg-gold-600 text-white text-xs font-bold rounded-xl whitespace-nowrap shadow-2xs transition-colors"
-                >
-                  Ajouter
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <div class="flex justify-end pt-2">
-          <button
-            @click="manageStockModal = null"
-            class="px-5 py-2.5 bg-stone-200 hover:bg-stone-300 text-stone-800 text-xs font-bold rounded-xl"
-          >
-            Fermer
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============================================================== -->
-    <!-- MODAL 2 : ÉDITION COMPLÈTE DE LA FICHE PRODUIT                -->
-    <!-- ============================================================== -->
-    <div v-if="editProductModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/70 backdrop-blur-sm">
-      <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl space-y-6 p-6 sm:p-8 border border-stone-200">
-        <div class="flex items-center justify-between border-b border-stone-100 pb-4">
-          <div class="flex items-center gap-2.5">
-            <Pencil class="w-5 h-5 text-gold-600" />
-            <div>
-              <h3 class="font-serif font-bold text-lg text-stone-950">
-                Modifier la Fiche Article
-              </h3>
-              <p class="text-xs text-stone-400">Réf : {{ editProductModal.id }}</p>
-            </div>
-          </div>
-          <button @click="editProductModal = null" class="p-2 text-stone-400 hover:text-stone-700 rounded-xl hover:bg-stone-100">
-            <X class="w-5 h-5" />
-          </button>
-        </div>
-
-        <form @submit.prevent="submitUpdateProduct" class="space-y-5">
-          <!-- Nom du Produit -->
-          <div>
-            <label class="block text-xs font-bold text-stone-700 mb-1">Nom complet de l'article *</label>
-            <input
-              v-model="editForm.name"
-              type="text"
-              class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-xs font-semibold text-stone-900 focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 outline-none"
-              required
-            />
-          </div>
-
-          <!-- Catégorie -->
-          <div>
-            <label class="block text-xs font-bold text-stone-700 mb-1">Rayon / Catégorie *</label>
-            <select
-              v-model="editForm.categoryId"
-              class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-xs font-semibold text-stone-900 focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 outline-none bg-white"
-              required
-            >
-              <option value="cat-sac-1">👜 Sacs à Main & Cabas (Maroquinerie)</option>
-              <option value="cat-sac-2">👛 Pochettes & Sacs Matelassés (Maroquinerie)</option>
-              <option value="cat-shoe-1">👠 Mules & Escarpins à Talons (Souliers)</option>
-              <option value="cat-shoe-2">👡 Sandales Plates & Tongs de Luxe (Souliers)</option>
-            </select>
-          </div>
-
-          <!-- Prix de Vente & Prix Barré Promo -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-bold text-stone-700 mb-1">Prix de Vente Effectif (FCFA) *</label>
-              <input
-                v-model.number="editForm.basePrice"
-                type="number"
-                step="500"
-                class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm font-black text-stone-950 focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 outline-none"
-                required
-              />
-              <p class="text-[11px] text-stone-400 mt-1">Prix affiché sur la boutique et dans le récapitulatif WhatsApp</p>
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold text-stone-700 mb-1">Prix Barré avant Réduction (Optionnel)</label>
-              <input
-                v-model.number="editForm.originalPrice"
-                type="number"
-                step="500"
-                placeholder="Ex: 20000"
-                class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm font-semibold text-stone-600 focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 outline-none"
-              />
-              <p class="text-[11px] text-stone-400 mt-1">Pour afficher une remise promotionnelle</p>
-            </div>
-          </div>
-
-          <!-- Calcul direct remise -->
-          <div
-            v-if="editForm.originalPrice && editForm.originalPrice > editForm.basePrice"
-            class="p-3 bg-rosewood-50 border border-rosewood-200 rounded-xl flex items-center justify-between text-xs"
-          >
-            <span class="font-bold text-rosewood-900">Remise automatique affichée :</span>
-            <span class="font-extrabold text-rosewood-700 bg-rosewood-100 px-2 py-0.5 rounded-lg">
-              -{{ Math.round((1 - editForm.basePrice / editForm.originalPrice) * 100) }}% de réduction
-            </span>
-          </div>
-
-          <!-- Photo de l'article -->
-          <div class="space-y-2">
-            <label class="block text-xs font-bold text-stone-700">Photo Principale de l'Article</label>
-            <div class="flex items-center gap-4">
-              <img
-                :src="editForm.imageUrl || getProductThumbnail(editProductModal)"
-                class="w-16 h-16 rounded-xl object-cover border border-stone-200 bg-stone-100 shadow-2xs shrink-0"
-              />
-              <div class="space-y-1.5 flex-1">
-                <input
-                  v-model="editForm.imageUrl"
-                  type="text"
-                  placeholder="URL de l'image ou chemin local (ex: /products/sac-birkin-camel.jpg)"
-                  class="w-full px-3 py-2 rounded-xl border border-stone-300 text-xs focus:ring-1 focus:ring-gold-500 outline-none"
-                />
-                <div class="flex items-center gap-2">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    @change="handleEditPhotoUpload"
-                    class="text-xs file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-stone-900 file:text-white hover:file:bg-gold-600 cursor-pointer"
-                  />
-                  <span v-if="isUploadingPhoto" class="text-xs text-amber-600 font-bold">Téléversement MinIO...</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Description -->
-          <div>
-            <label class="block text-xs font-bold text-stone-700 mb-1">Description & Caractéristiques *</label>
-            <textarea
-              v-model="editForm.description"
-              rows="3"
-              class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-xs focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 outline-none"
-              required
-            ></textarea>
-          </div>
-
-          <!-- Toggle Pièce Phare -->
-          <div class="flex items-center gap-2.5 p-3.5 bg-stone-50 rounded-xl border border-stone-200">
-            <input
-              id="editFeatured"
-              v-model="editForm.isFeatured"
-              type="checkbox"
-              class="w-4 h-4 text-gold-600 rounded border-stone-300 focus:ring-gold-500"
-            />
-            <label for="editFeatured" class="text-xs text-stone-800 font-semibold cursor-pointer">
-              Mettre en avant sur la page d'accueil (Badge « Pièce Phare »)
-            </label>
-          </div>
-
-          <!-- Boutons Sauvegarde -->
-          <div class="flex items-center justify-end gap-3 pt-3 border-t border-stone-100">
-            <button
-              type="button"
-              @click="editProductModal = null"
-              class="px-4 py-2.5 text-xs font-bold text-stone-600 hover:bg-stone-100 rounded-xl"
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              :disabled="isUpdating"
-              class="px-6 py-2.5 bg-stone-950 hover:bg-gold-600 text-white text-xs font-bold rounded-xl shadow-md transition-all cursor-pointer"
-            >
-              {{ isUpdating ? 'Enregistrement...' : 'Enregistrer les Modifications' }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- ============================================================== -->
-    <!-- MODAL 3 : CRÉATION RAPIDE D'UN NOUVEL ARTICLE DANS LE CATALOGUE -->
-    <!-- ============================================================== -->
-    <div v-if="isCreateModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/70 backdrop-blur-sm">
-      <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl space-y-6 p-6 sm:p-8 border border-stone-200">
-        <div class="flex items-center justify-between border-b border-stone-100 pb-4">
-          <div class="flex items-center gap-2.5">
-            <Package class="w-5 h-5 text-gold-600" />
-            <div>
-              <h3 class="font-serif font-bold text-lg text-stone-950">
-                Ajouter un Nouvel Article au Catalogue
-              </h3>
-              <p class="text-xs text-stone-400">Le modèle sera immédiatement visible en ligne.</p>
-            </div>
-          </div>
-          <button @click="isCreateModalOpen = false" class="p-2 text-stone-400 hover:text-stone-700 rounded-xl hover:bg-stone-100">
-            <X class="w-5 h-5" />
-          </button>
-        </div>
-
-        <form @submit.prevent="handleCreateProduct" class="space-y-5">
-          <!-- Nom -->
-          <div>
-            <label class="block text-xs font-bold text-stone-700 mb-1">Nom complet du modèle *</label>
-            <input
-              v-model="newProduct.name"
-              type="text"
-              placeholder="Ex: Escarpins Stiletto Métallisé Doré"
-              class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-xs font-semibold text-stone-900 focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 outline-none"
-              required
-            />
-          </div>
-
-          <!-- Catégorie -->
-          <div>
-            <label class="block text-xs font-bold text-stone-700 mb-1">Rayon / Catégorie *</label>
-            <select
-              v-model="newProduct.categoryId"
-              class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-xs font-semibold text-stone-900 focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 outline-none bg-white"
-              required
-            >
-              <option value="cat-sac-1">👜 Sacs à Main & Cabas (Maroquinerie)</option>
-              <option value="cat-sac-2">👛 Pochettes & Sacs Matelassés (Maroquinerie)</option>
-              <option value="cat-shoe-1">👠 Mules & Escarpins à Talons (Souliers)</option>
-              <option value="cat-shoe-2">👡 Sandales Plates & Tongs de Luxe (Souliers)</option>
-            </select>
-            <p class="text-[11px] text-stone-400 mt-1">
-              Pour les souliers, les pointures 37 à 42 seront automatiquement préconfigurées.
-            </p>
-          </div>
-
-          <!-- Prix -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-bold text-stone-700 mb-1">Prix de Vente (FCFA) *</label>
-              <input
-                v-model.number="newProduct.basePrice"
-                type="number"
-                step="500"
-                placeholder="15000"
-                class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm font-black text-stone-950 focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 outline-none"
-                required
-              />
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-stone-700 mb-1">Prix d'Origine avant Promo (Optionnel)</label>
-              <input
-                v-model.number="newProduct.originalPrice"
-                type="number"
-                step="500"
-                placeholder="20000"
-                class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm font-semibold text-stone-600 focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 outline-none"
-              />
-            </div>
-          </div>
-
-          <!-- Photo MinIO ou Preset Local -->
-          <div class="space-y-2">
-            <label class="block text-xs font-bold text-stone-700">Photo de l'Article</label>
-            <div class="flex items-center gap-3">
-              <input
-                type="file"
-                accept="image/*"
-                @change="handleFileUpload"
-                class="text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-stone-900 file:text-white hover:file:bg-gold-600 cursor-pointer"
-              />
-              <span v-if="uploadedImageUrl" class="text-xs text-emerald-600 font-bold flex items-center gap-1">
-                <Check class="w-3.5 h-3.5" /> Photo prête
-              </span>
-            </div>
-
-            <!-- Choix rapide d'un visuel existant -->
-            <div class="pt-2">
-              <span class="text-[11px] text-stone-400 block mb-1.5">Ou sélectionner un visuel de shooting disponible :</span>
-              <div class="flex items-center gap-2 overflow-x-auto pb-1">
-                <button
-                  type="button"
-                  v-for="preset in imagePresets"
-                  :key="preset.url"
-                  @click="newProductSelectedPreset = preset.url"
-                  class="shrink-0 rounded-xl overflow-hidden border-2 transition-all"
-                  :class="newProductSelectedPreset === preset.url ? 'border-gold-500 scale-105' : 'border-stone-200 opacity-60 hover:opacity-100'"
-                  :title="preset.label"
-                >
-                  <img :src="preset.url" :alt="preset.label" class="w-12 h-12 object-cover" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Description -->
-          <div>
-            <label class="block text-xs font-bold text-stone-700 mb-1">Description & Matière *</label>
-            <textarea
-              v-model="newProduct.description"
-              rows="3"
-              placeholder="Précisez les finitions (cuir grainé, talon bobine, semelle confort)..."
-              class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-xs focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 outline-none"
-              required
-            ></textarea>
-          </div>
-
-          <!-- Toggle Pièce Phare -->
-          <div class="flex items-center gap-2.5 p-3.5 bg-stone-50 rounded-xl border border-stone-200">
-            <input
-              id="newFeaturedCheck"
-              v-model="newProduct.isFeatured"
-              type="checkbox"
-              class="w-4 h-4 text-gold-600 rounded border-stone-300 focus:ring-gold-500"
-            />
-            <label for="newFeaturedCheck" class="text-xs text-stone-800 font-semibold cursor-pointer">
-              Mettre en avant sur la page d'accueil (Pièce Phare)
-            </label>
-          </div>
-
-          <!-- Bouton Submit -->
-          <div class="flex items-center justify-end gap-3 pt-3 border-t border-stone-100">
-            <button
-              type="button"
-              @click="isCreateModalOpen = false"
-              class="px-4 py-2.5 text-xs font-bold text-stone-600 hover:bg-stone-100 rounded-xl"
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              :disabled="isCreating"
-              class="px-6 py-2.5 bg-stone-950 hover:bg-gold-600 text-white text-xs font-bold rounded-xl shadow-md transition-all cursor-pointer"
-            >
-              {{ isCreating ? 'Création en cours...' : 'Publier le Modèle' }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- ============================================================== -->
-    <!-- MODAL 4 : MODIFICATION RAPIDE DU PRIX                         -->
-    <!-- ============================================================== -->
-    <div v-if="quickPriceModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/70 backdrop-blur-sm">
-      <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl space-y-6 p-6 sm:p-8 border border-stone-200">
+    <!-- MODAL GESTION DU STOCK & POINTURES D'UN ARTICLE -->
+    <div
+      v-if="manageStockModal"
+      class="fixed inset-0 z-50 bg-stone-950/70 backdrop-blur-sm flex items-center justify-center p-4"
+      @click.self="manageStockModal = null"
+    >
+      <div class="bg-white rounded-3xl max-w-lg w-full p-6 border border-stone-200 shadow-2xl space-y-4 text-stone-900 max-h-[85vh] overflow-y-auto">
         <div class="flex items-center justify-between border-b border-stone-100 pb-3">
-          <div class="flex items-center gap-2">
-            <DollarSign class="w-5 h-5 text-gold-600" />
-            <h3 class="font-serif font-bold text-lg text-stone-950">
-              Modifier le Prix de Vente
-            </h3>
-          </div>
-          <button @click="quickPriceModal = null" class="p-1 text-stone-400 hover:text-stone-700">
-            <X class="w-5 h-5" />
-          </button>
+          <h3 class="font-serif text-lg font-bold">Stock : {{ manageStockModal.name }}</h3>
+          <button type="button" @click="manageStockModal = null" class="font-bold">✕</button>
         </div>
-
-        <div>
-          <p class="text-xs text-stone-400">Article :</p>
-          <p class="font-serif font-bold text-stone-900 text-sm mt-0.5">{{ quickPriceModal.name }}</p>
-        </div>
-
-        <form @submit.prevent="submitQuickPrice" class="space-y-4">
-          <div>
-            <label class="block text-xs font-bold text-stone-700 mb-1">Prix de Vente Effectif (FCFA) *</label>
-            <input
-              v-model.number="quickPriceForm.basePrice"
-              type="number"
-              step="500"
-              class="w-full px-4 py-3 rounded-xl border border-stone-300 text-lg font-black text-stone-950 focus:ring-2 focus:ring-gold-500 outline-none"
-              required
-            />
-          </div>
-
-          <div>
-            <label class="block text-xs font-bold text-stone-700 mb-1">Prix Barré avant Remise (Optionnel)</label>
-            <input
-              v-model.number="quickPriceForm.originalPrice"
-              type="number"
-              step="500"
-              placeholder="Ex: 18000"
-              class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm font-semibold text-stone-600 focus:ring-2 focus:ring-gold-500 outline-none"
-            />
-          </div>
-
+        <div class="space-y-2">
           <div
-            v-if="quickPriceForm.originalPrice && quickPriceForm.originalPrice > quickPriceForm.basePrice"
-            class="p-3 bg-rosewood-50 border border-rosewood-200 rounded-xl flex items-center justify-between text-xs"
+            v-for="v in manageStockModal.variants"
+            :key="v.id"
+            class="flex items-center justify-between gap-2 p-2.5 rounded-xl border border-stone-200 text-xs"
           >
-            <span class="font-bold text-rosewood-900">Remise commerciale :</span>
-            <span class="font-extrabold text-rosewood-700 bg-rosewood-100 px-2 py-0.5 rounded-lg">
-              -{{ Math.round((1 - quickPriceForm.basePrice / quickPriceForm.originalPrice) * 100) }}%
-            </span>
+            <div>
+              <b>{{ v.color }} · {{ v.sizeOrShoeSize }}</b>
+              <div class="text-stone-500">Stock actuel : {{ v.stockQuantity }}</div>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button type="button" class="adm-b" style="min-height: 32px; padding: 0 10px" @click="handleQuickAdjustStock(manageStockModal, v, -1)">-1</button>
+              <button type="button" class="adm-b p" style="min-height: 32px; padding: 0 10px" @click="handleQuickAdjustStock(manageStockModal, v, 5)">+5</button>
+            </div>
           </div>
-
-          <div class="flex justify-end gap-3 pt-3">
-            <button
-              type="button"
-              @click="quickPriceModal = null"
-              class="px-4 py-2 text-xs font-bold text-stone-500 hover:bg-stone-100 rounded-xl"
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              class="px-5 py-2.5 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-stone-950 font-black text-xs rounded-xl shadow transition-all cursor-pointer"
-            >
-              Enregistrer le Tarif
-            </button>
+        </div>
+        <form @submit.prevent="handleAddVariant" class="border-t border-stone-200 pt-3 space-y-2 text-xs">
+          <div class="font-bold">Ajouter une variante (pointure / couleur)</div>
+          <div class="grid grid-cols-3 gap-2">
+            <input v-model="newVariantData.color" placeholder="Couleur" required class="px-3 py-2 border rounded-lg" />
+            <input v-model="newVariantData.sizeOrShoeSize" placeholder="Taille/Pointure" required class="px-3 py-2 border rounded-lg" />
+            <input v-model.number="newVariantData.stockQuantity" type="number" min="0" placeholder="Stock" required class="px-3 py-2 border rounded-lg" />
           </div>
+          <button type="submit" class="adm-b p" style="width: 100%; justify-content: center">+ Ajouter la variante</button>
         </form>
       </div>
+    </div>
+
+    <!-- MODAL MODIFICATION FICHE / PRIX -->
+    <div
+      v-if="editProductModal"
+      class="fixed inset-0 z-50 bg-stone-950/70 backdrop-blur-sm flex items-center justify-center p-4"
+      @click.self="editProductModal = null"
+    >
+      <form
+        @submit.prevent="handleSaveProductEdit"
+        class="bg-white rounded-3xl max-w-md w-full p-6 border border-stone-200 shadow-2xl space-y-4 text-stone-900"
+      >
+        <div class="flex items-center justify-between border-b border-stone-100 pb-3">
+          <h3 class="font-serif text-lg font-bold">Modifier l'article</h3>
+          <button type="button" @click="editProductModal = null" class="font-bold">✕</button>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Nom de l'article</label>
+          <input v-model="editForm.name" required class="w-full px-3 py-2.5 border rounded-xl text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Prix (FCFA)</label>
+          <input v-model.number="editForm.basePrice" type="number" min="500" required class="w-full px-3 py-2.5 border rounded-xl text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Description</label>
+          <textarea v-model="editForm.description" rows="3" class="w-full px-3 py-2 border rounded-xl text-xs"></textarea>
+        </div>
+        <div class="flex justify-end gap-2">
+          <button type="button" class="adm-b" @click="editProductModal = null">Annuler</button>
+          <button type="submit" :disabled="isSavingEdit" class="adm-b p">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- MODAL CRÉATION NOUVEL ARTICLE -->
+    <div
+      v-if="isCreateModalOpen"
+      class="fixed inset-0 z-50 bg-stone-950/70 backdrop-blur-sm flex items-center justify-center p-4"
+      @click.self="isCreateModalOpen = false"
+    >
+      <form
+        @submit.prevent="handleCreateProduct"
+        class="bg-white rounded-3xl max-w-md w-full p-6 border border-stone-200 shadow-2xl space-y-4 text-stone-900 max-h-[90vh] overflow-y-auto"
+      >
+        <div class="flex items-center justify-between border-b border-stone-100 pb-3">
+          <h3 class="font-serif text-lg font-bold">Nouvel article</h3>
+          <button type="button" @click="isCreateModalOpen = false" class="font-bold">✕</button>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Nom de l'article *</label>
+          <input v-model="newProduct.name" required placeholder="Ex: Sac Cabas Cuir..." class="w-full px-3 py-2.5 border rounded-xl text-sm" />
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-bold mb-1">Catégorie *</label>
+            <select v-model="newProduct.categoryId" class="w-full px-3 py-2.5 border rounded-xl text-xs bg-white">
+              <option value="cat-sac-1">Sacs à Main</option>
+              <option value="cat-sac-2">Pochettes</option>
+              <option value="cat-shoe-1">Escarpins & Mules</option>
+              <option value="cat-shoe-2">Sandales</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold mb-1">Prix (FCFA) *</label>
+            <input v-model.number="newProduct.basePrice" type="number" min="500" required class="w-full px-3 py-2.5 border rounded-xl text-sm" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Photo de l'article</label>
+          <input type="file" accept="image/*" @change="handleFileUpload" class="w-full text-xs" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Description</label>
+          <textarea v-model="newProduct.description" rows="2" class="w-full px-3 py-2 border rounded-xl text-xs"></textarea>
+        </div>
+        <div class="flex justify-end gap-2">
+          <button type="button" class="adm-b" @click="isCreateModalOpen = false">Annuler</button>
+          <button type="submit" :disabled="isCreating" class="adm-b p">Créer l'article</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="adm-toast" :class="{ on: !!toastMessage }" role="status" aria-live="polite">
+      {{ toastMessage }}
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, onUnmounted } from 'vue';
+import { Lock, AlertTriangle } from 'lucide-vue-next';
+import { ProductService, OrderService, PhoneService, UploadService } from '../services/api';
 import { useAuthStore } from '../stores/auth';
-import { ProductService, OrderService, UploadService, PhoneService } from '../services/api';
-import {
-  Package,
-  Plus,
-  Search,
-  Pencil,
-  Trash2,
-  SlidersHorizontal,
-  CheckCircle2,
-  AlertTriangle,
-  AlertCircle,
-  Layers,
-  UploadCloud,
-  X,
-  ExternalLink,
-  ShoppingBag,
-  PhoneCall,
-  Check,
-  RotateCcw,
-  Sparkles,
-  DollarSign,
-  Crown,
-  Tag,
-  Phone,
-  ArrowRight,
-  TrendingUp,
-  Clock,
-  Filter,
-  Eye,
-  Percent,
-} from 'lucide-vue-next';
-import { Lock } from 'lucide-vue-next';
+import { buildWhatsAppSendUrl } from '../stores/phone';
 
 const authStore = useAuthStore();
-const activeTab = ref<'products' | 'orders' | 'phone-calls'>('products');
 
-// Filtres et Recherche Catalogue
-const productSearchQuery = ref('');
-const categoryFilter = ref<'ALL' | 'SAC' | 'CHAUSSURE'>('ALL');
-const stockFilter = ref<'ALL' | 'LOW' | 'OUT'>('ALL');
+// Vue active : v-dash | v-ord | v-stk | v-cb
+const activeView = ref<'v-dash' | 'v-ord' | 'v-stk' | 'v-cb'>('v-dash');
+const switchView = (v: 'v-dash' | 'v-ord' | 'v-stk' | 'v-cb') => {
+  activeView.value = v;
+  if (typeof window !== 'undefined') window.scrollTo(0, 0);
+};
 
-// Données principales
+// Données réelles chargées depuis l'API
 const products = ref<any[]>([]);
 const orders = ref<any[]>([]);
 const phoneCallbacks = ref<any[]>([]);
-const stats = reactive({
-  totalRevenue: 0,
-  totalOrders: 0,
-  pendingOrders: 0,
-  lowStockCount: 0,
+
+// Période du tableau de bord (en nombre de jours : 0 = Aujourd'hui, 6 = 7 jours, 13 = 14 jours, 3650 = Tout)
+const periods = [
+  { label: 'Aujourd’hui', days: 0 },
+  { label: '7 jours', days: 6 },
+  { label: '14 jours', days: 13 },
+  { label: 'Tout', days: 3650 },
+];
+const selectedPeriod = ref<number>(13);
+
+const statusLabels: Record<string, string> = {
+  PENDING: 'En attente',
+  PAID: 'Payée',
+  PREPARING: 'En préparation',
+  SHIPPED: 'Expédiée',
+  DELIVERED: 'Livrée',
+  CANCELLED: 'Annulée',
+};
+
+const nextStatusMap: Record<string, string[]> = {
+  PENDING: ['PAID', 'CANCELLED'],
+  PAID: ['PREPARING', 'CANCELLED'],
+  PREPARING: ['SHIPPED', 'CANCELLED'],
+  SHIPPED: ['DELIVERED'],
+  DELIVERED: [],
+  CANCELLED: [],
+};
+
+const nextStatusText: Record<string, string> = {
+  PAID: 'Marquer comme payée',
+  PREPARING: 'Passer en préparation',
+  SHIPPED: 'Marquer comme expédiée',
+  DELIVERED: 'Marquer comme livrée',
+  CANCELLED: 'Annuler la commande',
+};
+
+const revenueStatuses = new Set(['PAID', 'PREPARING', 'SHIPPED', 'DELIVERED']);
+
+const daysAgo = (dateStr?: string): number => {
+  if (!dateStr) return 0;
+  const created = new Date(dateStr);
+  if (isNaN(created.getTime())) return 0;
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const startOfCreated = new Date(created.getFullYear(), created.getMonth(), created.getDate()).getTime();
+  return Math.max(0, Math.round((startOfToday - startOfCreated) / 86400000));
+};
+
+const formatAgo = (dateStr?: string): string => {
+  const d = daysAgo(dateStr);
+  return d === 0 ? 'aujourd’hui' : `il y a ${d} j`;
+};
+
+const formatMoney = (n: number): string =>
+  `${new Intl.NumberFormat('fr-FR').format(Math.round(Number(n) || 0))} FCFA`;
+
+const cleanDigits = (phone?: string): string => String(phone || '').replace(/\D/g, '');
+
+const formatOrderItems = (o: any): string => {
+  if (!Array.isArray(o.items) || o.items.length === 0) return 'Articles commandés';
+  return o.items
+    .map((i: any) => `${i.quantity} × ${i.productName}${i.variantDetails ? ` (${i.variantDetails})` : ''}`)
+    .join(', ');
+};
+
+const customerWhatsAppUrl = (o: any): string => {
+  const digits = cleanDigits(o.customerPhone);
+  const phone = digits.startsWith('221') ? digits : `221${digits}`;
+  const msg = `Bonjour ${o.customerName}, concernant votre commande ${o.orderNumber} chez Jumelles Store.`;
+  return buildWhatsAppSendUrl(msg, phone);
+};
+
+// Commandes filtrées sur la période choisie
+const periodOrders = computed(() =>
+  orders.value.filter((o) => daysAgo(o.createdAt) <= selectedPeriod.value)
+);
+
+const periodPaidOrders = computed(() =>
+  periodOrders.value.filter((o) => revenueStatuses.has(o.status))
+);
+
+const periodRevenue = computed(() =>
+  periodPaidOrders.value.reduce((sum, o) => sum + (Number(o.totalAmount) || 0), 0)
+);
+
+const pendingOrdersCount = computed(
+  () => orders.value.filter((o) => o.status === 'PENDING').length
+);
+
+const pendingCallbacksCount = computed(
+  () => phoneCallbacks.value.filter((c) => c.status !== 'CALLED').length
+);
+
+// Stock critique réel (<= 4 unités)
+const criticalStockItems = computed(() => {
+  const list: Array<{
+    productId: string;
+    variantId: string;
+    productName: string;
+    variantLabel: string;
+    stock: number;
+  }> = [];
+
+  for (const p of products.value) {
+    for (const v of p.variants || []) {
+      const stock = Number(v.stockQuantity) || 0;
+      if (stock <= 4) {
+        list.push({
+          productId: p.id,
+          variantId: v.id,
+          productName: p.name,
+          variantLabel: `${v.sizeOrShoeSize || 'Unique'} · ${v.color || 'Standard'}`,
+          stock,
+        });
+      }
+    }
+  }
+  return list.sort((a, b) => a.stock - b.stock);
 });
 
-// Toast Notifications
+// Histogramme du chiffre d'affaires par jour à partir des vraies commandes
+const chartBars = computed(() => {
+  const n = Math.min(selectedPeriod.value === 3650 ? 14 : selectedPeriod.value + 1, 14);
+  const values: number[] = [];
+  const labels: string[] = [];
+  const now = new Date();
+
+  for (let i = n - 1; i >= 0; i--) {
+    const daySum = orders.value
+      .filter((o) => daysAgo(o.createdAt) === i && revenueStatuses.has(o.status))
+      .reduce((s, o) => s + (Number(o.totalAmount) || 0), 0);
+    values.push(daySum);
+    const dt = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    labels.push(`${dt.getDate()}/${dt.getMonth() + 1}`);
+  }
+
+  const maxVal = Math.max(...values, 1);
+  const w = 300 / n;
+  return values.map((val, idx) => {
+    const bh = Math.max(val > 0 ? 6 : 2, (val / maxVal) * 110);
+    return {
+      x: idx * w + w * 0.15,
+      y: 116 - bh,
+      w: w * 0.7,
+      h: bh,
+      value: val,
+      label: labels[idx],
+    };
+  });
+});
+
+// Top ventes réel
+const topProducts = computed(() => {
+  const counts: Record<string, number> = {};
+  for (const o of periodOrders.value.filter((x) => x.status !== 'CANCELLED')) {
+    for (const it of o.items || []) {
+      const name = it.productName || 'Article';
+      counts[name] = (counts[name] || 0) + (Number(it.quantity) || 1);
+    }
+  }
+  const sorted = Object.keys(counts)
+    .sort((a, b) => counts[b] - counts[a])
+    .slice(0, 4);
+  const maxQty = sorted.length > 0 ? counts[sorted[0]] : 1;
+  return sorted.map((name) => ({
+    name,
+    qty: counts[name],
+    pct: Math.round((counts[name] / maxQty) * 100),
+  }));
+});
+
+// Commandes à traiter maintenant (PENDING ou PAID)
+const todoOrders = computed(() =>
+  orders.value.filter((o) => o.status === 'PENDING' || o.status === 'PAID')
+);
+
+// Recherche et filtre de l'onglet Commandes
+const orderQuery = ref('');
+const orderStatusFilter = ref('ALL');
+
+const statusFilters = computed(() => {
+  const counts: Record<string, number> = { ALL: orders.value.length };
+  for (const o of orders.value) {
+    counts[o.status] = (counts[o.status] || 0) + 1;
+  }
+  return [
+    { key: 'ALL', label: 'Toutes', count: counts.ALL || 0 },
+    ...Object.keys(statusLabels).map((k) => ({
+      key: k,
+      label: statusLabels[k],
+      count: counts[k] || 0,
+    })),
+  ];
+});
+
+const filteredOrders = computed(() => {
+  const q = orderQuery.value.trim().toLowerCase();
+  return orders.value.filter((o) => {
+    const matchStatus = orderStatusFilter.value === 'ALL' || o.status === orderStatusFilter.value;
+    const matchQuery =
+      !q ||
+      `${o.orderNumber} ${o.customerName} ${o.customerPhone} ${o.shippingCity}`
+        .toLowerCase()
+        .includes(q);
+    return matchStatus && matchQuery;
+  });
+});
+
+const allowedNext = (st: string): string[] => nextStatusMap[st] || [];
+const primaryNextText = (st: string): string => {
+  const nx = allowedNext(st).find((s) => s !== 'CANCELLED');
+  return nx ? nextStatusText[nx] : 'Changer le statut';
+};
+
+// Feuille modale de changement de statut (#adm-sheet)
+const sheetOrder = ref<any | null>(null);
+const confirmingCancel = ref(false);
+
+const openStatusSheet = (order: any) => {
+  sheetOrder.value = order;
+  confirmingCancel.value = false;
+};
+
+const closeStatusSheet = () => {
+  sheetOrder.value = null;
+  confirmingCancel.value = false;
+};
+
+const selectNextStatus = async (nextSt: string) => {
+  if (!sheetOrder.value) return;
+  if (nextSt === 'CANCELLED') {
+    confirmingCancel.value = true;
+    return;
+  }
+  await applyStatusChange(sheetOrder.value.id, nextSt);
+};
+
+const applyStatusChange = async (orderId: string, newStatus: string) => {
+  try {
+    await OrderService.updateStatus(orderId, newStatus);
+    closeStatusSheet();
+    await loadData();
+    showToast(
+      newStatus === 'CANCELLED'
+        ? 'Commande annulée, stock remis à jour'
+        : `Statut : ${statusLabels[newStatus] || newStatus}`
+    );
+  } catch (err: any) {
+    showToast(err.response?.data?.message || 'Erreur lors du changement de statut', 'error');
+  }
+};
+
+// Toast
 const toastMessage = ref('');
 const toastType = ref<'success' | 'error'>('success');
+let toastTimer: any = null;
 const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
   toastMessage.value = msg;
   toastType.value = type;
-  setTimeout(() => {
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
     toastMessage.value = '';
-  }, 4500);
+  }, 2600);
 };
 
-// Saisies réassort
-const variantInputs = reactive<Record<string, number>>({});
-
-// Présélections d'images locales rapides
-const imagePresets = [
-  { label: 'Sac Birkin Camel', url: '/products/sac-birkin-camel.jpg' },
-  { label: 'Sac Birkin Chocolat', url: '/products/sac-birkin-chocolat.jpg' },
-  { label: 'Sac Cabas Cuir Grainé', url: '/products/sac-cabas-cuir-graine-noir.jpg' },
-  { label: 'Sac Alma Damier', url: '/products/sac-alma-damier-ebene.jpg' },
-  { label: 'Sac Besace Daim Chocolat', url: '/products/sac-besace-daim-suede-cognac-chocolat.jpg' },
-  { label: 'Mules Talon Cœur Noir', url: '/products/mules-talon-coeur-noir.jpg' },
-  { label: 'Mules Jacquard Blanc', url: '/products/mules-h-jacquard-blanc-coffret.jpg' },
-  { label: 'Sandales Vernies Zara', url: '/products/sandales-plates-verni-zara-collection.jpg' },
-  { label: 'Tongs Cuir Doré', url: '/products/tongs-cuir-bijou-dore.jpg' },
-];
-
-// Modal 1 : Gestion des Stocks & Tailles
-const manageStockModal = ref<any>(null);
-const newVariantData = reactive({
-  sizeOrShoeSize: '',
-  color: '',
-  stockQuantity: 10,
-});
-const openManageStockModal = (product: any) => {
-  manageStockModal.value = product;
-  newVariantData.sizeOrShoeSize = isShoe(product) ? '39' : 'Standard';
-  newVariantData.color = 'Noir';
-  newVariantData.stockQuantity = 10;
-};
-
-// Modal 2 : Édition Complète Article
-const editProductModal = ref<any>(null);
-const isUpdating = ref(false);
-const isUploadingPhoto = ref(false);
-const editForm = reactive({
-  name: '',
-  categoryId: 'cat-sac-1',
-  basePrice: 15000,
-  originalPrice: null as number | null,
-  description: '',
-  isFeatured: false,
-  imageUrl: '',
-});
-const openEditProductModal = (product: any) => {
-  editProductModal.value = product;
-  editForm.name = product.name;
-  editForm.categoryId = product.categoryId;
-  editForm.basePrice = product.basePrice;
-  editForm.originalPrice = product.originalPrice || null;
-  editForm.description = product.description;
-  editForm.isFeatured = !!product.isFeatured;
-  editForm.imageUrl = getProductThumbnail(product);
-};
-
-// Modal 3 : Création d'un Nouvel Article
-const isCreateModalOpen = ref(false);
-const isCreating = ref(false);
-const uploadedImageUrl = ref('');
-const newProductSelectedPreset = ref('/products/sac-birkin-camel.jpg');
-const newProduct = reactive({
-  name: '',
-  categoryId: 'cat-sac-1',
-  basePrice: 15000,
-  originalPrice: null as number | null,
-  description: '',
-  isFeatured: true,
-});
-const openCreateProductModal = () => {
-  isCreateModalOpen.value = true;
-};
-
-// Modal 4 : Modification Rapide de Prix
-const quickPriceModal = ref<any>(null);
-const quickPriceForm = reactive({
-  basePrice: 0,
-  originalPrice: null as number | null,
-});
-const openQuickPriceModal = (product: any) => {
-  quickPriceModal.value = product;
-  quickPriceForm.basePrice = product.basePrice;
-  quickPriceForm.originalPrice = product.originalPrice || null;
-};
-
-// --- Computed Filters ---
-const bagsCount = computed(() => {
-  return products.value.filter((p) => !isShoe(p)).length;
-});
-
-const shoesCount = computed(() => {
-  return products.value.filter((p) => isShoe(p)).length;
-});
-
-const filteredProducts = computed(() => {
-  let list = products.value;
-
-  // Filtre catégorie
-  if (categoryFilter.value === 'SAC') {
-    list = list.filter((p) => !isShoe(p));
-  } else if (categoryFilter.value === 'CHAUSSURE') {
-    list = list.filter((p) => isShoe(p));
-  }
-
-  // Filtre recherche par texte
-  if (productSearchQuery.value.trim()) {
-    const q = productSearchQuery.value.toLowerCase().trim();
-    list = list.filter((p) => {
-      const matchName = p.name?.toLowerCase().includes(q);
-      const matchDesc = p.description?.toLowerCase().includes(q);
-      const matchCat = p.category?.name?.toLowerCase().includes(q);
-      const matchSku = p.variants?.some((v: any) => v.sku?.toLowerCase().includes(q));
-      return matchName || matchDesc || matchCat || matchSku;
-    });
-  }
-
-  // Filtre stock
-  if (stockFilter.value === 'OUT') {
-    list = list.filter((p) => (p.variants || []).some((v: any) => v.stockQuantity === 0));
-  } else if (stockFilter.value === 'LOW') {
-    list = list.filter((p) => (p.variants || []).some((v: any) => v.stockQuantity <= 5));
-  }
-
-  return list;
-});
-
-const pendingCallsCount = computed(() => {
-  return phoneCallbacks.value.filter((c) => c.status === 'PENDING').length;
-});
-
-// --- Helpers ---
-const isShoe = (p: any) => {
-  if (!p) return false;
-  return p.category?.type === 'CHAUSSURE' || p.categoryId?.includes('shoe');
-};
-
-const getProductThumbnail = (p: any) => {
-  if (!p) return '/products/sac-birkin-camel.jpg';
-  if (p.images && p.images.length > 0 && p.images[0].minioUrl) {
-    return p.images[0].minioUrl;
-  }
-  return '/products/sac-birkin-camel.jpg';
-};
-
-const getTotalStock = (p: any) => {
-  if (!p || !p.variants) return 0;
-  return p.variants.reduce((sum: number, v: any) => sum + (v.stockQuantity || 0), 0);
-};
-
-const getProductStockBadge = (p: any) => {
-  const total = getTotalStock(p);
-  const hasOut = (p.variants || []).some((v: any) => v.stockQuantity === 0);
-  if (hasOut || total === 0) return 'bg-rosewood-100 text-rosewood-800 border border-rosewood-300';
-  if (total <= 10) return 'bg-amber-100 text-amber-800 border border-amber-300';
-  return 'bg-emerald-100 text-emerald-800 border border-emerald-300';
-};
-
-const getProductStockDot = (p: any) => {
-  const total = getTotalStock(p);
-  const hasOut = (p.variants || []).some((v: any) => v.stockQuantity === 0);
-  if (hasOut || total === 0) return 'bg-rosewood-600';
-  if (total <= 10) return 'bg-amber-600';
-  return 'bg-emerald-600';
-};
-
-const getStockBadgeClass = (qty: number) => {
-  if (qty === 0) return 'bg-rosewood-100 text-rosewood-800 border border-rosewood-300';
-  if (qty <= 5) return 'bg-amber-100 text-amber-800 border border-amber-300';
-  return 'bg-emerald-100 text-emerald-800 border border-emerald-300';
-};
-
-const getStockDotClass = (qty: number) => {
-  if (qty === 0) return 'bg-rosewood-600';
-  if (qty <= 5) return 'bg-amber-600';
-  return 'bg-emerald-600';
-};
-
-const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'XOF',
-    maximumFractionDigits: 0,
-  }).format(price || 0);
-};
-
-const getOrderBadgeClass = (status: string) => {
-  const map: Record<string, string> = {
-    PENDING: 'bg-amber-100 text-amber-800 border border-amber-300',
-    PAID: 'bg-emerald-100 text-emerald-800 border border-emerald-300',
-    PREPARING: 'bg-blue-100 text-blue-800 border border-blue-300',
-    SHIPPED: 'bg-purple-100 text-purple-800 border border-purple-300',
-    DELIVERED: 'bg-stone-100 text-stone-800 border border-stone-300',
-    CANCELLED: 'bg-rosewood-100 text-rosewood-800 border border-rosewood-300',
-  };
-  return map[status] || 'bg-stone-100 text-stone-700';
-};
-
-// --- Actions & API Calls ---
+// Chargement des vraies données depuis le backend
 const loadData = async () => {
   try {
-    const [statsRes, prodRes, ordersRes, callsRes] = await Promise.all([
-      OrderService.getStats(),
+    const [prodRes, ordRes, cbRes] = await Promise.all([
       ProductService.getAll(),
       OrderService.getAllAdmin(),
       PhoneService.getCallbacks(),
     ]);
-    Object.assign(stats, statsRes.data.data);
-    products.value = prodRes.data.data;
-    orders.value = ordersRes.data.data;
-    phoneCallbacks.value = callsRes.data.data;
-  } catch (error) {
-    console.error('Erreur chargement données admin:', error);
+    products.value = Array.isArray(prodRes.data?.data) ? prodRes.data.data : [];
+    orders.value = Array.isArray(ordRes.data?.data) ? ordRes.data.data : [];
+    phoneCallbacks.value = Array.isArray(cbRes.data?.data) ? cbRes.data.data : [];
+  } catch (err) {
+    console.error('Erreur chargement données réelles Admin:', err);
   }
+};
+
+// Gestion du stock et du catalogue
+const getProductThumbnail = (product: any) => {
+  if (product.images && product.images.length > 0) {
+    return product.images[0].minioUrl;
+  }
+  return '/products/sac-birkin-camel.jpg';
+};
+
+const getTotalStock = (product: any) => {
+  if (!product.variants) return 0;
+  return product.variants.reduce((sum: number, v: any) => sum + (v.stockQuantity || 0), 0);
 };
 
 const quickReplenish = async (productId: string, variantId: string, qty: number) => {
   try {
-    const res = await ProductService.replenishStock({
-      productId,
-      variantId,
-      quantityToAdd: qty,
-    });
-    showToast(res.data?.message || `+${qty} unité(s) ajoutée(s) au stock !`);
+    await ProductService.replenishStock({ productId, variantId, quantityToAdd: qty });
     await loadData();
-    if (manageStockModal.value && manageStockModal.value.id === productId) {
-      const refreshed = products.value.find((p) => p.id === productId);
-      if (refreshed) manageStockModal.value = refreshed;
-    }
-  } catch (err: any) {
-    showToast(err.response?.data?.message || 'Erreur réapprovisionnement.', 'error');
+    showToast(`+${qty} unité(s) ajoutées au stock.`);
+  } catch {
+    showToast('Erreur réapprovisionnement.', 'error');
   }
 };
 
-const submitCustomReplenish = async (productId: string, variantId: string) => {
-  const qty = variantInputs[variantId];
-  if (!qty || qty <= 0) {
-    alert('Veuillez saisir une quantité positive.');
-    return;
-  }
-  await quickReplenish(productId, variantId, qty);
-  variantInputs[variantId] = 0;
+const manageStockModal = ref<any>(null);
+const newVariantData = reactive({
+  sizeOrShoeSize: '39',
+  color: 'Noir',
+  stockQuantity: 10,
+});
+
+const openManageStockModal = (product: any) => {
+  manageStockModal.value = product;
+  newVariantData.sizeOrShoeSize = 'Standard';
+  newVariantData.color = 'Noir';
+  newVariantData.stockQuantity = 10;
 };
 
-const submitAddVariant = async () => {
+const handleQuickAdjustStock = async (product: any, variant: any, delta: number) => {
+  const newQty = Math.max(0, (variant.stockQuantity || 0) + delta);
+  try {
+    await ProductService.replenishStock({
+      productId: product.id,
+      variantId: variant.id,
+      newStockQuantity: newQty,
+    });
+    variant.stockQuantity = newQty;
+    await loadData();
+    showToast(`Stock mis à jour : ${newQty}`);
+  } catch {
+    showToast('Erreur mise à jour du stock.', 'error');
+  }
+};
+
+const handleAddVariant = async () => {
   if (!manageStockModal.value) return;
   try {
-    await ProductService.addVariant(manageStockModal.value.id, newVariantData);
-    showToast('Nouvelle variante ajoutée avec succès !');
-    newVariantData.sizeOrShoeSize = '';
-    newVariantData.color = '';
-    newVariantData.stockQuantity = 10;
+    await ProductService.addVariant(manageStockModal.value.id, { ...newVariantData });
     await loadData();
-    const refreshed = products.value.find((p) => p.id === manageStockModal.value.id);
-    if (refreshed) manageStockModal.value = refreshed;
-  } catch (err: any) {
-    showToast(err.response?.data?.message || 'Erreur lors de l\'ajout de la variante.', 'error');
+    const updated = products.value.find((p) => p.id === manageStockModal.value.id);
+    if (updated) manageStockModal.value = updated;
+    showToast('Nouvelle variante ajoutée.');
+  } catch {
+    showToast('Erreur ajout variante.', 'error');
   }
 };
 
-const submitUpdateProduct = async () => {
-  if (!editProductModal.value) return;
-  isUpdating.value = true;
+const editProductModal = ref<any>(null);
+const isSavingEdit = ref(false);
+const editForm = reactive({
+  id: '',
+  name: '',
+  basePrice: 0,
+  description: '',
+});
+
+const openEditProductModal = (product: any) => {
+  editProductModal.value = product;
+  editForm.id = product.id;
+  editForm.name = product.name;
+  editForm.basePrice = product.basePrice;
+  editForm.description = product.description || '';
+};
+
+const handleSaveProductEdit = async () => {
+  if (!editForm.id) return;
+  isSavingEdit.value = true;
   try {
-    const payload: any = {
+    await ProductService.update(editForm.id, {
       name: editForm.name,
-      categoryId: editForm.categoryId,
-      basePrice: Number(editForm.basePrice),
-      originalPrice:
-        editForm.originalPrice && editForm.originalPrice > editForm.basePrice
-          ? Number(editForm.originalPrice)
-          : null,
+      basePrice: editForm.basePrice,
       description: editForm.description,
-      isFeatured: !!editForm.isFeatured,
-    };
-    if (editForm.imageUrl) {
-      payload.images = [
-        {
-          minioUrl: editForm.imageUrl,
-          altText: editForm.name,
-          isPrimary: true,
-        },
-      ];
-    }
-    await ProductService.update(editProductModal.value.id, payload);
-    showToast(`Article "${editForm.name}" mis à jour avec succès !`);
+    });
     editProductModal.value = null;
     await loadData();
-  } catch (err: any) {
-    showToast(err.response?.data?.message || 'Erreur lors de la mise à jour.', 'error');
+    showToast('Fiche article mise à jour.');
+  } catch {
+    showToast('Erreur modification article.', 'error');
   } finally {
-    isUpdating.value = false;
+    isSavingEdit.value = false;
   }
 };
 
-const submitQuickPrice = async () => {
-  if (!quickPriceModal.value || !quickPriceForm.basePrice || quickPriceForm.basePrice <= 0) {
-    showToast('Veuillez saisir un prix valide.', 'error');
-    return;
-  }
-  try {
-    const payload = {
-      basePrice: Number(quickPriceForm.basePrice),
-      originalPrice:
-        quickPriceForm.originalPrice && quickPriceForm.originalPrice > quickPriceForm.basePrice
-          ? Number(quickPriceForm.originalPrice)
-          : null,
-    };
-    await ProductService.update(quickPriceModal.value.id, payload);
-    showToast(`Tarif de "${quickPriceModal.value.name}" mis à jour : ${formatPrice(quickPriceForm.basePrice)}`);
-    quickPriceModal.value = null;
-    await loadData();
-  } catch (err: any) {
-    showToast(err.response?.data?.message || 'Erreur mise à jour prix.', 'error');
-  }
-};
+const isCreateModalOpen = ref(false);
+const isCreating = ref(false);
+const uploadedImageUrl = ref('');
+const newProduct = reactive({
+  name: '',
+  categoryId: 'cat-sac-1',
+  basePrice: 15000,
+  description: '',
+});
 
 const handleFileUpload = async (e: Event) => {
-  const target = e.target as HTMLInputElement;
-  if (!target.files || target.files.length === 0) return;
-  const file = target.files[0];
+  const input = e.target as HTMLInputElement;
+  if (!input.files || input.files.length === 0) return;
   try {
-    const res = await UploadService.uploadImage(file);
+    const res = await UploadService.uploadImage(input.files[0]);
     uploadedImageUrl.value = res.data.data.url;
-    showToast('Photo hébergée avec succès dans MinIO !');
-  } catch (error) {
-    showToast('Erreur téléversement MinIO.', 'error');
-  }
-};
-
-const handleEditPhotoUpload = async (e: Event) => {
-  const target = e.target as HTMLInputElement;
-  if (!target.files || target.files.length === 0) return;
-  const file = target.files[0];
-  isUploadingPhoto.value = true;
-  try {
-    const res = await UploadService.uploadImage(file);
-    editForm.imageUrl = res.data.data.url;
-    showToast('Nouvelle photo enregistrée avec succès !');
-  } catch (error) {
-    showToast('Erreur téléversement.', 'error');
-  } finally {
-    isUploadingPhoto.value = false;
+    showToast('Photo téléversée.');
+  } catch {
+    showToast('Erreur téléversement image.', 'error');
   }
 };
 
 const handleCreateProduct = async () => {
+  if (!newProduct.name) return;
   isCreating.value = true;
   try {
-    const isShoeItem = newProduct.categoryId.includes('shoe');
-    const defaultVariants = isShoeItem
-      ? [
-          { sizeOrShoeSize: '37', color: 'Noir', sku: `SKU-${Date.now()}-37`, stockQuantity: 6 },
-          { sizeOrShoeSize: '38', color: 'Noir', sku: `SKU-${Date.now()}-38`, stockQuantity: 8 },
-          { sizeOrShoeSize: '39', color: 'Noir', sku: `SKU-${Date.now()}-39`, stockQuantity: 8 },
-          { sizeOrShoeSize: '40', color: 'Noir', sku: `SKU-${Date.now()}-40`, stockQuantity: 6 },
-          { sizeOrShoeSize: '41', color: 'Noir', sku: `SKU-${Date.now()}-41`, stockQuantity: 4 },
-          { sizeOrShoeSize: '42', color: 'Noir', sku: `SKU-${Date.now()}-42`, stockQuantity: 3 },
-        ]
-      : [
-          { sizeOrShoeSize: 'Standard', color: 'Noir', sku: `SKU-${Date.now()}-STD`, stockQuantity: 10 },
-          { sizeOrShoeSize: 'Standard', color: 'Camel', sku: `SKU-${Date.now()}-CML`, stockQuantity: 8 },
-        ];
-
-    const finalPhoto = uploadedImageUrl.value || newProductSelectedPreset.value || '/products/sac-birkin-camel.jpg';
-
-    const payload = {
+    const isShoeCat = newProduct.categoryId.includes('shoe');
+    await ProductService.create({
       name: newProduct.name,
       categoryId: newProduct.categoryId,
       basePrice: newProduct.basePrice,
-      originalPrice:
-        newProduct.originalPrice && newProduct.originalPrice > newProduct.basePrice
-          ? newProduct.originalPrice
-          : null,
-      description: newProduct.description,
-      isFeatured: newProduct.isFeatured,
-      variants: defaultVariants,
+      description: newProduct.description || `${newProduct.name} - Collection Jumelles Store Dakar.`,
+      isFeatured: true,
       images: [
         {
-          minioUrl: finalPhoto,
+          minioUrl: uploadedImageUrl.value || '/products/sac-birkin-camel.jpg',
           altText: newProduct.name,
           isPrimary: true,
         },
       ],
-    };
-
-    await ProductService.create(payload);
-    showToast(`Produit "${newProduct.name}" créé et publié avec succès !`);
-    newProduct.name = '';
-    newProduct.description = '';
-    uploadedImageUrl.value = '';
+      variants: isShoeCat
+        ? ['38', '39', '40'].map((sz) => ({
+            sku: `JUM-${Date.now()}-${sz}`,
+            sizeOrShoeSize: sz,
+            color: 'Noir',
+            stockQuantity: 10,
+          }))
+        : [
+            {
+              sku: `JUM-${Date.now()}-STD`,
+              sizeOrShoeSize: 'Standard',
+              color: 'Classique',
+              stockQuantity: 10,
+            },
+          ],
+    });
     isCreateModalOpen.value = false;
+    newProduct.name = '';
+    uploadedImageUrl.value = '';
     await loadData();
-  } catch (error: any) {
-    showToast(error.response?.data?.message || 'Erreur lors de la création.', 'error');
+    showToast('Nouvel article ajouté au catalogue.');
+  } catch {
+    showToast('Erreur création article.', 'error');
   } finally {
     isCreating.value = false;
   }
 };
 
 const handleDeleteProduct = async (id: string) => {
-  if (!confirm('Êtes-vous sûre de vouloir supprimer définitivement cet article du catalogue ?')) return;
+  if (!confirm('Supprimer définitivement cet article du catalogue ?')) return;
   try {
     await ProductService.delete(id);
-    showToast('Article retiré du catalogue avec succès.');
     await loadData();
-  } catch (error) {
-    showToast('Erreur lors de la suppression.', 'error');
-  }
-};
-
-const handleStatusChange = async (orderId: string, newStatus: string) => {
-  try {
-    await OrderService.updateStatus(orderId, newStatus);
-    showToast(`Statut commande mis à jour : ${newStatus}`);
-    await loadData();
-  } catch (error) {
-    showToast('Erreur mise à jour statut.', 'error');
+    showToast('Article supprimé.');
+  } catch {
+    showToast('Erreur suppression.', 'error');
   }
 };
 
 const handleCallStatus = async (id: string, status: 'PENDING' | 'CALLED') => {
   try {
     await PhoneService.updateCallbackStatus(id, status);
-    showToast(status === 'CALLED' ? 'Appel client marqué comme effectué.' : 'Appel remis en attente.');
     await loadData();
-  } catch (error) {
-    showToast('Erreur mise à jour appel.', 'error');
+    showToast('Demande marquée traitée');
+  } catch {
+    showToast('Erreur mise à jour rappel.', 'error');
   }
 };
 
-// Connexion sécurisée de la gérance (Email + Mot de passe définis par l'admin)
+// Connexion et modification des identifiants Admin
 const adminEmail = ref('');
 const adminPassword = ref('');
 const showPassword = ref(false);
@@ -1756,9 +1234,9 @@ const handleUpdateCredentials = async () => {
   try {
     await authStore.updateCredentials(credForm.email, credForm.password);
     showCredentialsModal.value = false;
-    showToast('Vos identifiants administrateur (Email et Mot de passe) ont été mis à jour !');
+    showToast('Identifiants administrateur mis à jour !');
   } catch (err: any) {
-    showToast(err.response?.data?.message || 'Erreur lors de la mise à jour des identifiants.', 'error');
+    showToast(err.response?.data?.message || 'Erreur mise à jour identifiants.', 'error');
   }
 };
 
@@ -1768,21 +1246,658 @@ const handleAdminLogin = async () => {
     const res = await authStore.loginAdmin(adminEmail.value, adminPassword.value);
     adminPassword.value = '';
     if (res?.firstSetup) {
-      showToast(`Bienvenue ! Vos identifiants (${authStore.user?.email}) sont maintenant enregistrés.`);
+      showToast(`Identifiants (${authStore.user?.email}) enregistrés !`);
     }
     await loadData();
   } catch (err: any) {
-    loginError.value = err.response?.data?.message || 'Connexion impossible. Vérifiez que le serveur est démarré.';
+    loginError.value = err.response?.data?.message || 'Connexion impossible.';
+  }
+};
+
+const handleEscapeKey = (e: KeyboardEvent) => {
+  if (e.key === 'Escape' && sheetOrder.value) {
+    closeStatusSheet();
   }
 };
 
 onMounted(async () => {
+  window.addEventListener('keydown', handleEscapeKey);
   await authStore.checkAdminStatus();
   if (!authStore.sessionChecked) {
     await authStore.checkSession();
   }
   if (authStore.isAdmin) {
-    loadData();
+    await loadData();
   }
 });
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleEscapeKey);
+});
 </script>
+
+<style scoped>
+.adm-root {
+  --adm-bg: #f6f2ec;
+  --adm-card: #fff;
+  --adm-tx: #241d19;
+  --adm-mut: #6f625a;
+  --adm-bd: #e7ddd1;
+  --adm-gold: #a97a2c;
+  --adm-goldbg: #f6ecd9;
+  --adm-ink: #17110e;
+  --adm-ok: #23794a;
+  --adm-okb: #e2f3e8;
+  --adm-warn: #a8670f;
+  --adm-warnb: #fbefd6;
+  --adm-bad: #b33a3a;
+  --adm-badb: #f9e2e2;
+  --adm-info: #2c5d9b;
+  --adm-infob: #e2ecf9;
+  --adm-sh: 0 4px 16px rgba(36, 29, 25, 0.07);
+  min-height: 100vh;
+  background: var(--adm-bg);
+  color: var(--adm-tx);
+  font: 15px/1.5 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  padding-bottom: 84px;
+}
+
+.adm-top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--adm-bg);
+  border-bottom: 1px solid var(--adm-bd);
+  padding: 10px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.adm-top h1 {
+  font: 700 18px Georgia, serif;
+  margin: 0;
+  flex: 1;
+  letter-spacing: 0.02em;
+}
+
+.adm-top small {
+  display: block;
+  font: 600 11px system-ui;
+  color: var(--adm-mut);
+}
+
+.adm-live {
+  font: 700 11px system-ui;
+  background: var(--adm-okb);
+  color: var(--adm-ok);
+  border-radius: 999px;
+  padding: 4px 10px;
+}
+
+.adm-main {
+  padding: 14px 16px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.adm-view {
+  display: none;
+}
+
+.adm-view.on {
+  display: block;
+  animation: admIn 0.3s;
+}
+
+@keyframes admIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.adm-root h2 {
+  font: 700 17px Georgia, serif;
+  margin: 22px 0 10px;
+}
+
+.adm-seg {
+  display: flex;
+  gap: 6px;
+  background: var(--adm-card);
+  border: 1px solid var(--adm-bd);
+  border-radius: 14px;
+  padding: 4px;
+  width: max-content;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.adm-seg button {
+  border: 0;
+  background: transparent;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  color: var(--adm-mut);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.adm-seg button[aria-pressed='true'] {
+  background: var(--adm-ink);
+  color: #fff;
+}
+
+.adm-kpis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.adm-k {
+  background: var(--adm-card);
+  border: 1px solid var(--adm-bd);
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: var(--adm-sh);
+}
+
+.adm-k span {
+  font-size: 12px;
+  color: var(--adm-mut);
+  display: block;
+}
+
+.adm-k b {
+  display: block;
+  font: 700 22px Georgia, serif;
+  margin-top: 2px;
+  word-break: break-word;
+}
+
+.adm-k em {
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.adm-k.a {
+  border-color: var(--adm-warn);
+}
+
+.adm-k.wide {
+  grid-column: 1 / -1;
+}
+
+.adm-panel {
+  background: var(--adm-card);
+  border: 1px solid var(--adm-bd);
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: var(--adm-sh);
+}
+
+svg.adm-chart {
+  width: 100%;
+  height: 120px;
+  display: block;
+}
+
+svg.adm-chart .bars rect {
+  fill: var(--adm-gold);
+  transition: height 0.5s, y 0.5s;
+}
+
+.adm-lbls {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--adm-mut);
+  margin-top: 4px;
+}
+
+.adm-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--adm-bd);
+}
+
+.adm-row:last-child {
+  border: 0;
+}
+
+.adm-row .g {
+  flex: 1;
+  min-width: 0;
+}
+
+.adm-row .g b,
+.adm-row .g span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.adm-row .g span {
+  font-size: 13px;
+  color: var(--adm-mut);
+}
+
+.adm-rk {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--adm-goldbg);
+  color: var(--adm-gold);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 13px;
+  flex: none;
+}
+
+.adm-bar2 {
+  height: 6px;
+  background: var(--adm-bd);
+  border-radius: 3px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+.adm-bar2 i {
+  display: block;
+  height: 100%;
+  background: var(--adm-gold);
+}
+
+.adm-tools {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.adm-tools input[type='search'] {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  border-radius: 14px;
+  border: 1px solid var(--adm-bd);
+  background: var(--adm-card);
+  color: var(--adm-tx);
+  font-size: 16px;
+}
+
+.adm-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.adm-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.adm-chip {
+  flex: none;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--adm-bd);
+  background: var(--adm-card);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.adm-chip[aria-pressed='true'] {
+  background: var(--adm-ink);
+  color: #fff;
+  border-color: var(--adm-ink);
+}
+
+.adm-chip i {
+  font-style: normal;
+  opacity: 0.7;
+  margin-left: 6px;
+  font-size: 12px;
+}
+
+.adm-list {
+  display: grid;
+  gap: 10px;
+}
+
+.adm-o {
+  background: var(--adm-card);
+  border: 1px solid var(--adm-bd);
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: var(--adm-sh);
+}
+
+.adm-o .h {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.adm-o .n {
+  font: 700 13px ui-monospace, monospace;
+  letter-spacing: 0.02em;
+}
+
+.adm-o .m {
+  color: var(--adm-mut);
+  font-size: 13px;
+}
+
+.adm-o .it {
+  font-size: 14px;
+  margin: 8px 0;
+  color: var(--adm-mut);
+}
+
+.adm-o .f {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.adm-o .tot {
+  font: 700 17px Georgia, serif;
+}
+
+.adm-st {
+  font: 700 12px system-ui;
+  border-radius: 999px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.s-PENDING {
+  background: var(--adm-warnb);
+  color: var(--adm-warn);
+}
+.s-PAID {
+  background: var(--adm-infob);
+  color: var(--adm-info);
+}
+.s-PREPARING {
+  background: var(--adm-goldbg);
+  color: var(--adm-gold);
+}
+.s-SHIPPED {
+  background: var(--adm-infob);
+  color: var(--adm-info);
+}
+.s-DELIVERED {
+  background: var(--adm-okb);
+  color: var(--adm-ok);
+}
+.s-CANCELLED {
+  background: var(--adm-badb);
+  color: var(--adm-bad);
+}
+
+.adm-acts {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.adm-b {
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid var(--adm-bd);
+  background: var(--adm-card);
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: var(--adm-tx);
+}
+
+.adm-b:active {
+  transform: scale(0.97);
+}
+
+.adm-b.p {
+  background: var(--adm-ink);
+  color: #fff;
+  border-color: var(--adm-ink);
+}
+
+.adm-b.d {
+  color: var(--adm-bad);
+  border-color: var(--adm-bad);
+}
+
+.adm-b.w {
+  color: var(--adm-ok);
+}
+
+.adm-b svg,
+.adm-nav svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.adm-empty {
+  text-align: center;
+  color: var(--adm-mut);
+  padding: 28px 8px;
+}
+
+.adm-low {
+  padding: 3px 9px;
+  border-radius: 999px;
+  font: 700 12px system-ui;
+}
+
+.adm-low.l0 {
+  background: var(--adm-badb);
+  color: var(--adm-bad);
+}
+
+.adm-low.l1 {
+  background: var(--adm-warnb);
+  color: var(--adm-warn);
+}
+
+.adm-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  background: var(--adm-ink);
+  display: flex;
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+}
+
+.adm-nav button {
+  flex: 1;
+  min-height: 54px;
+  border: 0;
+  background: transparent;
+  color: #cdbfb1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font: 600 11px system-ui;
+  cursor: pointer;
+  position: relative;
+  border-radius: 12px;
+}
+
+.adm-nav button[aria-current='page'] {
+  color: #fff;
+  background: #ffffff14;
+}
+
+.adm-nav .dot {
+  position: absolute;
+  top: 4px;
+  left: calc(50% + 6px);
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: var(--adm-bad);
+  color: #fff;
+  font: 700 11px/18px system-ui;
+  text-align: center;
+  padding: 0 4px;
+}
+
+#adm-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: none;
+}
+
+#adm-sheet.on {
+  display: block;
+}
+
+#adm-sheet .bg {
+  position: absolute;
+  inset: 0;
+  background: #0009;
+}
+
+#adm-sheet .pn {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--adm-card);
+  border-radius: 24px 24px 0 0;
+  padding: 18px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+  max-height: 85vh;
+  overflow: auto;
+}
+
+#adm-sheet h3 {
+  font: 700 18px Georgia, serif;
+  margin: 0 0 4px;
+}
+
+#adm-sheet .opts {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.adm-warnbox {
+  background: var(--adm-badb);
+  color: var(--adm-bad);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 14px;
+  margin-top: 12px;
+}
+
+#adm-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  transform: translate(-50%, 16px);
+  background: var(--adm-tx);
+  color: var(--adm-bg);
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.25s;
+  z-index: 60;
+  max-width: 90vw;
+}
+
+#adm-toast.on {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (min-width: 900px) {
+  .adm-root {
+    padding-bottom: 0;
+    padding-left: 220px;
+  }
+  .adm-nav {
+    top: 0;
+    bottom: auto;
+    right: auto;
+    width: 220px;
+    height: 100vh;
+    flex-direction: column;
+    padding: 70px 12px 12px;
+    gap: 4px;
+  }
+  .adm-nav button {
+    flex: none;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 0 14px;
+    min-height: 48px;
+    font-size: 15px;
+  }
+  .adm-nav .dot {
+    position: static;
+    margin-left: auto;
+  }
+  .adm-top {
+    padding-left: 24px;
+  }
+  .adm-kpis {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .adm-k.wide {
+    grid-column: auto;
+  }
+  .adm-two {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 14px;
+  }
+  .adm-list {
+    grid-template-columns: 1fr 1fr;
+  }
+  #adm-sheet .pn {
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    top: 50%;
+    width: 440px;
+    transform: translate(-50%, -50%);
+    border-radius: 24px;
+  }
+  #adm-toast {
+    bottom: 24px;
+  }
+}
+</style>

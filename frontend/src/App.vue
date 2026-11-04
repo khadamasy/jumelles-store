@@ -1,13 +1,13 @@
 <template>
   <div class="min-h-screen flex flex-col">
-    <Navbar />
+    <Navbar v-if="$route.path !== '/admin' || !authStore.isAdmin" />
 
     <main class="flex-1">
       <router-view />
     </main>
 
     <CartDrawer />
-    <Footer />
+    <Footer v-if="$route.path !== '/admin' || !authStore.isAdmin" />
 
     <div
       v-if="$route.path !== '/admin'"
