@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Jumelles Store : sacs en cuir et chaussures élégantes à Dakar. Livraison 24h, échange de pointure sous 48h.">
+<title>Jumelles Store – Sacs et chaussures à Dakar</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light;
+--bg:#faf7f2;--card:#fff;--tx:#241d19;--mut:#6f625a;--bd:#e9e0d6;--ink:#17110e;--gold:#b8893a;--gold2:#d9ad5c;--on-ink:#f6ece0;--wa:#1f9d55;--shadow:0 8px 24px rgba(36,29,25,.10)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#14100e;--card:#1e1814;--tx:#f3e9de;--mut:#b3a498;--bd:#352c26;--ink:#0c0908;--gold:#d9ad5c;--gold2:#e8c887;--on-ink:#f6ece0;--wa:#3fc77b;--shadow:0 8px 24px rgba(0,0,0,.45)}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#14100e;--card:#1e1814;--tx:#f3e9de;--mut:#b3a498;--bd:#352c26;--ink:#0c0908;--gold:#d9ad5c;--gold2:#e8c887;--on-ink:#f6ece0;--wa:#3fc77b;--shadow:0 8px 24px rgba(0,0,0,.45)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:84px}
+h1,h2,h3,.serif{font-family:Georgia,"Times New Roman",serif;letter-spacing:-.01em}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:8px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+/* Header : une seule ligne de 56 px */
+header{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--bd)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:31;background:var(--bg)}
+.bar{display:flex;align-items:center;gap:8px;height:56px}
+.logo{font:700 20px Georgia,serif;letter-spacing:.14em;flex:1}
+.logo small{display:block;font:600 9px system-ui;letter-spacing:.3em;color:var(--gold)}
+.ib{width:44px;height:44px;border-radius:12px;border:0;background:transparent;color:var(--tx);display:grid;place-items:center;cursor:pointer;position:relative}
+.ib:active{transform:scale(.92)}
+.ib svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.badge{position:absolute;top:4px;right:2px;min-width:18px;height:18px;border-radius:9px;background:var(--gold);color:#17110e;font:700 11px/18px system-ui;text-align:center;transition:transform .25s}
+.badge.pop{transform:scale(1.4)}
+/* Menu plein écran, utilisable au toucher et au clavier */
+#menu{position:fixed;inset:0;z-index:40;background:var(--ink);color:var(--on-ink);padding:calc(env(safe-area-inset-top,0px) + 12px) 20px 24px;transform:translateY(-100%);visibility:hidden;transition:transform .35s cubic-bezier(.2,.8,.2,1),visibility 0s .35s;display:flex;flex-direction:column}
+#menu.open{transform:none;visibility:visible;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+#menu .top{display:flex;justify-content:space-between;align-items:center}
+#menu nav{display:grid;gap:4px;margin-top:24px}
+#menu nav a{font:600 28px Georgia,serif;padding:12px 0;border-bottom:1px solid #ffffff1f;opacity:0;transform:translateX(-12px);transition:.4s}
+#menu.open nav a{opacity:1;transform:none}
+#menu.open nav a:nth-child(2){transition-delay:.06s}#menu.open nav a:nth-child(3){transition-delay:.12s}#menu.open nav a:nth-child(4){transition-delay:.18s}#menu.open nav a:nth-child(5){transition-delay:.24s}
+#menu .ib{color:var(--on-ink)}
+/* Hero */
+.hero{padding:28px 0 8px;display:grid;gap:20px}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;font:700 11px system-ui;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+.eyebrow i{width:8px;height:8px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
+h1{font-size:clamp(34px,9vw,56px);line-height:1.08;margin:10px 0 12px}
+.lead{color:var(--mut);margin:0;max-width:34em}
+.cta{display:grid;gap:10px;margin-top:20px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 22px;border-radius:16px;font-weight:700;border:0;cursor:pointer;font-size:16px;transition:transform .15s,box-shadow .2s}
+.btn:active{transform:scale(.97)}
+.btn.gold{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#17110e;box-shadow:var(--shadow)}
+.btn.line{background:transparent;border:1.5px solid var(--bd);color:var(--tx)}
+.visual{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{position:relative;border-radius:22px;overflow:hidden;aspect-ratio:3/4;color:#fff;display:flex;align-items:flex-end;padding:14px;box-shadow:var(--shadow)}
+.tile:nth-child(2){margin-top:28px}
+.tile::before{content:"";position:absolute;inset:0;background:var(--g);transition:transform .8s}
+.tile::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,#000000b3,transparent 60%)}
+.tile:hover::before{transform:scale(1.06)}
+.tile span{position:relative;z-index:1;font:600 15px Georgia,serif;line-height:1.25}
+.tile small{display:block;font:600 11px system-ui;color:var(--gold2);letter-spacing:.1em;text-transform:uppercase}
+/* Bandeau défilant (pause au toucher, arrêt si mouvement réduit) */
+.marq{overflow:hidden;background:var(--ink);color:var(--gold2);margin:22px 0}
+.marq div{display:flex;gap:36px;width:max-content;padding:11px 0;font:700 12px system-ui;letter-spacing:.16em;text-transform:uppercase;animation:slide 28s linear infinite}
+.marq:hover div,.marq:active div{animation-play-state:paused}
+/* Sections */
+section{padding:26px 0}
+h2{font-size:26px;margin:0 0 6px}
+.sub{color:var(--mut);margin:0 0 16px}
+.cats{display:grid;gap:12px}
+.cat{position:relative;border-radius:22px;overflow:hidden;min-height:150px;padding:18px;color:#fff;display:flex;flex-direction:column;justify-content:flex-end;box-shadow:var(--shadow)}
+.cat::before{content:"";position:absolute;inset:0;background:var(--g);transition:transform .8s}
+.cat::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,#000000a6,transparent 70%)}
+.cat>*{position:relative;z-index:1}.cat:hover::before{transform:scale(1.05)}
+.cat b{font:700 22px Georgia,serif}.cat span{font-size:14px;opacity:.9}
+.rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 16px 14px;margin:0 -16px;scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.card{flex:0 0 72%;max-width:280px;scroll-snap-align:start;background:var(--card);border:1px solid var(--bd);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);transition:transform .2s}
+.card:active{transform:scale(.98)}
+.card .img{aspect-ratio:4/5;background:var(--g)}
+.card .in{padding:12px 14px 14px}
+.card h3{font-size:16px;margin:0 0 4px;line-height:1.3}
+.price{font-weight:800;color:var(--gold)}
+.card button{margin-top:10px;width:100%;min-height:44px;border-radius:12px;border:1.5px solid var(--bd);background:transparent;color:var(--tx);font-weight:700;cursor:pointer}
+.card button:active{background:var(--gold);color:#17110e}
+.trust{display:grid;gap:10px}
+.t{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px}
+.t svg{flex:none;width:28px;height:28px;stroke:var(--gold);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.t b{display:block}.t span{color:var(--mut);font-size:14px}
+footer{background:var(--ink);color:var(--on-ink);padding:28px 0 20px;margin-top:20px}
+footer .cols{display:grid;gap:22px}
+footer h4{margin:0 0 8px;font:700 12px system-ui;letter-spacing:.2em;text-transform:uppercase;color:var(--gold2)}
+footer a{display:block;padding:8px 0;color:#e7dccf}
+footer p{color:#bfb1a3;font-size:13px}
+#social{display:flex;gap:10px;flex-wrap:wrap}
+#social a{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:12px;border:1px solid #ffffff2e;padding:0}
+#social svg{width:22px;height:22px;fill:currentColor}
+/* Barre de contact fixe */
+.dock{position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:35;display:flex;gap:8px;background:color-mix(in srgb,var(--ink) 94%,transparent);backdrop-filter:blur(10px);border:1px solid #ffffff22;border-radius:22px;padding:8px;box-shadow:0 12px 32px rgba(0,0,0,.35);transform:translateY(0);transition:transform .3s}
+.dock.hide{transform:translateY(140%)}
+.dock a{flex:1;min-height:48px;border-radius:15px;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:700;color:#fff}
+.dock .call{background:#ffffff14}.dock .wa{background:var(--wa);color:#08140d}
+.dock svg{width:20px;height:20px;fill:currentColor}
+#toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:90vw}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+/* Apparition au défilement */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .6s,transform .6s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
+@keyframes slide{to{transform:translateX(-50%)}}
+@keyframes pulse{50%{box-shadow:0 0 0 7px #b8893a00,0 0 0 0 #b8893a66}0%,100%{box-shadow:0 0 0 0 #b8893a66}}
+/* Tablette et plus : on enrichit, on ne répare pas */
+@media (min-width:720px){
+.wrap{padding:0 28px}body{padding-bottom:0}
+.hero{grid-template-columns:1.15fr 1fr;align-items:center;padding:56px 0 16px;gap:40px}
+.cta{grid-template-columns:auto auto;justify-content:start}
+.cats{grid-template-columns:1fr 1fr}.cat{min-height:240px}
+.card{flex-basis:260px}.rail{padding:4px 28px 14px;margin:0 -28px}
+.trust{grid-template-columns:repeat(3,1fr)}
+footer .cols{grid-template-columns:2fr 1fr 1fr}
+.dock{left:auto;right:24px;width:auto;min-width:380px}
+#toast{bottom:28px}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition-duration:.01ms!important;scroll-behavior:auto!important}.rv{opacity:1;transform:none}#menu nav a{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<header><div class="wrap bar">
+<button class="ib" id="burger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+<a href="#" data-to="/" class="logo">JUMELLES<small>SACS &amp; CHAUSSURES</small></a>
+<button class="ib" id="cart" aria-label="Voir le panier"><svg viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7L6 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/></svg><span class="badge" id="count">0</span></button>
+</div></header>
+
+<div id="menu" role="dialog" aria-modal="true" aria-label="Menu" aria-hidden="true">
+<div class="top"><span class="serif" style="letter-spacing:.14em">JUMELLES</span><button class="ib" id="close" aria-label="Fermer le menu"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+<nav aria-label="Navigation principale">
+<a href="#" data-to="/">Accueil</a><a href="#" data-to="/catalog?type=SAC">Sacs</a><a href="#" data-to="/catalog?type=CHAUSSURE">Chaussures</a><a href="#" data-to="/orders">Suivre ma commande</a><a href="#" data-to="/faq-livraison">Livraison et échanges</a>
+</nav></div>
+
+<main class="wrap">
+<div class="hero">
+<div class="rv">
+<span class="eyebrow"><i></i>Collection 2026 · Dakar</span>
+<h1>L’élégance du sac, la grâce du soulier.</h1>
+<p class="lead">Maroquinerie en cuir sélectionné et chaussures pour toutes vos occasions. Commandez en 2 minutes, confirmez sur WhatsApp, recevez chez vous.</p>
+<div class="cta"><a href="#" data-to="/catalog?type=SAC" class="btn gold">Découvrir les sacs</a><a href="#" data-to="/catalog?type=CHAUSSURE" class="btn line">Voir les chaussures</a></div>
+</div>
+<div class="visual rv">
+<a href="#" data-to="/product/sac-prestige-cuir-epsom-cadenas" class="tile" style="--g:linear-gradient(145deg,#c58a4a,#6b3f1f)"><span><small>Best-seller</small>Sac prestige cuir et cadenas</span></a>
+<a href="#" data-to="/product/mules-stiletto-brides-coeur-diamant-strass" class="tile" style="--g:linear-gradient(145deg,#3a2b33,#0f0a0d)"><span><small>Pointures 37–42</small>Mules stiletto brides cœur</span></a>
+</div></div>
+
+<div class="marq" aria-label="Nos engagements"><div>
+<span>Livraison 24h à Dakar</span><span>·</span><span>Échange de pointure 48h</span><span>·</span><span>Confirmation sur WhatsApp</span><span>·</span><span>Règlement à la livraison</span><span>·</span>
+<span aria-hidden="true">Livraison 24h à Dakar</span><span aria-hidden="true">·</span><span aria-hidden="true">Échange de pointure 48h</span><span aria-hidden="true">·</span><span aria-hidden="true">Confirmation sur WhatsApp</span><span aria-hidden="true">·</span><span aria-hidden="true">Règlement à la livraison</span><span aria-hidden="true">·</span>
+</div></div>
+
+<section class="rv"><h2>Deux univers</h2><p class="sub">Choisissez par où commencer.</p>
+<div class="cats">
+<a href="#" data-to="/catalog?type=SAC" class="cat" style="--g:linear-gradient(135deg,#b07a3f,#4a2a14)"><b>Sacs</b><span>À main, cabas, pochettes</span></a>
+<a href="#" data-to="/catalog?type=CHAUSSURE" class="cat" style="--g:linear-gradient(135deg,#2d2330,#0d0a0f)"><b>Chaussures</b><span>Mules, escarpins, sandales</span></a>
+</div></section>
+
+<section class="rv"><h2>Pièces du moment</h2><p class="sub">Faites glisser pour voir la suite.</p>
+<div class="rail" tabindex="0" aria-label="Produits du moment" id="rail"></div></section>
+
+<section class="rv"><h2>Commander en confiance</h2><p class="sub">Simple, local, sans surprise.</p>
+<div class="trust">
+<div class="t"><svg viewBox="0 0 24 24"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.7"/><circle cx="17" cy="17.5" r="1.7"/></svg><p style="margin:0"><b>Livraison 24h à Dakar</b><span>Votre commande est suivie par numéro et téléphone.</span></p></div>
+<div class="t"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5l2 2M20 12a8 8 0 0 1-14 5l-2-2M20 4v5h-5M4 20v-5h5"/></svg><p style="margin:0"><b>Échange de pointure 48h</b><span>Une pointure qui ne va pas : on la change.</span></p></div>
+<div class="t"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg><p style="margin:0"><b>Règlement à la livraison</b><span>Payez au moment de la remise de votre colis.</span></p></div>
+</div></section>
+</main>
+
+<footer><div class="wrap cols">
+<div><div class="serif" style="font-size:22px;letter-spacing:.14em">JUMELLES</div><p>Sacs et chaussures à Dakar. Ouvert 7j/7, de 08h à 22h.</p><div id="social" aria-label="Réseaux sociaux"></div></div>
+<div><h4>Boutique</h4><a href="#" data-to="/catalog?type=SAC">Sacs</a><a href="#" data-to="/catalog?category=pochettes-matelassees">Pochettes</a><a href="#" data-to="/catalog?type=CHAUSSURE">Chaussures</a><a href="#" data-to="/catalog?category=sandales-plates">Sandales</a></div>
+<div><h4>Aide</h4><a href="#" data-to="/orders">Suivre ma commande</a><a href="#" data-to="/faq-livraison">Livraison et échanges</a><a href="#" data-to="/conditions-utilisation">Conditions</a><a href="#" data-to="/politique-confidentialite">Confidentialité</a></div>
+</div></footer>
+
+<div class="dock" id="dock" role="complementary" aria-label="Contact direct">
+<a class="call" href="tel:+221772087820"><svg viewBox="0 0 24 24"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11 11 0 0 0 3.5.56 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.2.2 2.4.56 3.5a1 1 0 0 1-.25 1z"/></svg>Appeler</a>
+<a class="wa" href="https://wa.me/221772087820?text=Bonjour%20Jumelles%20Store%2C%20je%20souhaite%20commander." target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.2 14.3c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.8-.1 1.4z"/></svg>WhatsApp</a>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+var SOCIAL={instagram:"",facebook:"",tiktok:"https://www.tiktok.com/@khadamasy6"};
+var ICONS={instagram:"M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm5 5.5A4.5 4.5 0 1 0 12 16.5 4.5 4.5 0 0 0 12 7.5zm5.2-1.7a1.1 1.1 0 1 0 0 2.2 1.1 1.1 0 0 0 0-2.2z",facebook:"M14 8V6.5c0-.7.3-1 1-1h2V2h-3a4 4 0 0 0-4 4v2H7v3.5h3V22h4v-10.5h3l.5-3.5z",tiktok:"M16.5 2h-3.2v13.2a2.6 2.6 0 1 1-2.6-2.6c.3 0 .5 0 .8.1V9.4a5.8 5.8 0 1 0 5 5.8V8.6a7 7 0 0 0 4 1.3V6.7a4 4 0 0 1-4-4.7z"};
+var P=[{n:"Sac prestige cuir et cadenas",p:15000,s:"sac-prestige-cuir-epsom-cadenas",g:"#c58a4a,#6b3f1f"},{n:"Sac matelassé à rabat et chaîne",p:15000,s:"sac-matelasse-rabat-iconique-chaine",g:"#7d3b4b,#2c1119"},{n:"Mules stiletto brides cœur",p:12000,s:"mules-stiletto-brides-coeur-diamant-strass",g:"#3a2b33,#0f0a0d"},{n:"Sandales plates cuir verni croisées",p:12000,s:"sandales-plates-cuir-verni-croise",g:"#8a6a3a,#33220f"}];
+var fmt=function(n){return new Intl.NumberFormat("fr-FR").format(n)+" FCFA"};
+var $=function(i){return document.getElementById(i)};
+$("rail").innerHTML=P.map(function(x,i){return '<article class="card"><a href="#" data-to="/product/'+x.s+'"><div class="img" style="--g:linear-gradient(150deg,'+x.g+')"></div></a><div class="in"><h3>'+x.n+'</h3><span class="price">'+fmt(x.p)+'</span><button data-i="'+i+'">Ajouter au panier</button></div></article>'}).join("");
+$("social").innerHTML=Object.keys(SOCIAL).filter(function(k){return SOCIAL[k]}).map(function(k){return '<a href="'+SOCIAL[k]+'" target="_blank" rel="noopener noreferrer" aria-label="'+k+'"><svg viewBox="0 0 24 24"><path d="'+ICONS[k]+'"/></svg></a>'}).join("");
+var toast=$("toast"),tt;function say(m){toast.textContent=m;toast.classList.add("on");clearTimeout(tt);tt=setTimeout(function(){toast.classList.remove("on")},2200)}
+var n=0;document.addEventListener("click",function(e){
+var b=e.target.closest("button[data-i]");if(b){n++;var c=$("count");c.textContent=n;c.classList.add("pop");setTimeout(function(){c.classList.remove("pop")},250);say("Ajouté : "+P[b.dataset.i].n);return}
+var a=e.target.closest("a[data-to]");if(a){e.preventDefault();closeMenu();say("Lien réel dans l’application : "+a.dataset.to)}});
+$("cart").onclick=function(){say(n?n+" article(s) dans le panier":"Votre panier est vide")};
+var menu=$("menu"),burger=$("burger"),last;
+function openMenu(){last=document.activeElement;menu.classList.add("open");menu.setAttribute("aria-hidden","false");burger.setAttribute("aria-expanded","true");$("close").focus();document.body.style.overflow="hidden"}
+function closeMenu(){if(!menu.classList.contains("open"))return;menu.classList.remove("open");menu.setAttribute("aria-hidden","true");burger.setAttribute("aria-expanded","false");document.body.style.overflow="";if(last)last.focus()}
+burger.onclick=openMenu;$("close").onclick=closeMenu;document.addEventListener("keydown",function(e){if(e.key==="Escape")closeMenu()});
+var io=("IntersectionObserver" in window)?new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add("in");io.unobserve(x.target)}})},{threshold:.12}):null;
+document.querySelectorAll(".rv").forEach(function(el){io?io.observe(el):el.classList.add("in")});
+var ly=0,dock=$("dock");addEventListener("scroll",function(){var y=scrollY;dock.classList.toggle("hide",y>ly+8&&y>400&&innerWidth<720);if(y<ly-8)dock.classList.remove("hide");ly=y},{passive:true});
+</script>
+</body>
+</html>
+

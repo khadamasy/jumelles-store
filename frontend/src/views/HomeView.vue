@@ -2,7 +2,7 @@
   <div>
     <div class="wrap">
       <div class="hero">
-        <div>
+        <div class="rv">
           <span class="eyebrow"><i></i>Collection 2026 · Dakar</span>
           <h1>L’élégance du sac, la grâce du soulier.</h1>
           <p class="lead">
@@ -14,7 +14,7 @@
           </div>
         </div>
 
-        <div class="visual">
+        <div class="visual rv">
           <router-link
             to="/product/sac-prestige-cuir-epsom-cadenas"
             class="tile"
@@ -58,7 +58,7 @@
     </div>
 
     <div class="wrap">
-      <section class="jm-section">
+      <section class="jm-section rv">
         <h2>Deux univers</h2>
         <p class="sub">Choisissez par où commencer.</p>
         <div class="cats">
@@ -94,7 +94,7 @@
         </div>
       </section>
 
-      <section class="jm-section">
+      <section class="jm-section rv">
         <h2>Pièces du moment</h2>
         <p class="sub">Faites glisser pour voir la suite.</p>
         <div class="rail" tabindex="0" aria-label="Produits du moment" id="rail">
@@ -130,7 +130,7 @@
         </div>
       </section>
 
-      <section class="jm-section">
+      <section class="jm-section rv">
         <h2>Commander en confiance</h2>
         <p class="sub">Simple, local, sans surprise.</p>
         <div class="trust">
@@ -283,6 +283,27 @@ const quickAddToCart = (item: any) => {
 };
 
 onMounted(async () => {
+  if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+    const io =
+      'IntersectionObserver' in window
+        ? new IntersectionObserver(
+            (entries) => {
+              entries.forEach((x) => {
+                if (x.isIntersecting) {
+                  x.target.classList.add('in');
+                  io?.unobserve(x.target);
+                }
+              });
+            },
+            { threshold: 0.12 }
+          )
+        : null;
+    document.querySelectorAll('.rv').forEach((el) => {
+      if (io) io.observe(el);
+      else el.classList.add('in');
+    });
+  }
+
   try {
     const res = await ProductService.getAll();
     if (Array.isArray(res.data?.data)) {
