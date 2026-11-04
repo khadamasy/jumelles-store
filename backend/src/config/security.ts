@@ -46,8 +46,8 @@ export const verifyAdminPassword = (candidate: unknown): boolean => {
   return crypto.timingSafeEqual(a, b);
 };
 
-/** Avertissement si les identifiants MinIO par défaut sont utilisés en production */
-if (isProduction && (!process.env.MINIO_SECRET_KEY || process.env.MINIO_SECRET_KEY === 'minioadmin_secure_2026')) {
-  console.warn('[SÉCURITÉ] MINIO_SECRET_KEY par défaut détecté : changez-le avant la mise en ligne.');
+/** Avertissement si les identifiants MinIO ne sont pas définis en production */
+if (isProduction && (!process.env.MINIO_SECRET_KEY || process.env.MINIO_SECRET_KEY.length < 16)) {
+  console.warn('[SÉCURITÉ] MINIO_SECRET_KEY absent ou trop court : définissez un secret fort en production.');
 }
 

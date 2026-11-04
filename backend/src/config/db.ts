@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://jumelles_admin:jumelles_secure_password_2026@localhost:5432/jumelles_db?schema=public',
+  connectionString: process.env.DATABASE_URL,
 });
 
 export interface Category {

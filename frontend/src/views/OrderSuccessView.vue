@@ -137,8 +137,9 @@ const formatPrice = (price: number) => {
 };
 
 onMounted(() => {
-  // Récupérer depuis sessionStorage si disponible
+  // Récupérer depuis sessionStorage si disponible puis effacer immédiatement
   const saved = sessionStorage.getItem('jumelles_last_order');
+  sessionStorage.removeItem('jumelles_last_order');
   if (saved) {
     try {
       const data = JSON.parse(saved);

@@ -1650,7 +1650,10 @@ const handleAdminLogin = async () => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
+  if (!authStore.sessionChecked) {
+    await authStore.checkSession();
+  }
   if (authStore.isAdmin) {
     loadData();
   }

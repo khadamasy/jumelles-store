@@ -10,7 +10,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-jumelles_admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-jumelles_secure_password_2026}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Definissez POSTGRES_PASSWORD dans .env}
       POSTGRES_DB: ${POSTGRES_DB:-jumelles_db}
     ports:
       - "127.0.0.1:5432:5432"
@@ -29,8 +29,8 @@ services:
     restart: always
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin_secure_2026}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Definissez MINIO_ROOT_USER dans .env}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Definissez MINIO_ROOT_PASSWORD dans .env}
     ports:
       - "9000:9000"   # API S3 (lecture publique des images produits)
       - "127.0.0.1:9001:9001"   # Console Web (accès local uniquement)
@@ -48,7 +48,7 @@ services:
     entrypoint: >
       /bin/sh -c "
       sleep 3;
-      /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASSWORD:-minioadmin_secure_2026};
+      /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
       /usr/bin/mc mb myminio/jumelles-products --ignore-existing;
       /usr/bin/mc mb myminio/jumelles-invoices --ignore-existing;
       /usr/bin/mc anonymous set download myminio/jumelles-products;
@@ -67,14 +67,14 @@ services:
     command: start-dev --import-realm
     environment:
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin_secure_2026}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Definissez KEYCLOAK_ADMIN_PASSWORD dans .env}
       KC_DB: postgres
       KC_DB_URL_HOST: postgres
       KC_DB_URL_PORT: 5432
       KC_DB_URL_DATABASE: ${POSTGRES_DB:-jumelles_db}
       KC_DB_SCHEMA: keycloak
       KC_DB_USERNAME: ${POSTGRES_USER:-jumelles_admin}
-      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-jumelles_secure_password_2026}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD}
       KC_HEALTH_ENABLED: "true"
     ports:
       - "127.0.0.1:8080:8080"
@@ -100,15 +100,15 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Definissez ADMIN_PASSWORD dans .env}
       JWT_SECRET: ${JWT_SECRET:?Definissez JWT_SECRET dans .env (32 caracteres minimum)}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-jumelles_admin}:${POSTGRES_PASSWORD:-jumelles_secure_password_2026}@postgres:5432/${POSTGRES_DB:-jumelles_db}?schema=public
+      DATABASE_URL: postgresql://${POSTGRES_USER:-jumelles_admin}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-jumelles_db}?schema=public
       KEYCLOAK_AUTH_SERVER_URL: http://keycloak:8080
       KEYCLOAK_REALM: jumelles-store
       KEYCLOAK_CLIENT_ID: jumelles-backend
       MINIO_ENDPOINT: minio
       MINIO_PORT: 9000
       MINIO_USE_SSL: "false"
-      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin_secure_2026}
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
       MINIO_BUCKET_PRODUCTS: jumelles-products
     ports:
       - "4000:4000"
@@ -142,4 +142,3 @@ networks:
 volumes:
   postgres_data:
   minio_data:
-

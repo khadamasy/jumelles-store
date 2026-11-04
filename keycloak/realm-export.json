@@ -4,10 +4,11 @@
   "displayName": "Jumelles Store",
   "enabled": true,
   "sslRequired": "external",
-  "registrationAllowed": true,
+  "registrationAllowed": false,
   "loginWithEmailAllowed": true,
   "duplicateEmailsAllowed": false,
   "resetPasswordAllowed": true,
+  "bruteForceProtected": true,
   "roles": {
     "realm": [
       {
@@ -27,14 +28,16 @@
       "name": "Jumelles Store Frontend (Vue.js)",
       "enabled": true,
       "publicClient": true,
-      "directAccessGrantsEnabled": true,
+      "directAccessGrantsEnabled": false,
       "standardFlowEnabled": true,
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
       "redirectUris": [
-        "http://localhost:3000/*",
-        "http://localhost:5173/*"
+        "http://localhost:3000/*"
       ],
       "webOrigins": [
-        "*"
+        "http://localhost:3000"
       ]
     },
     {
@@ -43,40 +46,5 @@
       "enabled": true,
       "bearerOnly": true
     }
-  ],
-  "users": [
-    {
-      "username": "admin@jumelles.com",
-      "email": "admin@jumelles.com",
-      "firstName": "Directrice",
-      "lastName": "Jumelles",
-      "enabled": true,
-      "emailVerified": true,
-      "credentials": [
-        {
-          "type": "password",
-          "value": "Admin@2026",
-          "temporary": false
-        }
-      ],
-      "realmRoles": ["ROLE_ADMIN", "ROLE_CLIENT"]
-    },
-    {
-      "username": "client@jumelles.com",
-      "email": "client@jumelles.com",
-      "firstName": "Awa",
-      "lastName": "Diop",
-      "enabled": true,
-      "emailVerified": true,
-      "credentials": [
-        {
-          "type": "password",
-          "value": "Client@2026",
-          "temporary": false
-        }
-      ],
-      "realmRoles": ["ROLE_CLIENT"]
-    }
   ]
 }
-

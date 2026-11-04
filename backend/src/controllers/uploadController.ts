@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
-import { minioClient, BUCKET_PRODUCTS } from '../config/minio';
+import { minioClient, BUCKET_PRODUCTS, isMinioConfigured } from '../config/minio';
 
 const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
 
@@ -48,6 +48,13 @@ export const uploadProductImage = async (req: Request, res: Response) => {
 
     // Nom de fichier entièrement généré côté serveur (le nom d'origine est ignoré)
     const filename = `product-${uuidv4()}${detected.ext}`;
+
+    if (!isMinioConfigured) {
+      return res.status(503).json({
+        success: false,
+        message: 'Stockage MinIO non configuré. Sélectionnez un visuel existant dans la galerie.',
+      });
+    }
 
     try {
       await minioClient.putObject(BUCKET_PRODUCTS, filename, file.buffer, file.size, {

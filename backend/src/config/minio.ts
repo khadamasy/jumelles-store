@@ -6,21 +6,29 @@ dotenv.config();
 const endPoint = process.env.MINIO_ENDPOINT || 'localhost';
 const port = parseInt(process.env.MINIO_PORT || '9000', 10);
 const useSSL = process.env.MINIO_USE_SSL === 'true';
-const accessKey = process.env.MINIO_ACCESS_KEY || 'minioadmin';
-const secretKey = process.env.MINIO_SECRET_KEY || 'minioadmin_secure_2026';
+const accessKey = process.env.MINIO_ACCESS_KEY || '';
+const secretKey = process.env.MINIO_SECRET_KEY || '';
 
-export const minioClient = new Client({
-  endPoint,
-  port,
-  useSSL,
-  accessKey,
-  secretKey,
-});
+export const isMinioConfigured = Boolean(accessKey && secretKey);
+
+export const minioClient = isMinioConfigured
+  ? new Client({
+      endPoint,
+      port,
+      useSSL,
+      accessKey,
+      secretKey,
+    })
+  : (null as unknown as Client);
 
 export const BUCKET_PRODUCTS = process.env.MINIO_BUCKET_PRODUCTS || 'jumelles-products';
 export const BUCKET_INVOICES = process.env.MINIO_BUCKET_INVOICES || 'jumelles-invoices';
 
 export async function initMinioBuckets() {
+  if (!isMinioConfigured) {
+    console.info('[MinIO] MINIO_ACCESS_KEY / MINIO_SECRET_KEY non définis : stockage S3 désactivé.');
+    return;
+  }
   try {
     const productsExists = await minioClient.bucketExists(BUCKET_PRODUCTS);
     if (!productsExists) {
@@ -37,4 +45,3 @@ export async function initMinioBuckets() {
     console.warn(`[MinIO] Connexion au serveur MinIO non disponible immédiatement: ${error.message}`);
   }
 }
-

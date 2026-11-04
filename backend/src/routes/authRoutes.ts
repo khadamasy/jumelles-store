@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { adminLogin, me } from '../controllers/authController';
+import { adminLogin, adminLogout, me } from '../controllers/authController';
 import { requireAuth } from '../middlewares/authMiddleware';
 import { rateLimit } from '../middlewares/security';
 
@@ -14,7 +14,7 @@ const loginLimiter = rateLimit({
 });
 
 router.post('/admin/login', loginLimiter, adminLogin);
+router.post('/logout', adminLogout);
 router.get('/me', requireAuth, me);
 
 export default router;
-

@@ -4,8 +4,6 @@ const resolveApiUrl = () => {
   if (import.meta.env.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;
   }
-  // En mode navigateur (PC ou téléphone mobile connecté en Wi-Fi 192.168.x.x) :
-  // Utiliser le chemin relatif '/api' qui passe par le proxy Vite et résout automatiquement l'IP du serveur
   if (typeof window !== 'undefined' && window.location) {
     return '/api';
   }
@@ -14,37 +12,19 @@ const resolveApiUrl = () => {
 
 export const API_URL = resolveApiUrl();
 
+/**
+ * Client HTTP sécurisé :
+ * - Authentification par cookie HttpOnly (aucun token stocké dans localStorage / sessionStorage)
+ * - En-tête anti-CSRF X-Requested-With envoyé sur chaque requête
+ */
 export const apiClient = axios.create({
   baseURL: API_URL,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
+    'X-Requested-With': 'JumellesStore',
   },
 });
-
-// Intercepteur : jeton de session ajouté uniquement pour les appels vers notre API
-apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('jumelles_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Session expirée ou révoquée : purge locale et retour à l'écran de connexion
-apiClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const isLoginCall = String(error.config?.url || '').includes('/auth/admin/login');
-    if (error.response?.status === 401 && !isLoginCall && localStorage.getItem('jumelles_token')) {
-      localStorage.removeItem('jumelles_token');
-      localStorage.removeItem('jumelles_user');
-      if (window.location.pathname.startsWith('/admin')) {
-        window.location.reload();
-      }
-    }
-    return Promise.reject(error);
-  }
-);
 
 // Services Produits
 export const ProductService = {
@@ -104,4 +84,3 @@ export const PhoneService = {
   updateCallbackStatus: (id: string, status: 'PENDING' | 'CALLED') =>
     apiClient.patch(`/phone/admin/callbacks/${id}/status`, { status }),
 };
-

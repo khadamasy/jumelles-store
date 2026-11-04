@@ -62,8 +62,8 @@ docker compose up --build
 Les services sont alors immédiatement accessibles :
 - **Boutique E-commerce (Vue.js) :** [http://localhost:3000](http://localhost:3000)
 - **API REST Backend (Node.js) :** [http://localhost:4000/health](http://localhost:4000/health)
-- **Console MinIO S3 :** [http://localhost:9001](http://localhost:9001) (`minioadmin` / `minioadmin_secure_2026`)
-- **Console d'Administration Keycloak :** [http://localhost:8080](http://localhost:8080) (`admin` / `admin_secure_2026`)
+- **Console MinIO S3 (locale) :** [http://127.0.0.1:9001](http://127.0.0.1:9001) (identifiants définis dans `.env`)
+- **Console Keycloak (locale) :** [http://127.0.0.1:8080](http://127.0.0.1:8080) (identifiants définis dans `.env`)
 
 ---
 
@@ -87,24 +87,19 @@ npm run dev
 
 ---
 
-## 💳 Tester les Flux de Paiement Wave & Orange Money
+## 🛍️ Tunnel de Commande & Confirmation WhatsApp
 
 1. Ouvrez l'application web sur [http://localhost:3000](http://localhost:3000).
 2. Choisissez un sac ou une paire de chaussures, sélectionnez la **pointure** (ex: 38) ou la **couleur**, et ajoutez au panier.
 3. Allez dans le panier et cliquez sur **« Valider et Commander »**.
-4. Renseignez l'adresse de livraison à Dakar ou en région.
-5. Choisissez **Wave** ou **Orange Money** et validez :
-   - Pour **Wave** : affichage du QR Code à scanner avec l'application mobile Wave.
-   - Pour **Orange Money** : lien de redirection sécurisé.
-   - Un bouton **« Simuler la confirmation du paiement (Test) »** vous permet de tester immédiatement la validation de la transaction et la mise à jour de la commande en statut `PAYÉ`.
+4. Renseignez vos coordonnées et votre adresse de livraison à Dakar ou en région, puis validez pour confirmer directement sur **WhatsApp**.
 
 ---
 
-## 👑 Accéder à l'Espace Administration
+## 🔒 Accéder à l'Espace Administration (`/admin`)
 
-1. Cliquez sur l'icône de profil en haut à droite de la boutique.
-2. Cliquez sur **« 👑 Démo Admin (Directrice) »** ou connectez-vous avec Keycloak (`admin@jumelles.com` / `Admin@2026`).
-3. Accédez à l'onglet **« ⚙️ Espace Admin »** :
-   - Suivi du chiffre d'affaires et des commandes.
-   - Changement des statuts de commande (*En préparation*, *Expédiée*, *Livrée*).
-   - Ajout d'un nouvel article avec upload direct de photos vers **MinIO** et gestion des stocks par pointure/couleur.
+1. Définissez les variables `ADMIN_PASSWORD` et `JWT_SECRET` dans `backend/.env` (voir `.env.example`).
+2. Rendez-vous sur [http://localhost:3000/admin](http://localhost:3000/admin) et saisissez le mot de passe de gérance :
+   - La session est stockée dans un **cookie `HttpOnly; SameSite=Strict`** (aucun jeton exposé dans `localStorage` ni `sessionStorage`).
+   - Suivi du chiffre d'affaires, des commandes et des rappels téléphoniques.
+   - Création/modification d'articles et gestion des stocks par pointure/couleur.
