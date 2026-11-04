@@ -21,7 +21,7 @@ export const apiClient = axios.create({
   },
 });
 
-// Intercepteur pour injecter automatiquement le Token Keycloak
+// Intercepteur : jeton de session ajouté uniquement pour les appels vers notre API
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('jumelles_token');
   if (token) {
@@ -29,6 +29,22 @@ apiClient.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Session expirée ou révoquée : purge locale et retour à l'écran de connexion
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const isLoginCall = String(error.config?.url || '').includes('/auth/admin/login');
+    if (error.response?.status === 401 && !isLoginCall && localStorage.getItem('jumelles_token')) {
+      localStorage.removeItem('jumelles_token');
+      localStorage.removeItem('jumelles_user');
+      if (window.location.pathname.startsWith('/admin')) {
+        window.location.reload();
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 // Services Produits
 export const ProductService = {
@@ -61,18 +77,11 @@ export const OrderService = {
     shippingCity: string;
     items: { productVariantId: string; quantity: number }[];
   }) => apiClient.post('/orders', orderData),
-  getByIdOrNumber: (idOrNumber: string) => apiClient.get(`/orders/${idOrNumber}`),
-  getMyOrders: (email: string) => apiClient.get('/orders/my-orders', { params: { email } }),
+  track: (orderNumber: string, phone: string) =>
+    apiClient.get('/orders/track', { params: { orderNumber, phone } }),
   getAllAdmin: () => apiClient.get('/orders/admin/all'),
   getStats: () => apiClient.get('/orders/admin/dashboard-stats'),
   updateStatus: (id: string, status: string) => apiClient.patch(`/orders/admin/${id}/status`, { status }),
-};
-
-// Services Paiement (Wave & Orange Money)
-export const PaymentService = {
-  initiate: (data: { orderId: string; provider: 'WAVE' | 'ORANGE_MONEY'; customerPhone?: string }) =>
-    apiClient.post('/payments/initiate', data),
-  simulateSuccess: (orderId: string) => apiClient.post('/payments/simulate-success', { orderId }),
 };
 
 // Services Upload Médias (MinIO)

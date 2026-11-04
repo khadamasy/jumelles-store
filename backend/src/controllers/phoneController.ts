@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { memoryStore, PhoneCallbackRequest } from '../config/db';
+import { cleanText, isValidPhone } from '../middlewares/security';
 
 export const OFFICIAL_PHONE = '+221 77 208 78 20';
 export const OFFICIAL_PHONE_RAW = '221772087820';
@@ -28,44 +29,42 @@ export const getPhoneInfo = (req: Request, res: Response) => {
  */
 export const requestCallback = async (req: Request, res: Response) => {
   try {
-    const { customerName, customerPhone, productInterest, notes } = req.body;
+    const { customerName, customerPhone, productInterest, notes } = req.body || {};
 
-    if (!customerPhone || typeof customerPhone !== 'string') {
+    if (!isValidPhone(customerPhone)) {
       return res.status(400).json({
         success: false,
         message: 'Veuillez renseigner un numéro de téléphone valide (ex: 77 208 78 20).',
       });
     }
 
-    const cleanPhone = customerPhone.trim();
-    if (cleanPhone.length < 8) {
-      return res.status(400).json({
-        success: false,
-        message: 'Le numéro de téléphone saisi est trop court.',
-      });
+    const cleanPhone = cleanText(customerPhone, 25);
+
+    // Plafond anti-saturation de la mémoire
+    if (memoryStore.phoneCallbacks.length >= 2000) {
+      memoryStore.phoneCallbacks.length = 1999;
     }
 
     const newRequest: PhoneCallbackRequest = {
-      id: `call-${uuidv4().substring(0, 8)}`,
-      customerName: customerName ? customerName.trim() : 'Cliente Anonyme',
+      id: `call-${uuidv4()}`,
+      customerName: cleanText(customerName, 100) || 'Cliente Anonyme',
       customerPhone: cleanPhone,
-      productInterest: productInterest || 'Commande d\'articles',
-      notes: notes || 'Demande de rappel téléphonique immédiat',
+      productInterest: cleanText(productInterest, 200) || 'Commande d\'articles',
+      notes: cleanText(notes, 500) || 'Demande de rappel téléphonique immédiat',
       status: 'PENDING',
       createdAt: new Date().toISOString(),
     };
 
     memoryStore.phoneCallbacks.unshift(newRequest);
 
-    console.log(`[Téléphonie Jumelles Store] Nouvelle demande de rappel reçue : ${newRequest.customerPhone} (${newRequest.customerName})`);
-
     res.status(201).json({
       success: true,
-      message: 'Votre demande de rappel a été enregistrée avec succès. Notre équipe vous contacte dans quelques minutes au ' + cleanPhone,
-      data: newRequest,
+      message: 'Votre demande de rappel a été enregistrée. Notre équipe vous contacte très vite.',
+      data: { id: newRequest.id, status: newRequest.status },
     });
-  } catch (error: any) {
-    res.status(500).json({ success: false, message: error.message });
+  } catch (error) {
+    console.error('[requestCallback]', error);
+    res.status(500).json({ success: false, message: 'Erreur interne.' });
   }
 };
 

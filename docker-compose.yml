@@ -13,7 +13,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-jumelles_secure_password_2026}
       POSTGRES_DB: ${POSTGRES_DB:-jumelles_db}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/prisma/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -32,8 +32,8 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin_secure_2026}
     ports:
-      - "9000:9000"   # API S3
-      - "9001:9001"   # Console Web
+      - "9000:9000"   # API S3 (lecture publique des images produits)
+      - "127.0.0.1:9001:9001"   # Console Web (accès local uniquement)
     volumes:
       - minio_data:/data
     networks:
@@ -77,7 +77,7 @@ services:
       KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-jumelles_secure_password_2026}
       KC_HEALTH_ENABLED: "true"
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     volumes:
       - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm.json:ro
     depends_on:
@@ -96,7 +96,10 @@ services:
     restart: always
     environment:
       PORT: 4000
-      NODE_ENV: development
+      NODE_ENV: production
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Definissez ADMIN_PASSWORD dans .env}
+      JWT_SECRET: ${JWT_SECRET:?Definissez JWT_SECRET dans .env (32 caracteres minimum)}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
       DATABASE_URL: postgresql://${POSTGRES_USER:-jumelles_admin}:${POSTGRES_PASSWORD:-jumelles_secure_password_2026}@postgres:5432/${POSTGRES_DB:-jumelles_db}?schema=public
       KEYCLOAK_AUTH_SERVER_URL: http://keycloak:8080
       KEYCLOAK_REALM: jumelles-store
@@ -107,10 +110,6 @@ services:
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin_secure_2026}
       MINIO_BUCKET_PRODUCTS: jumelles-products
-      WAVE_API_KEY: ${WAVE_API_KEY:-wave_test_secret_key_jumelles}
-      WAVE_WEBHOOK_SECRET: ${WAVE_WEBHOOK_SECRET:-wave_whsec_jumelles}
-      ORANGE_MONEY_CLIENT_ID: ${ORANGE_MONEY_CLIENT_ID:-om_client_id}
-      ORANGE_MONEY_CLIENT_SECRET: ${ORANGE_MONEY_CLIENT_SECRET:-om_secret}
     ports:
       - "4000:4000"
     depends_on:

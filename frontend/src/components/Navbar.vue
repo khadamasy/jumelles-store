@@ -191,24 +191,6 @@
                 </router-link>
               </div>
 
-              <!-- Switch roles for instant test -->
-              <div class="px-4 py-2 border-t border-stone-100 space-y-1.5 bg-stone-50/50">
-                <p class="text-[10px] uppercase tracking-wider text-stone-400 font-bold mb-1">Basculer de profil test :</p>
-                <button
-                  @click="authStore.loginAsDemoAdmin"
-                  class="w-full text-left text-xs text-amber-900 hover:bg-amber-100/70 p-1.5 rounded-lg flex items-center justify-between font-bold cursor-pointer"
-                >
-                  <span>👑 Mode Gérance</span>
-                  <span class="text-[10px] text-amber-600">Admin</span>
-                </button>
-                <button
-                  @click="authStore.loginAsDemoClient"
-                  class="w-full text-left text-xs text-blue-900 hover:bg-blue-100/70 p-1.5 rounded-lg flex items-center justify-between font-semibold cursor-pointer"
-                >
-                  <span>👤 Mode Cliente</span>
-                  <span class="text-[10px] text-blue-600">Acheter</span>
-                </button>
-              </div>
 
               <div v-if="authStore.isAuthenticated" class="border-t border-stone-100 mt-1 pt-1">
                 <button @click="authStore.logout" class="w-full text-left px-4 py-2 text-xs font-semibold text-rosewood-600 hover:bg-rosewood-50 cursor-pointer">

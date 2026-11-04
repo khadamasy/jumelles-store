@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import Keycloak from 'keycloak-js';
+import { apiClient } from '../services/api';
 
 export interface UserProfile {
   id: string;
@@ -8,12 +9,41 @@ export interface UserProfile {
   roles: string[];
 }
 
+/** Lit la date d'expiration d'un JWT (sans le faire confiance : le serveur reste seul juge) */
+const isTokenExpired = (token: string): boolean => {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return !payload.exp || payload.exp * 1000 <= Date.now();
+  } catch {
+    return true;
+  }
+};
+
+/** Restaure la session stockée uniquement si elle est encore valide (purge des anciens jetons « démo ») */
+const restoreSession = () => {
+  const token = localStorage.getItem('jumelles_token') || '';
+  if (!token || token.startsWith('demo-token') || isTokenExpired(token)) {
+    localStorage.removeItem('jumelles_token');
+    localStorage.removeItem('jumelles_user');
+    return { token: '', user: null as UserProfile | null };
+  }
+  let user: UserProfile | null = null;
+  try {
+    user = JSON.parse(localStorage.getItem('jumelles_user') || 'null');
+  } catch {
+    user = null;
+  }
+  return { token, user };
+};
+
+const initial = restoreSession();
+
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     keycloakInstance: null as Keycloak | null,
-    isAuthenticated: !!localStorage.getItem('jumelles_token'),
-    token: localStorage.getItem('jumelles_token') || '',
-    user: JSON.parse(localStorage.getItem('jumelles_user') || 'null') as UserProfile | null,
+    isAuthenticated: !!initial.token,
+    token: initial.token,
+    user: initial.user,
     isLoading: false,
   }),
 
@@ -26,33 +56,16 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     // Initialisation OIDC Keycloak sécurisée et non-bloquante
     async initKeycloak() {
+      const kcUrl = import.meta.env.VITE_KEYCLOAK_URL;
+      if (!kcUrl) return; // Keycloak non configuré : connexion gérance par mot de passe
+
       try {
-        const kcUrl = import.meta.env.VITE_KEYCLOAK_URL || 'http://localhost:8080';
-        
-        // Vérifier si Keycloak est accessible avant d'initialiser pour éviter toute redirection
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 1200);
-
-        try {
-          await fetch(`${kcUrl}/realms/jumelles-store`, {
-            method: 'HEAD',
-            signal: controller.signal,
-            mode: 'no-cors'
-          });
-        } catch (pingErr) {
-          console.info('[Keycloak] Serveur Keycloak (port 8080) non actif localement. Mode démo actif.');
-          return;
-        } finally {
-          clearTimeout(timeoutId);
-        }
-
         const kc = new Keycloak({
           url: kcUrl,
           realm: 'jumelles-store',
           clientId: 'jumelles-frontend',
         });
 
-        // Ne JAMAIS utiliser 'check-sso' sans iframe pour éviter les redirections forcées intempestives
         const authenticated = await kc.init({
           checkLoginIframe: false,
           pkceMethod: 'S256',
@@ -69,15 +82,23 @@ export const useAuthStore = defineStore('auth', {
           });
         }
       } catch (err) {
-        console.info('[Keycloak SSO] Keycloak en attente de démarrage :', err);
+        console.info('[Keycloak SSO] Indisponible :', err);
       }
     },
 
     loginKeycloak() {
-      if (this.keycloakInstance) {
-        this.keycloakInstance.login({ redirectUri: window.location.origin });
-      } else {
-        alert('Le serveur Keycloak (port 8080) n\'est pas encore démarré.\n\nVous pouvez utiliser la connexion rapide démo en 1 clic dans le menu ("Démo Client" ou "Démo Admin") pour tester toute la boutique immédiatement !');
+      this.keycloakInstance?.login({ redirectUri: window.location.origin });
+    },
+
+    /** Connexion de la gérance : le mot de passe est vérifié uniquement côté serveur */
+    async loginAdmin(password: string) {
+      this.isLoading = true;
+      try {
+        const res = await apiClient.post('/auth/admin/login', { password });
+        const { token, user } = res.data.data;
+        this.setSession(token, user);
+      } finally {
+        this.isLoading = false;
       }
     },
 
@@ -94,25 +115,6 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    // Connexions rapides de démonstration (pour tester instantanément l'application)
-    loginAsDemoAdmin() {
-      this.setSession('demo-token-admin', {
-        id: 'admin-001',
-        email: 'admin@jumelles.com',
-        name: 'Directrice Jumelles (Admin)',
-        roles: ['ROLE_ADMIN', 'ROLE_CLIENT'],
-      });
-    },
-
-    loginAsDemoClient() {
-      this.setSession('demo-token-client', {
-        id: 'client-002',
-        email: 'client@jumelles.com',
-        name: 'Awa Diop (Cliente)',
-        roles: ['ROLE_CLIENT'],
-      });
-    },
-
     setSession(token: string, user: UserProfile) {
       this.token = token;
       this.user = user;
@@ -122,4 +124,3 @@ export const useAuthStore = defineStore('auth', {
     },
   },
 });
-

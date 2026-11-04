@@ -9,24 +9,41 @@
       </p>
     </div>
 
-    <!-- Search / Filter by Email -->
-    <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex flex-col sm:flex-row gap-4 items-center">
-      <div class="flex-1 w-full">
-        <label class="block text-xs font-semibold text-stone-600 mb-1">Votre adresse e-mail :</label>
+    <!-- Recherche sécurisée : numéro de commande + téléphone -->
+    <form
+      @submit.prevent="loadOrders"
+      class="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm grid grid-cols-1 sm:grid-cols-3 gap-4 items-end"
+    >
+      <div>
+        <label class="block text-xs font-semibold text-stone-600 mb-1">Numéro de commande :</label>
         <input
-          v-model="emailInput"
-          type="email"
-          placeholder="ex: fatou.ndiaye@example.com"
+          v-model="orderNumberInput"
+          type="text"
+          maxlength="30"
+          placeholder="ex: JUM-2026-7KQ9X2MD"
+          class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm uppercase font-mono focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 outline-none"
+          required
+        />
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-stone-600 mb-1">Téléphone utilisé :</label>
+        <input
+          v-model="phoneInput"
+          type="tel"
+          maxlength="25"
+          placeholder="ex: 77 123 45 67"
           class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 outline-none"
+          required
         />
       </div>
       <button
-        @click="loadOrders"
-        class="w-full sm:w-auto mt-auto px-6 py-2.5 bg-stone-900 hover:bg-gold-600 text-white font-semibold text-xs rounded-xl transition-all shadow"
+        type="submit"
+        class="w-full px-6 py-2.5 bg-stone-900 hover:bg-gold-600 text-white font-semibold text-xs rounded-xl transition-all shadow"
       >
-        Rechercher mes commandes
+        Rechercher ma commande
       </button>
-    </div>
+      <p v-if="errorMessage" class="sm:col-span-3 text-xs font-semibold text-rosewood-700">{{ errorMessage }}</p>
+    </form>
 
     <!-- Orders List -->
     <div v-if="loading" class="space-y-4">
@@ -36,7 +53,7 @@
     <div v-else-if="orders.length === 0" class="bg-white rounded-2xl border border-stone-200 p-12 text-center space-y-4">
       <div class="text-5xl">📦</div>
       <h3 class="font-serif text-xl font-bold text-stone-900">Aucune commande trouvée.</h3>
-      <p class="text-sm text-stone-500">Vérifiez l'adresse e-mail saisie ou découvrez notre catalogue.</p>
+      <p class="text-sm text-stone-500">Vérifiez le numéro de commande et le téléphone saisis, ou découvrez notre catalogue.</p>
       <router-link to="/catalog" class="inline-block px-5 py-2.5 bg-stone-900 text-white text-xs font-semibold rounded-xl hover:bg-gold-600 transition-colors">
         Découvrir la boutique
       </router-link>
@@ -86,9 +103,8 @@
             <span class="font-semibold text-stone-800">{{ formatPrice(item.totalPrice) }}</span>
           </div>
 
-          <div class="pt-4 flex flex-col sm:flex-row justify-between text-xs text-stone-500 gap-2">
-            <p><strong>Destinataire :</strong> {{ order.customerName }} ({{ order.customerPhone }})</p>
-            <p><strong>Adresse :</strong> {{ order.shippingAddress }}, {{ order.shippingCity }}</p>
+          <div class="pt-4 text-xs text-stone-500">
+            <p><strong>Livraison :</strong> {{ order.shippingCity }}</p>
           </div>
         </div>
       </div>
@@ -97,23 +113,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useAuthStore } from '../stores/auth';
+import { ref } from 'vue';
 import { OrderService } from '../services/api';
 
-const authStore = useAuthStore();
-const emailInput = ref('');
+const orderNumberInput = ref('');
+const phoneInput = ref('');
+const errorMessage = ref('');
 const orders = ref<any[]>([]);
 const loading = ref(false);
 
 const loadOrders = async () => {
-  if (!emailInput.value) return;
+  if (!orderNumberInput.value || !phoneInput.value) return;
   loading.value = true;
+  errorMessage.value = '';
   try {
-    const res = await OrderService.getMyOrders(emailInput.value);
+    const res = await OrderService.track(orderNumberInput.value.trim().toUpperCase(), phoneInput.value.trim());
     orders.value = res.data.data;
-  } catch (error) {
-    console.error('Erreur chargement commandes:', error);
+  } catch (error: any) {
+    orders.value = [];
+    errorMessage.value = error.response?.data?.message || 'Recherche impossible pour le moment.';
   } finally {
     loading.value = false;
   }
@@ -160,15 +178,5 @@ const getStatusBadgeClass = (status: string) => {
   };
   return map[status] || 'bg-stone-100 text-stone-700';
 };
-
-onMounted(() => {
-  if (authStore.user?.email) {
-    emailInput.value = authStore.user.email;
-    loadOrders();
-  } else {
-    emailInput.value = 'fatou.ndiaye@example.com';
-    loadOrders();
-  }
-});
 </script>
 

@@ -1,5 +1,49 @@
 <template>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
+  <!-- ============================================================== -->
+  <!-- ÉCRAN DE CONNEXION SÉCURISÉ DE LA GÉRANCE                      -->
+  <!-- ============================================================== -->
+  <div v-if="!authStore.isAdmin" class="min-h-[70vh] flex items-center justify-center px-4 py-12">
+    <form
+      @submit.prevent="handleAdminLogin"
+      class="w-full max-w-sm bg-white rounded-3xl border border-stone-200 shadow-2xl p-8 space-y-6"
+    >
+      <div class="text-center space-y-2">
+        <div class="w-14 h-14 rounded-2xl bg-stone-950 border border-gold-500/40 flex items-center justify-center mx-auto shadow-lg">
+          <Lock class="w-6 h-6 text-gold-400" />
+        </div>
+        <h1 class="font-serif text-2xl font-bold text-stone-900">Espace Gérance</h1>
+        <p class="text-xs text-stone-500">Accès réservé à la direction de Jumelles Store.</p>
+      </div>
+
+      <div>
+        <label for="admin-password" class="block text-xs font-bold text-stone-700 mb-1">Mot de passe</label>
+        <input
+          id="admin-password"
+          v-model="adminPassword"
+          type="password"
+          autocomplete="current-password"
+          maxlength="200"
+          required
+          class="w-full px-4 py-3 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 outline-none"
+        />
+      </div>
+
+      <p v-if="loginError" class="text-xs font-semibold text-rosewood-700 bg-rosewood-50 border border-rosewood-200 rounded-xl p-3 flex items-center gap-2">
+        <AlertTriangle class="w-4 h-4 shrink-0" />
+        <span>{{ loginError }}</span>
+      </p>
+
+      <button
+        type="submit"
+        :disabled="authStore.isLoading || !adminPassword"
+        class="w-full py-3 bg-stone-950 hover:bg-gold-600 disabled:opacity-60 text-white text-sm font-bold rounded-xl shadow-md transition-all cursor-pointer"
+      >
+        {{ authStore.isLoading ? 'Vérification...' : 'Se connecter' }}
+      </button>
+    </form>
+  </div>
+
+  <div v-else class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 space-y-8">
     <!-- Header Admin avec Espace Gérance & Direction -->
     <div class="relative overflow-hidden bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 rounded-3xl p-6 sm:p-8 text-white border border-stone-800 shadow-2xl">
       <div class="absolute -right-16 -top-16 w-64 h-64 bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -23,19 +67,17 @@
           </div>
         </div>
 
-        <!-- Quick Switch to Admin demo if needed -->
-        <div v-if="!authStore.isAdmin" class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/20 space-y-3 shrink-0">
-          <p class="text-xs text-stone-200">Mode démonstration actif :</p>
+        <div class="flex items-center gap-2 self-start lg:self-center">
+          <div class="flex items-center gap-2.5 bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 px-4 py-2.5 rounded-2xl text-xs font-semibold">
+            <CheckCircle2 class="w-4 h-4 text-emerald-400" />
+            <span>Session sécurisée</span>
+          </div>
           <button
-            @click="authStore.loginAsDemoAdmin"
-            class="w-full px-5 py-2.5 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-stone-950 text-xs font-bold rounded-xl shadow-lg transition-all"
+            @click="authStore.logout()"
+            class="px-4 py-2.5 bg-white/10 hover:bg-rosewood-600 border border-white/20 text-white rounded-2xl text-xs font-bold transition-colors cursor-pointer"
           >
-            Débloquer Droits Directrice (Admin)
+            Déconnexion
           </button>
-        </div>
-        <div v-else class="flex items-center gap-2.5 bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 px-4 py-2.5 rounded-2xl text-xs font-semibold self-start lg:self-center">
-          <CheckCircle2 class="w-4 h-4 text-emerald-400" />
-          <span>Droits Administrateur Activés</span>
         </div>
       </div>
     </div>
@@ -1134,6 +1176,7 @@ import {
   Eye,
   Percent,
 } from 'lucide-vue-next';
+import { Lock } from 'lucide-vue-next';
 
 const authStore = useAuthStore();
 const activeTab = ref<'products' | 'orders' | 'phone-calls'>('products');
@@ -1593,10 +1636,23 @@ const handleCallStatus = async (id: string, status: 'PENDING' | 'CALLED') => {
   }
 };
 
-onMounted(() => {
-  if (!authStore.isAdmin) {
-    authStore.loginAsDemoAdmin();
+// Connexion sécurisée de la gérance
+const adminPassword = ref('');
+const loginError = ref('');
+const handleAdminLogin = async () => {
+  loginError.value = '';
+  try {
+    await authStore.loginAdmin(adminPassword.value);
+    adminPassword.value = '';
+    await loadData();
+  } catch (err: any) {
+    loginError.value = err.response?.data?.message || 'Connexion impossible. Vérifiez que le serveur est démarré.';
   }
-  loadData();
+};
+
+onMounted(() => {
+  if (authStore.isAdmin) {
+    loadData();
+  }
 });
 </script>
