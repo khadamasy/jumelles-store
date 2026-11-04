@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { memoryStore, PhoneCallbackRequest } from '../config/db';
+import { memoryStore, PhoneCallbackRequest, persistStore } from '../config/db';
 import { cleanText, isValidPhone } from '../middlewares/security';
 
 export const OFFICIAL_PHONE = '+221 77 208 78 20';
@@ -56,6 +56,7 @@ export const requestCallback = async (req: Request, res: Response) => {
     };
 
     memoryStore.phoneCallbacks.unshift(newRequest);
+    await persistStore();
 
     res.status(201).json({
       success: true,
@@ -82,7 +83,7 @@ export const getCallbacks = (req: Request, res: Response) => {
 /**
  * Mettre à jour le statut d'un appel (Admin)
  */
-export const updateCallbackStatus = (req: Request, res: Response) => {
+export const updateCallbackStatus = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { status } = req.body;
 
@@ -93,6 +94,7 @@ export const updateCallbackStatus = (req: Request, res: Response) => {
 
   if (status && ['PENDING', 'CALLED'].includes(status)) {
     found.status = status;
+    await persistStore();
   }
 
   res.json({

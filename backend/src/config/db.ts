@@ -1,11 +1,18 @@
 import { Pool } from 'pg';
+import fs from 'fs';
+import path from 'path';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+export const pool = process.env.DATABASE_URL
+  ? new Pool({ connectionString: process.env.DATABASE_URL })
+  : (null as unknown as Pool);
+
+let isPgConnected = false;
+const DATA_DIR = path.resolve(__dirname, '../../data');
+const SNAPSHOT_FILE = path.join(DATA_DIR, 'store.json');
+const INIT_SQL_FILE = path.resolve(__dirname, '../../prisma/init.sql');
 
 export interface Category {
   id: string;
@@ -522,5 +529,327 @@ export const memoryStore = {
     }
   ] as PaymentTransaction[],
 
-  phoneCallbacks: [] as PhoneCallbackRequest[]
+  phoneCallbacks: [] as PhoneCallbackRequest[],
+};
+
+/** Sauvegarde atomique sur disque local (secours si PostgreSQL n'est pas démarré) */
+const saveSnapshotToDisk = () => {
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+    const payload = JSON.stringify(
+      {
+        categories: memoryStore.categories,
+        products: memoryStore.products,
+        orders: memoryStore.orders,
+        phoneCallbacks: memoryStore.phoneCallbacks,
+      },
+      null,
+      2
+    );
+    const tmp = `${SNAPSHOT_FILE}.tmp`;
+    fs.writeFileSync(tmp, payload, 'utf8');
+    fs.renameSync(tmp, SNAPSHOT_FILE);
+  } catch (err: any) {
+    console.warn(`[Persistance Disque] Impossible d'écrire ${SNAPSHOT_FILE} : ${err.message}`);
+  }
+};
+
+/** Charge l'état depuis PostgreSQL vers memoryStore */
+const loadFromPostgres = async (): Promise<boolean> => {
+  if (!pool) return false;
+  const client = await pool.connect();
+  try {
+    if (fs.existsSync(INIT_SQL_FILE)) {
+      const ddl = fs.readFileSync(INIT_SQL_FILE, 'utf8');
+      await client.query(ddl);
+    }
+
+    const { rows: catRows } = await client.query('SELECT * FROM categories ORDER BY created_at ASC');
+    const { rows: prodRows } = await client.query('SELECT * FROM products ORDER BY created_at DESC');
+
+    if (catRows.length === 0 && prodRows.length === 0) {
+      return false; // Base vide : on va y injecter les données initiales
+    }
+
+    const { rows: varRows } = await client.query('SELECT * FROM product_variants ORDER BY created_at ASC');
+    const { rows: imgRows } = await client.query('SELECT * FROM product_images ORDER BY display_order ASC');
+    const { rows: ordRows } = await client.query('SELECT * FROM orders ORDER BY created_at DESC');
+    const { rows: itemRows } = await client.query('SELECT * FROM order_items');
+    const { rows: callRows } = await client.query('SELECT * FROM phone_callbacks ORDER BY created_at DESC');
+
+    memoryStore.categories = catRows.map((c) => ({
+      id: c.id,
+      name: c.name,
+      slug: c.slug,
+      type: c.type,
+      description: c.description || '',
+    }));
+
+    memoryStore.products = prodRows.map((p) => ({
+      id: p.id,
+      categoryId: p.category_id,
+      name: p.name,
+      slug: p.slug,
+      description: p.description,
+      basePrice: Number(p.base_price),
+      ...(p.original_price !== null && p.original_price !== undefined
+        ? { originalPrice: Number(p.original_price) }
+        : {}),
+      isActive: Boolean(p.is_active),
+      isFeatured: Boolean(p.is_featured),
+      variants: varRows
+        .filter((v) => v.product_id === p.id)
+        .map((v) => ({
+          id: v.id,
+          productId: v.product_id,
+          sizeOrShoeSize: v.size_or_shoe_size,
+          color: v.color,
+          sku: v.sku,
+          stockQuantity: Number(v.stock_quantity),
+          priceAdjustment: Number(v.price_adjustment || 0),
+        })),
+      images: imgRows
+        .filter((img) => img.product_id === p.id)
+        .map((img) => ({
+          id: img.id,
+          productId: img.product_id,
+          minioUrl: img.minio_url,
+          altText: img.alt_text || p.name,
+          isPrimary: Boolean(img.is_primary),
+        })),
+    }));
+
+    memoryStore.orders = ordRows.map((o) => ({
+      id: o.id,
+      orderNumber: o.order_number,
+      customerName: o.customer_name,
+      customerEmail: o.customer_email,
+      customerPhone: o.customer_phone,
+      shippingAddress: o.shipping_address,
+      shippingCity: o.shipping_city,
+      totalAmount: Number(o.total_amount),
+      status: o.status,
+      createdAt: o.created_at instanceof Date ? o.created_at.toISOString() : String(o.created_at),
+      items: itemRows
+        .filter((i) => i.order_id === o.id)
+        .map((i) => ({
+          id: i.id,
+          orderId: i.order_id,
+          productVariantId: i.product_variant_id || '',
+          productName: i.product_name,
+          variantDetails: i.variant_details,
+          quantity: Number(i.quantity),
+          unitPrice: Number(i.unit_price),
+          totalPrice: Number(i.total_price),
+        })),
+    }));
+
+    memoryStore.phoneCallbacks = callRows.map((c) => ({
+      id: c.id,
+      customerName: c.customer_name,
+      customerPhone: c.customer_phone,
+      productInterest: c.product_interest || '',
+      notes: c.notes || '',
+      status: c.status,
+      createdAt: c.created_at instanceof Date ? c.created_at.toISOString() : String(c.created_at),
+    }));
+
+    return true;
+  } finally {
+    client.release();
+  }
+};
+
+/** Synchronise l'état courant vers PostgreSQL dans une transaction atomique */
+const syncToPostgres = async () => {
+  if (!pool || !isPgConnected) return;
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    for (const c of memoryStore.categories) {
+      await client.query(
+        `INSERT INTO categories (id, name, slug, type, description)
+         VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, slug = EXCLUDED.slug, type = EXCLUDED.type, description = EXCLUDED.description`,
+        [c.id, c.name, c.slug, c.type, c.description]
+      );
+    }
+
+    // Supprimer les produits retirés du catalogue
+    const productIds = memoryStore.products.map((p) => p.id);
+    if (productIds.length > 0) {
+      await client.query('DELETE FROM products WHERE NOT (id = ANY($1::varchar[]))', [productIds]);
+    } else {
+      await client.query('DELETE FROM products');
+    }
+
+    for (const p of memoryStore.products) {
+      await client.query(
+        `INSERT INTO products (id, category_id, name, slug, description, base_price, original_price, is_active, is_featured, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP)
+         ON CONFLICT (id) DO UPDATE SET
+           category_id = EXCLUDED.category_id,
+           name = EXCLUDED.name,
+           slug = EXCLUDED.slug,
+           description = EXCLUDED.description,
+           base_price = EXCLUDED.base_price,
+           original_price = EXCLUDED.original_price,
+           is_active = EXCLUDED.is_active,
+           is_featured = EXCLUDED.is_featured,
+           updated_at = CURRENT_TIMESTAMP`,
+        [
+          p.id,
+          p.categoryId,
+          p.name,
+          p.slug,
+          p.description,
+          p.basePrice,
+          p.originalPrice ?? null,
+          p.isActive,
+          p.isFeatured,
+        ]
+      );
+
+      for (const v of p.variants) {
+        await client.query(
+          `INSERT INTO product_variants (id, product_id, size_or_shoe_size, color, sku, stock_quantity, price_adjustment)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)
+           ON CONFLICT (id) DO UPDATE SET
+             size_or_shoe_size = EXCLUDED.size_or_shoe_size,
+             color = EXCLUDED.color,
+             sku = EXCLUDED.sku,
+             stock_quantity = EXCLUDED.stock_quantity,
+             price_adjustment = EXCLUDED.price_adjustment`,
+          [v.id, p.id, v.sizeOrShoeSize, v.color, v.sku, v.stockQuantity, v.priceAdjustment || 0]
+        );
+      }
+
+      await client.query('DELETE FROM product_images WHERE product_id = $1', [p.id]);
+      for (const [idx, img] of p.images.entries()) {
+        await client.query(
+          `INSERT INTO product_images (id, product_id, minio_url, alt_text, is_primary, display_order)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [img.id, p.id, img.minioUrl, img.altText || p.name, Boolean(img.isPrimary), idx]
+        );
+      }
+    }
+
+    for (const o of memoryStore.orders) {
+      await client.query(
+        `INSERT INTO orders (id, order_number, customer_name, customer_email, customer_phone, shipping_address, shipping_city, total_amount, status, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP)
+         ON CONFLICT (id) DO UPDATE SET status = EXCLUDED.status, updated_at = CURRENT_TIMESTAMP`,
+        [
+          o.id,
+          o.orderNumber,
+          o.customerName,
+          o.customerEmail,
+          o.customerPhone,
+          o.shippingAddress,
+          o.shippingCity,
+          o.totalAmount,
+          o.status,
+          o.createdAt,
+        ]
+      );
+
+      for (const item of o.items) {
+        await client.query(
+          `INSERT INTO order_items (id, order_id, product_variant_id, product_name, variant_details, quantity, unit_price, total_price)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+           ON CONFLICT (id) DO NOTHING`,
+          [
+            item.id,
+            o.id,
+            item.productVariantId || null,
+            item.productName,
+            item.variantDetails,
+            item.quantity,
+            item.unitPrice,
+            item.totalPrice,
+          ]
+        );
+      }
+    }
+
+    for (const call of memoryStore.phoneCallbacks) {
+      await client.query(
+        `INSERT INTO phone_callbacks (id, customer_name, customer_phone, product_interest, notes, status, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)
+         ON CONFLICT (id) DO UPDATE SET status = EXCLUDED.status`,
+        [
+          call.id,
+          call.customerName,
+          call.customerPhone,
+          call.productInterest,
+          call.notes,
+          call.status,
+          call.createdAt,
+        ]
+      );
+    }
+
+    await client.query('COMMIT');
+  } catch (err: any) {
+    await client.query('ROLLBACK');
+    console.error(`[PostgreSQL Sync] Erreur de synchronisation : ${err.message}`);
+  } finally {
+    client.release();
+  }
+};
+
+/**
+ * Persiste toutes les modifications (commandes, stocks, articles, rappels) :
+ * 1. Sur PostgreSQL si DATABASE_URL est connecté
+ * 2. Sur disque local (backend/data/store.json) pour ne rien perdre au redémarrage
+ */
+export const persistStore = async (): Promise<void> => {
+  saveSnapshotToDisk();
+  if (isPgConnected) {
+    await syncToPostgres();
+  }
+};
+
+/**
+ * Initialise la persistance au démarrage du serveur :
+ * - Charge depuis le snapshot disque local s'il existe
+ * - Se connecte à PostgreSQL si DATABASE_URL est configuré (charge ou initialise les tables)
+ */
+export const initDatabase = async (): Promise<void> => {
+  if (fs.existsSync(SNAPSHOT_FILE)) {
+    try {
+      const raw = JSON.parse(fs.readFileSync(SNAPSHOT_FILE, 'utf8'));
+      if (Array.isArray(raw.categories) && raw.categories.length > 0) memoryStore.categories = raw.categories;
+      if (Array.isArray(raw.products) && raw.products.length > 0) memoryStore.products = raw.products;
+      if (Array.isArray(raw.orders)) memoryStore.orders = raw.orders;
+      if (Array.isArray(raw.phoneCallbacks)) memoryStore.phoneCallbacks = raw.phoneCallbacks;
+      console.log(`[Persistance] État restauré depuis ${SNAPSHOT_FILE} (${memoryStore.products.length} articles, ${memoryStore.orders.length} commandes).`);
+    } catch (err: any) {
+      console.warn(`[Persistance] Lecture de ${SNAPSHOT_FILE} ignorée : ${err.message}`);
+    }
+  }
+
+  if (pool) {
+    try {
+      const hadData = await loadFromPostgres();
+      isPgConnected = true;
+      if (!hadData) {
+        await syncToPostgres();
+        console.log('[PostgreSQL] Base initialisée avec le catalogue Jumelles Store.');
+      } else {
+        console.log(`[PostgreSQL] Données chargées depuis PostgreSQL (${memoryStore.products.length} articles, ${memoryStore.orders.length} commandes).`);
+      }
+      saveSnapshotToDisk();
+    } catch (err: any) {
+      isPgConnected = false;
+      console.warn(`[PostgreSQL] Non joignable (${err.message}). Persistance disque locale active (${SNAPSHOT_FILE}).`);
+      saveSnapshotToDisk();
+    }
+  } else {
+    saveSnapshotToDisk();
+    console.info(`[Persistance] Sauvegarde automatique sur disque active (${SNAPSHOT_FILE}).`);
+  }
 };

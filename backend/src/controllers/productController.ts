@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { memoryStore, Product, ProductVariant, ProductImage } from '../config/db';
+import { memoryStore, Product, ProductVariant, ProductImage, persistStore } from '../config/db';
 import { cleanText, isSafeImageUrl } from '../middlewares/security';
 
 const isValidPrice = (n: number) => Number.isFinite(n) && n >= 0 && n <= 10_000_000;
@@ -209,6 +209,7 @@ export const createProduct = async (req: Request, res: Response) => {
     };
 
     memoryStore.products.unshift(newProduct);
+    await persistStore();
 
     res.status(201).json({
       success: true,
@@ -285,6 +286,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     }
 
     memoryStore.products[index] = updated;
+    await persistStore();
 
     res.json({
       success: true,
@@ -335,6 +337,8 @@ export const replenishStock = async (req: Request, res: Response) => {
       variant.stockQuantity = n;
     }
 
+    await persistStore();
+
     res.json({
       success: true,
       message: `Stock renouvelé avec succès pour ${product.name} (${variant.color} / ${variant.sizeOrShoeSize}). Nouveau stock : ${variant.stockQuantity}`,
@@ -379,6 +383,7 @@ export const addVariantToProduct = async (req: Request, res: Response) => {
     };
 
     product.variants.push(newVariant);
+    await persistStore();
 
     res.status(201).json({
       success: true,
@@ -401,6 +406,7 @@ export const deleteProduct = async (req: Request, res: Response) => {
     }
 
     memoryStore.products.splice(index, 1);
+    await persistStore();
     res.json({ success: true, message: 'Article supprimé du catalogue.' });
   } catch (error: any) {
     console.error('[product]', error);

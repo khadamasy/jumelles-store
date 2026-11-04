@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import crypto from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
-import { memoryStore, Order, OrderItem } from '../config/db';
+import { memoryStore, Order, OrderItem, persistStore } from '../config/db';
 import { cleanText, isValidPhone } from '../middlewares/security';
 
 const MAX_ITEMS_PER_ORDER = 20;
@@ -152,6 +152,7 @@ export const createOrder = async (req: Request, res: Response) => {
     };
 
     memoryStore.orders.unshift(newOrder);
+    await persistStore();
 
     res.status(201).json({
       success: true,
@@ -232,6 +233,7 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
     }
 
     order.status = status as Order['status'];
+    await persistStore();
 
     res.json({
       success: true,
@@ -246,18 +248,24 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
 
 export const getDashboardStats = async (req: Request, res: Response) => {
   const totalOrders = memoryStore.orders.length;
+
+  // Chiffre d'affaires : inclut toutes les commandes réglées / en préparation / expédiées / livrées
+  const revenueStatuses: Order['status'][] = ['PAID', 'PREPARING', 'SHIPPED', 'DELIVERED'];
   const totalRevenue = memoryStore.orders
-    .filter((o) => o.status === 'PAID' || o.status === 'DELIVERED' || o.status === 'SHIPPED')
+    .filter((o) => revenueStatuses.includes(o.status))
     .reduce((sum, o) => sum + o.totalAmount, 0);
 
-  const pendingOrders = memoryStore.orders.filter((o) => o.status === 'PENDING').length;
+  // Commandes à traiter (en attente de confirmation ou en préparation d'expédition)
+  const pendingOrders = memoryStore.orders.filter(
+    (o) => o.status === 'PENDING' || o.status === 'PREPARING'
+  ).length;
   const totalProducts = memoryStore.products.length;
 
-  // Produits à stock faible (< 5 unités)
+  // Variantes à stock faible (<= 5 unités, cohérent avec le filtre du tableau de bord)
   const lowStockVariants: any[] = [];
   memoryStore.products.forEach((p) => {
     p.variants.forEach((v) => {
-      if (v.stockQuantity <= 4) {
+      if (v.stockQuantity <= 5) {
         lowStockVariants.push({
           productName: p.name,
           sku: v.sku,
