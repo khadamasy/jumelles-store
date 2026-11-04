@@ -89,9 +89,6 @@
               <span class="text-xs font-extrabold text-gold-800 bg-gold-100/60 border border-gold-300 px-3 py-1 rounded-xl shadow-2xs">
                 {{ currencyStore.isEur ? currencyStore.toXofOnly(currentPrice) : '≈ ' + currencyStore.toEurOnly(currentPrice) }}
               </span>
-              <span class="text-[11px] text-blue-700 font-bold bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200">
-                Wave / OM
-              </span>
             </div>
           </div>
         </div>
@@ -212,7 +209,7 @@
           </div>
 
           <p class="text-center text-[11px] text-stone-500 pt-1">
-            Livraison express sous 24h à Dakar • Paiement direct Wave ou Orange Money
+            Livraison express sous 24h à Dakar • Confirmation directe sur WhatsApp
           </p>
         </div>
 
@@ -233,11 +230,8 @@
               <span>Livraison express à Dakar sous 24h</span>
             </div>
             <div class="flex items-center gap-2">
-              <div class="flex items-center gap-1 shrink-0">
-                <IconWave className="w-4 h-4 rounded" />
-                <IconOrangeMoney className="w-4 h-4 rounded" />
-              </div>
-              <span>Wave & Orange Money direct</span>
+              <IconWhatsApp className="w-4 h-4 text-[#25D366] shrink-0" />
+              <span>Confirmation directe WhatsApp</span>
             </div>
             <div class="flex items-center gap-2">
               <Gift class="w-4 h-4 text-gold-600 shrink-0" />
@@ -277,8 +271,6 @@ import {
 } from 'lucide-vue-next';
 import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
 import IconPhoneSolid from '../components/icons/IconPhoneSolid.vue';
-import IconWave from '../components/icons/IconWave.vue';
-import IconOrangeMoney from '../components/icons/IconOrangeMoney.vue';
 
 const route = useRoute();
 const router = useRouter();

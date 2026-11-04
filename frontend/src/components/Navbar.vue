@@ -11,7 +11,7 @@
 
         <div class="flex items-center gap-3 sm:gap-5 text-[11px] text-stone-300">
           <span>Livraison Express 24h Dakar</span>
-          <span class="text-gold-500/80">• Wave & Orange Money</span>
+          <span class="text-gold-500/80">• Commande Directe WhatsApp</span>
         </div>
       </div>
     </div>

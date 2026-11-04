@@ -86,7 +86,7 @@
           <div class="space-y-0.5">
             <p class="font-bold text-amber-950">Règlement à la réception du colis :</p>
             <p class="text-stone-700 text-[11px] leading-relaxed">
-              Vous réglerez directement auprès du livreur à Dakar, en espèces ou par transfert Wave / Orange Money sur le numéro officiel <strong>77 208 78 20 (Fary Dione)</strong> lors de la remise de votre paquet.
+              Vous réglerez directement auprès du livreur à Dakar lors de la remise de votre paquet. Pour toute question, contactez-nous sur WhatsApp au <strong>+221 77 208 78 20</strong>.
             </p>
           </div>
         </div>

@@ -55,15 +55,10 @@
       </section>
 
       <section class="space-y-3 border-t border-stone-100 pt-6">
-        <h2 class="font-serif text-xl font-bold text-stone-950">3. Tarifs et Modalités de Paiement Sécurisé</h2>
+        <h2 class="font-serif text-xl font-bold text-stone-950">3. Tarifs et Modalités de Commande</h2>
         <p>
-          Les prix sont affichés en Francs CFA (XOF) toutes taxes comprises, avec possibilité d'affichage indicatif en Euros (EUR). Le règlement des commandes s'effectue exclusivement via nos canaux directs sécurisés et vérifiés :
+          Les prix sont affichés en Francs CFA (XOF) toutes taxes comprises, avec possibilité d'affichage indicatif en Euros (EUR). La validation de la commande s'effectue directement via notre canal WhatsApp officiel (+221 77 208 78 20) et le règlement s'effectue à la réception du colis.
         </p>
-        <ul class="list-disc pl-5 space-y-1 text-stone-600">
-          <li><strong>Wave Sénégal :</strong> transfert mobile direct sans commission bancaire.</li>
-          <li><strong>Orange Money :</strong> règlement via l'application Max it ou par code rapide USSD #144#.</li>
-        </ul>
-        <p>Le compte officiel récepteur est vérifié au nom de <strong>Fary Dione</strong> (77 208 78 20).</p>
       </section>
 
       <section class="space-y-3 border-t border-stone-100 pt-6">
@@ -95,7 +90,7 @@
           <li>Nom et prénom de la cliente ou destinataire</li>
           <li>Numéro de téléphone mobile (pour la coordination de la livraison par le coursier)</li>
           <li>Adresse de livraison ou quartier à Dakar</li>
-          <li>Historique des commandes et justificatifs de transferts Wave / Orange Money</li>
+          <li>Historique des articles commandés</li>
         </ul>
       </section>
 
@@ -107,9 +102,9 @@
       </section>
 
       <section class="space-y-3 border-t border-stone-100 pt-6">
-        <h2 class="font-serif text-xl font-bold text-stone-950">3. Sécurité des Transactions</h2>
+        <h2 class="font-serif text-xl font-bold text-stone-950">3. Sécurité des Commandes</h2>
         <p>
-          Notre plateforme ne stocke aucune coordonnée bancaire sensible. Les paiements Wave et Orange Money s'opèrent directement sur les protocoles sécurisés et chiffrés de leurs opérateurs respectifs.
+          Notre plateforme ne stocke aucune coordonnée bancaire sensible. Toutes les commandes sont vérifiées côté serveur et confirmées directement via WhatsApp.
         </p>
       </section>
 

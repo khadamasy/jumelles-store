@@ -174,13 +174,12 @@
         </div>
 
         <div class="flex items-start gap-4 p-3 rounded-2xl hover:bg-stone-50 transition-colors">
-          <div class="w-12 h-12 rounded-2xl bg-sky-50 border border-sky-200 flex items-center justify-center shrink-0 shadow-2xs gap-1 p-1">
-            <IconWave className="w-5 h-5 rounded" />
-            <IconOrangeMoney className="w-5 h-5 rounded" />
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 shadow-2xs p-1">
+            <IconWhatsApp className="w-6 h-6 text-[#25D366]" />
           </div>
           <div>
-            <h4 class="font-serif font-bold text-stone-900 text-sm">Wave & Orange Money</h4>
-            <p class="text-xs text-stone-500 mt-1">Paiements 100% sécurisés par transfert direct sans intermédiaire.</p>
+            <h4 class="font-serif font-bold text-stone-900 text-sm">Validation Directe WhatsApp</h4>
+            <p class="text-xs text-stone-500 mt-1">Confirmation immédiate avec le détail complet de vos articles.</p>
           </div>
         </div>
 
@@ -384,7 +383,7 @@
               <Star class="w-4 h-4 fill-amber-400" />
             </div>
             <p class="text-xs sm:text-sm text-stone-700 italic leading-relaxed">
-              « Paiement Wave en un clic, commande confirmée immédiatement. Très professionnel et le packaging est sublime. »
+              « Commande sur WhatsApp en un clic, confirmée immédiatement. Très professionnel et le packaging est sublime. »
             </p>
             <div class="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
               <span class="font-bold text-stone-900">Mariama B.</span>

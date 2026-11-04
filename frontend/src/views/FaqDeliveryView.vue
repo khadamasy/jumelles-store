@@ -16,7 +16,7 @@
         Foire Aux Questions & Livraison
       </h1>
       <p class="text-stone-600 text-sm sm:text-base max-w-xl mx-auto font-light leading-relaxed">
-        Découvrez toutes les réponses concernant les délais de livraison à Dakar, les échanges de pointures et les paiements sécurisés Wave & Orange Money.
+        Découvrez toutes les réponses concernant les délais de livraison à Dakar, les échanges de pointures et les commandes directes sur WhatsApp.
       </p>
     </div>
 
@@ -37,12 +37,11 @@
       </div>
 
       <div class="bg-white p-5 rounded-3xl border border-stone-200/90 shadow-sm text-center space-y-2">
-        <div class="w-10 h-10 rounded-2xl bg-sky-50 flex items-center justify-center mx-auto gap-1 p-1">
-          <IconWave className="w-4 h-4 rounded" />
-          <IconOrangeMoney className="w-4 h-4 rounded" />
+        <div class="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center mx-auto p-1">
+          <IconWhatsApp className="w-5 h-5 text-[#25D366]" />
         </div>
-        <h4 class="font-bold text-stone-900 text-sm">Wave & OM</h4>
-        <p class="text-xs text-stone-500">Paiement direct au 77 208 78 20 (Fary Dione)</p>
+        <h4 class="font-bold text-stone-900 text-sm">Commande WhatsApp</h4>
+        <p class="text-xs text-stone-500">Confirmation directe au +221 77 208 78 20</p>
       </div>
 
       <div class="bg-white p-5 rounded-3xl border border-stone-200/90 shadow-sm text-center space-y-2">
@@ -122,8 +121,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { Sparkles } from 'lucide-vue-next';
-import IconWave from '../components/icons/IconWave.vue';
-import IconOrangeMoney from '../components/icons/IconOrangeMoney.vue';
 import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
 import IconPhoneSolid from '../components/icons/IconPhoneSolid.vue';
 
@@ -166,9 +163,9 @@ const faqList = [
   },
   {
     icon: '📱',
-    question: 'Comment s\'effectue le paiement Wave ou Orange Money ?',
+    question: 'Comment se passe la confirmation et le règlement de ma commande ?',
     answer:
-      'Le paiement s\'effectue directement par transfert mobile sans intermédiaire :\n• Sur Wave : L\'application s\'ouvre en 1 clic et le numéro 77 208 78 20 est copié automatiquement.\n• Sur Orange Money : Vous pouvez transférer via l\'application Max it ou en composant le code rapide #144#.\n\nLe titulaire officiel vérifié du compte est : Fary Dione (77 208 78 20). Une fois le transfert effectué, vous validez la réception sur WhatsApp en un clic.',
+      'Lorsque vous validez votre panier sur le site, votre commande est enregistrée et vous êtes redirigée directement sur WhatsApp (+221 77 208 78 20) avec un message récapitulatif complet de vos articles.\n\nLe règlement s\'effectue simplement à la livraison lors de la remise de votre colis par notre livreur.',
   },
   {
     icon: '🎁',

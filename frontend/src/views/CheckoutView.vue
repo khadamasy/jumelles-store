@@ -135,7 +135,7 @@
                   <Truck class="w-3.5 h-3.5 text-gold-400" />
                   <span>Règlement à la Livraison</span>
                 </span>
-                <p class="text-[11px] text-stone-400">Payez tranquillement à la réception du colis (en espèces ou par transfert direct Wave / OM).</p>
+                <p class="text-[11px] text-stone-400">Payez tranquillement à la réception de votre colis par notre livreur.</p>
               </div>
             </div>
           </div>
@@ -365,7 +365,7 @@ ${itemsListText}
 
 💰 *TOTAL COMMANDE :* *${totalFormatted}*
 🚚 *LIVRAISON :* 24h Dakar (Offerte)
-💵 *RÈGLEMENT :* À la livraison (Espèces ou Transfert Wave/OM)
+💵 *RÈGLEMENT :* À la livraison
 
 Merci de me confirmer la prise en compte de ma commande et le créneau de livraison !`;
 

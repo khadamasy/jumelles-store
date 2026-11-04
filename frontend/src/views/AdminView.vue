@@ -106,7 +106,7 @@
           <TrendingUp class="w-4 h-4 text-emerald-600" />
         </div>
         <p class="font-serif text-2xl sm:text-3xl font-black text-emerald-600">{{ formatPrice(stats.totalRevenue) }}</p>
-        <span class="text-[11px] text-stone-500 mt-1 block">Règlements Wave & OM encaissés</span>
+        <span class="text-[11px] text-stone-500 mt-1 block">Commandes validées & livrées</span>
       </div>
 
       <div class="bg-white p-5 sm:p-6 rounded-3xl border border-stone-200/80 shadow-2xs">
@@ -444,7 +444,7 @@
         <div class="p-6 border-b border-stone-100 flex items-center justify-between">
           <div>
             <h3 class="font-serif text-lg font-bold text-stone-900">Commandes Reçues</h3>
-            <p class="text-xs text-stone-400">Validez les expéditions Wave et Orange Money</p>
+            <p class="text-xs text-stone-400">Suivez et validez les commandes WhatsApp des clientes</p>
           </div>
           <span class="text-xs font-bold bg-stone-100 text-stone-700 px-3 py-1 rounded-full">
             {{ orders.length }} commande(s)
@@ -488,8 +488,8 @@
                     @change="handleStatusChange(order.id, ($event.target as HTMLSelectElement).value)"
                     class="px-3 py-2 rounded-xl border border-stone-300 text-xs font-bold bg-white focus:outline-none focus:ring-2 focus:ring-gold-500 shadow-sm"
                   >
-                    <option value="PENDING">PENDING (En attente de paiement)</option>
-                    <option value="PAID">PAID (Payée Wave / OM)</option>
+                    <option value="PENDING">PENDING (En attente)</option>
+                    <option value="PAID">PAID (Confirmée / Payée)</option>
                     <option value="PREPARING">PREPARING (En cours de préparation)</option>
                     <option value="SHIPPED">SHIPPED (Colis Expédié)</option>
                     <option value="DELIVERED">DELIVERED (Livrée au client)</option>
@@ -810,7 +810,7 @@
                 class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-sm font-black text-stone-950 focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 outline-none"
                 required
               />
-              <p class="text-[11px] text-stone-400 mt-1">Montant facturé sur Wave & Orange Money</p>
+              <p class="text-[11px] text-stone-400 mt-1">Prix affiché sur la boutique et dans le récapitulatif WhatsApp</p>
             </div>
 
             <div>

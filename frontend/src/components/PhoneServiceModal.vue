@@ -137,7 +137,7 @@
       <!-- Footer Info -->
       <div class="bg-stone-50 border-t border-stone-100 px-6 py-3 text-[11px] text-stone-500 flex items-center justify-between">
         <span>📍 Dakar, Sénégal • Livraison Express 24h</span>
-        <span class="font-bold text-stone-700">Paiement Wave & OM</span>
+        <span class="font-bold text-stone-700">Commande Directe WhatsApp</span>
       </div>
     </div>
   </div>
