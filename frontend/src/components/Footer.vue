@@ -37,6 +37,7 @@
         <router-link to="/faq-livraison">Livraison et échanges</router-link>
         <router-link to="/conditions-utilisation">Conditions</router-link>
         <router-link to="/politique-confidentialite">Confidentialité</router-link>
+        <router-link to="/admin">Espace Gérance (Admin)</router-link>
       </div>
     </div>
   </footer>

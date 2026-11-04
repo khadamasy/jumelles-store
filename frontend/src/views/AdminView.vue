@@ -16,11 +16,21 @@
       </div>
 
       <div>
-        <label for="admin-password" class="block text-xs font-bold text-stone-700 mb-1">Mot de passe</label>
+        <div class="flex items-center justify-between mb-1">
+          <label for="admin-password" class="block text-xs font-bold text-stone-700">Mot de passe</label>
+          <button
+            type="button"
+            @click="showPassword = !showPassword"
+            class="text-[11px] font-bold text-gold-700 hover:underline cursor-pointer"
+          >
+            {{ showPassword ? 'Masquer' : 'Afficher' }}
+          </button>
+        </div>
         <input
           id="admin-password"
           v-model="adminPassword"
-          type="password"
+          :type="showPassword ? 'text' : 'password'"
+          placeholder="Entrez votre mot de passe gérance"
           autocomplete="current-password"
           maxlength="200"
           required
@@ -1638,6 +1648,7 @@ const handleCallStatus = async (id: string, status: 'PENDING' | 'CALLED') => {
 
 // Connexion sécurisée de la gérance
 const adminPassword = ref('');
+const showPassword = ref(false);
 const loginError = ref('');
 const handleAdminLogin = async () => {
   loginError.value = '';
