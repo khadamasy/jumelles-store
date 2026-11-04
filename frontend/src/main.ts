@@ -2,7 +2,10 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from './router';
+import { purgeSensitiveBrowserStorage } from './stores/auth';
 import './style.css';
+
+purgeSensitiveBrowserStorage();
 
 const app = createApp(App);
 

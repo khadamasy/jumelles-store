@@ -8,17 +8,37 @@ export interface UserProfile {
   roles: string[];
 }
 
-// Purge définitive de tout ancien jeton stocké dans le navigateur par les versions précédentes
-if (typeof window !== 'undefined') {
+const ALLOWED_LOCAL_STORAGE_KEYS = new Set(['jumelles_cart', 'jumelles_currency']);
+const ALLOWED_SESSION_STORAGE_KEYS = new Set(['jumelles_last_order']);
+
+/**
+ * Nettoie strictement localStorage et sessionStorage pour supprimer tout ancien jeton
+ * (token, user, kc-callback-*, jumelles_token, etc.) ou toute valeur ressemblant à un JWT (eyJ...)
+ */
+export function purgeSensitiveBrowserStorage() {
+  if (typeof window === 'undefined') return;
   try {
-    window.localStorage.removeItem('jumelles_token');
-    window.localStorage.removeItem('jumelles_user');
-    window.sessionStorage.removeItem('jumelles_token');
-    window.sessionStorage.removeItem('jumelles_user');
+    const localKeys = Object.keys(window.localStorage);
+    for (const key of localKeys) {
+      const val = window.localStorage.getItem(key) || '';
+      if (!ALLOWED_LOCAL_STORAGE_KEYS.has(key) || val.startsWith('eyJ')) {
+        window.localStorage.removeItem(key);
+      }
+    }
+
+    const sessionKeys = Object.keys(window.sessionStorage);
+    for (const key of sessionKeys) {
+      const val = window.sessionStorage.getItem(key) || '';
+      if (!ALLOWED_SESSION_STORAGE_KEYS.has(key) || val.startsWith('eyJ')) {
+        window.sessionStorage.removeItem(key);
+      }
+    }
   } catch {
     // ignore
   }
 }
+
+purgeSensitiveBrowserStorage();
 
 /**
  * Store d'authentification sans aucun jeton exposé côté client :
@@ -45,6 +65,7 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async checkSession() {
+      purgeSensitiveBrowserStorage();
       try {
         const res = await apiClient.get('/auth/me');
         const user = res.data?.data?.user;
@@ -62,6 +83,7 @@ export const useAuthStore = defineStore('auth', {
 
     /** Connexion de la gérance : le serveur pose un cookie HttpOnly (aucun token dans le navigateur) */
     async loginAdmin(password: string) {
+      purgeSensitiveBrowserStorage();
       this.isLoading = true;
       try {
         const res = await apiClient.post('/auth/admin/login', { password });
@@ -75,6 +97,7 @@ export const useAuthStore = defineStore('auth', {
 
     /** Déconnexion : supprime le cookie HttpOnly côté serveur et vide l'état mémoire */
     async logout() {
+      purgeSensitiveBrowserStorage();
       try {
         await apiClient.post('/auth/logout');
       } catch {
