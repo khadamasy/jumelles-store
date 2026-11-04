@@ -11,7 +11,16 @@
 
         <div class="flex items-center gap-3 sm:gap-5 text-[11px] text-stone-300">
           <span>Livraison Express 24h Dakar</span>
-          <span class="text-gold-500/80">• Commande Directe WhatsApp</span>
+          <a
+            href="https://www.tiktok.com/@khadamasy6"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-1.5 text-gold-400 hover:text-white font-bold transition-colors"
+            title="Voir nos vidéos sur TikTok @khadamasy6"
+          >
+            <IconTikTok className="w-3.5 h-3.5" />
+            <span>TikTok @khadamasy6</span>
+          </a>
         </div>
       </div>
     </div>
@@ -310,6 +319,20 @@
               <ChevronRight class="w-4 h-4 text-stone-400" />
             </router-link>
 
+            <!-- Lien TikTok Officiel Mobile -->
+            <a
+              href="https://www.tiktok.com/@khadamasy6"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center justify-between p-3 rounded-2xl bg-stone-900 text-white font-bold text-sm hover:bg-stone-800 transition-colors"
+            >
+              <div class="flex items-center gap-3">
+                <IconTikTok className="w-4 h-4 text-gold-400" />
+                <span>Notre TikTok Officiel (@khadamasy6)</span>
+              </div>
+              <ChevronRight class="w-4 h-4 text-gold-400" />
+            </a>
+
             <!-- Admin si autorisé -->
             <router-link
               v-if="authStore.isAdmin"
@@ -350,6 +373,7 @@ import { useCartStore } from '../stores/cart';
 import { useAuthStore } from '../stores/auth';
 import { useCurrencyStore } from '../stores/currency';
 import { usePhoneStore } from '../stores/phone';
+import IconTikTok from './icons/IconTikTok.vue';
 
 const mobileMenuOpen = ref(false);
 const cartStore = useCartStore();

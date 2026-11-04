@@ -25,6 +25,15 @@
               <Truck class="w-3 h-3 text-gold-400" />
               <span>Livraison Express 24h</span>
             </span>
+            <a
+              href="https://www.tiktok.com/@khadamasy6"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 text-[11px] bg-gold-500/15 hover:bg-gold-500/25 text-gold-300 px-3 py-1 rounded-full border border-gold-500/40 font-bold transition-all"
+            >
+              <IconTikTok className="w-3.5 h-3.5 text-gold-400" />
+              <span>TikTok @khadamasy6</span>
+            </a>
           </div>
         </div>
 
@@ -115,4 +124,5 @@ import {
   Lock,
   HelpCircle,
 } from 'lucide-vue-next';
+import IconTikTok from './icons/IconTikTok.vue';
 </script>

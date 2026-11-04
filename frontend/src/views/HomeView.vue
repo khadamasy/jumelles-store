@@ -423,7 +423,8 @@
           <a
             href="https://wa.me/221772087820?text=Bonjour%20Maison%20Jumelles%2C%20je%20souhaite%20des%20renseignements%20sur%20vos%20articles."
             target="_blank"
-            class="bg-[#25D366]/15 hover:bg-[#25D366]/25 border border-[#25D366]/40 p-5 rounded-2xl flex items-center gap-4 w-full sm:w-72 shadow-lg transition-all group"
+            rel="noopener noreferrer"
+            class="bg-[#25D366]/15 hover:bg-[#25D366]/25 border border-[#25D366]/40 p-5 rounded-2xl flex items-center gap-4 w-full sm:w-64 shadow-lg transition-all group"
           >
             <div class="w-12 h-12 rounded-xl bg-[#25D366]/20 flex items-center justify-center shrink-0">
               <IconWhatsApp className="w-8 h-8 text-[#25D366] group-hover:scale-110 transition-transform" />
@@ -432,6 +433,23 @@
               <p class="font-black text-sm text-white">WhatsApp Boutique</p>
               <p class="text-xs text-stone-300 font-mono">+221 77 208 78 20</p>
               <span class="text-[10px] text-[#25D366] font-bold">Réponse rapide • 7j/7</span>
+            </div>
+          </a>
+
+          <!-- TikTok Card -->
+          <a
+            href="https://www.tiktok.com/@khadamasy6"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="bg-white/10 hover:bg-white/15 border border-gold-500/40 p-5 rounded-2xl flex items-center gap-4 w-full sm:w-64 shadow-lg transition-all group"
+          >
+            <div class="w-12 h-12 rounded-xl bg-gold-500/20 flex items-center justify-center shrink-0">
+              <IconTikTok className="w-7 h-7 text-gold-400 group-hover:scale-110 transition-transform" />
+            </div>
+            <div>
+              <p class="font-black text-sm text-white">TikTok Officiel</p>
+              <p class="text-xs text-gold-400 font-mono">@khadamasy6</p>
+              <span class="text-[10px] text-stone-300 font-bold">Vidéos des articles →</span>
             </div>
           </a>
         </div>
@@ -453,6 +471,7 @@ import {
   Star,
 } from 'lucide-vue-next';
 import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
+import IconTikTok from '../components/icons/IconTikTok.vue';
 import { ProductService } from '../services/api';
 import ProductCard from '../components/ProductCard.vue';
 
