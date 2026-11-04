@@ -19,7 +19,7 @@
         v-if="!authStore.adminConfigured"
         class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 leading-relaxed"
       >
-        <strong>Première configuration :</strong> saisissez l'<strong>adresse email</strong> et le <strong>mot de passe</strong> de votre choix ci-dessous. Ils seront enregistrés comme vos identifiants administrateur officiels.
+        <strong>Accès gérance non configuré :</strong> définissez <code>ADMIN_PASSWORD</code> (12 caractères minimum) dans le fichier <code>backend/.env</code> puis redémarrez le serveur. Connectez-vous ensuite avec ce mot de passe : vous pourrez le remplacer depuis l'Espace Gérance.
       </div>
 
       <div>
@@ -69,7 +69,7 @@
         :disabled="authStore.isLoading || !adminEmail || !adminPassword"
         class="w-full py-3 bg-stone-950 hover:bg-gold-600 disabled:opacity-60 text-white text-sm font-bold rounded-xl shadow-md transition-all cursor-pointer"
       >
-        {{ authStore.isLoading ? 'Vérification...' : authStore.adminConfigured ? 'Se connecter' : 'Enregistrer et se connecter' }}
+        {{ authStore.isLoading ? 'Vérification...' : 'Se connecter' }}
       </button>
     </form>
   </div>
@@ -577,12 +577,24 @@
           />
         </div>
         <div>
-          <label class="block text-xs font-bold text-stone-700 mb-1">Nouveau Mot de passe Admin *</label>
+          <label class="block text-xs font-bold text-stone-700 mb-1">Mot de passe actuel *</label>
+          <input
+            v-model="credForm.currentPassword"
+            type="password"
+            required
+            autocomplete="current-password"
+            placeholder="Votre mot de passe actuel"
+            class="w-full px-4 py-3 rounded-xl border border-stone-300 text-sm outline-none"
+          />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-stone-700 mb-1">Nouveau Mot de passe Admin * (12 caractères minimum)</label>
           <input
             v-model="credForm.password"
-            type="text"
+            type="password"
             required
-            minlength="4"
+            minlength="12"
+            autocomplete="new-password"
             placeholder="Choisissez votre mot de passe"
             class="w-full px-4 py-3 rounded-xl border border-stone-300 text-sm outline-none"
           />
@@ -1221,18 +1233,22 @@ const loginError = ref('');
 const showCredentialsModal = ref(false);
 const credForm = reactive({
   email: '',
+  currentPassword: '',
   password: '',
 });
 
 const openCredentialsModal = () => {
   credForm.email = authStore.user?.email || adminEmail.value || '';
+  credForm.currentPassword = '';
   credForm.password = '';
   showCredentialsModal.value = true;
 };
 
 const handleUpdateCredentials = async () => {
   try {
-    await authStore.updateCredentials(credForm.email, credForm.password);
+    await authStore.updateCredentials(credForm.email, credForm.password, credForm.currentPassword);
+    credForm.currentPassword = '';
+    credForm.password = '';
     showCredentialsModal.value = false;
     showToast('Identifiants administrateur mis à jour !');
   } catch (err: any) {
@@ -1243,11 +1259,8 @@ const handleUpdateCredentials = async () => {
 const handleAdminLogin = async () => {
   loginError.value = '';
   try {
-    const res = await authStore.loginAdmin(adminEmail.value, adminPassword.value);
+    await authStore.loginAdmin(adminEmail.value, adminPassword.value);
     adminPassword.value = '';
-    if (res?.firstSetup) {
-      showToast(`Identifiants (${authStore.user?.email}) enregistrés !`);
-    }
     await loadData();
   } catch (err: any) {
     loginError.value = err.response?.data?.message || 'Connexion impossible.';

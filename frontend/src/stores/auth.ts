@@ -108,11 +108,11 @@ export const useAuthStore = defineStore('auth', {
     },
 
     /** Modification de l'Email et du Mot de passe par l'administrateur */
-    async updateCredentials(email: string, password: string) {
+    async updateCredentials(email: string, password: string, currentPassword: string) {
       purgeSensitiveBrowserStorage();
       this.isLoading = true;
       try {
-        const res = await apiClient.put('/auth/admin/credentials', { email, password });
+        const res = await apiClient.put('/auth/admin/credentials', { email, password, currentPassword });
         const { user } = res.data.data;
         this.user = user;
         this.isAuthenticated = true;

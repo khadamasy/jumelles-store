@@ -63,10 +63,10 @@ export const uploadProductImage = async (req: Request, res: Response) => {
         'X-Content-Type-Options': 'nosniff',
       });
 
-      const publicBase =
-        process.env.MINIO_PUBLIC_URL ||
-        `http://${process.env.MINIO_ENDPOINT || 'localhost'}:${process.env.MINIO_PORT || '9000'}`;
-      const minioUrl = `${publicBase.replace(/\/$/, '')}/${BUCKET_PRODUCTS}/${filename}`;
+      // Par défaut : chemin relatif servi par Nginx / Vite sur le même domaine que le site.
+      // MINIO_PUBLIC_URL permet de pointer vers un CDN ou un domaine dédié aux photos.
+      const publicBase = (process.env.MINIO_PUBLIC_URL || '').replace(/\/$/, '');
+      const minioUrl = `${publicBase}/${BUCKET_PRODUCTS}/${filename}`;
 
       return res.status(201).json({
         success: true,

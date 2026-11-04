@@ -18,6 +18,10 @@ RUN npm install --omit=dev && chown -R node:node /app
 COPY --from=builder --chown=node:node /app/dist ./dist
 COPY --from=builder --chown=node:node /app/prisma ./prisma
 
+# Dossier persistant (snapshot store.json, identifiants admin) : monté sur un volume Docker
+RUN mkdir -p /app/data && chown node:node /app/data
+VOLUME ["/app/data"]
+
 USER node
 
 EXPOSE 4000

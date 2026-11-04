@@ -8,6 +8,8 @@ import {
   verifyAdminCredentials,
   saveAdminCredentials,
   getAdminAuthStatus,
+  getCredentialsVersion,
+  MIN_ADMIN_PASSWORD_LENGTH,
 } from '../config/security';
 import { AuthenticatedRequest } from '../middlewares/authMiddleware';
 
@@ -27,6 +29,14 @@ const buildCookieHeader = (value: string, maxAge: number): string => {
   }
   return parts.join('; ');
 };
+
+/** Jeton de session lié à la version courante des identifiants (révoqué si le mot de passe change) */
+const signAdminSession = (user: object): string =>
+  jwt.sign({ ...user, cv: getCredentialsVersion() }, JWT_SECRET, {
+    algorithm: 'HS256',
+    issuer: JWT_ISSUER,
+    expiresIn: ADMIN_SESSION_DURATION,
+  });
 
 /** Indique si l'administrateur a déjà défini son email et son mot de passe */
 export const adminAuthStatus = (_req: Request, res: Response) => {
@@ -78,11 +88,7 @@ export const adminLogin = (req: Request, res: Response) => {
     realm_access: { roles: ['ROLE_ADMIN'] },
   };
 
-  const token = jwt.sign(user, JWT_SECRET, {
-    algorithm: 'HS256',
-    issuer: JWT_ISSUER,
-    expiresIn: ADMIN_SESSION_DURATION,
-  });
+  const token = signAdminSession(user);
 
   res.setHeader('Set-Cookie', buildCookieHeader(token, MAX_AGE_SECONDS));
   console.info(`[SÉCURITÉ] Connexion gérance réussie (${adminEmail}) depuis ${req.ip}`);
@@ -98,7 +104,14 @@ export const adminLogin = (req: Request, res: Response) => {
 
 /** Permet à l'administrateur connecté de modifier son Email et son Mot de passe */
 export const updateAdminCredentials = (req: AuthenticatedRequest, res: Response) => {
-  const { email, password } = req.body || {};
+  const { email, password, currentPassword } = req.body || {};
+  if (!verifyAdminPassword(currentPassword)) {
+    console.warn(`[SÉCURITÉ] Changement d'identifiants refusé (mot de passe actuel incorrect) depuis ${req.ip}`);
+    return res.status(403).json({
+      success: false,
+      message: 'Mot de passe actuel incorrect.',
+    });
+  }
   const cleanEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
   if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
     return res.status(400).json({
@@ -106,10 +119,10 @@ export const updateAdminCredentials = (req: AuthenticatedRequest, res: Response)
       message: 'Veuillez saisir une adresse email valide.',
     });
   }
-  if (typeof password !== 'string' || password.length < 4 || password.length > 200) {
+  if (typeof password !== 'string' || password.length < MIN_ADMIN_PASSWORD_LENGTH || password.length > 200) {
     return res.status(400).json({
       success: false,
-      message: 'Veuillez saisir un nouveau mot de passe valide (4 caractères minimum).',
+      message: `Le nouveau mot de passe doit contenir au moins ${MIN_ADMIN_PASSWORD_LENGTH} caractères.`,
     });
   }
 
@@ -122,17 +135,13 @@ export const updateAdminCredentials = (req: AuthenticatedRequest, res: Response)
     realm_access: { roles: ['ROLE_ADMIN'] },
   };
 
-  const token = jwt.sign(user, JWT_SECRET, {
-    algorithm: 'HS256',
-    issuer: JWT_ISSUER,
-    expiresIn: ADMIN_SESSION_DURATION,
-  });
+  const token = signAdminSession(user);
 
   res.setHeader('Set-Cookie', buildCookieHeader(token, MAX_AGE_SECONDS));
 
   res.json({
     success: true,
-    message: 'Vos identifiants administrateur (Email et Mot de passe) ont été enregistrés.',
+    message: 'Identifiants enregistrés. Les autres sessions ouvertes ont été déconnectées.',
     data: {
       user: { id: user.sub, email: user.email, name: user.name, roles: user.realm_access.roles },
     },

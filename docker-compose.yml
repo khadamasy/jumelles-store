@@ -120,6 +120,11 @@ services:
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:?Definissez MINIO_ROOT_USER dans .env}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:?Definissez MINIO_ROOT_PASSWORD dans .env}
       MINIO_BUCKET_PRODUCTS: jumelles-products
+      # Photos servies par Nginx sous /jumelles-products/ (même domaine que le site).
+      # Laisser vide sauf si les photos sont servies par un CDN / domaine dédié.
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-}
+    volumes:
+      - backend_data:/app/data
     ports:
       - "127.0.0.1:4000:4000"
     depends_on:
@@ -153,3 +158,4 @@ networks:
 volumes:
   postgres_data:
   minio_data:
+  backend_data:

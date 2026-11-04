@@ -11,7 +11,7 @@ Plateforme e-commerce haut de gamme spécialisée dans la vente de **sacs (maroq
 - **Authentification & Rôles :** Session administrateur par cookie `HttpOnly; SameSite=Strict` + protection CSRF `X-Requested-With`, et support OIDC Keycloak 24 (`ROLE_ADMIN`, `ROLE_CLIENT`)
 - **Stockage Médias :** MinIO S3 (Bucket `jumelles-products`) + stockage disque local de secours
 - **Base de Données :** PostgreSQL 16 (Schéma relationnel complet `init.sql` : `categories`, `products`, `product_variants`, `product_images`, `orders`, `order_items`, `phone_callbacks` avec verrouillage `SELECT ... FOR UPDATE`)
-- **Conteneurisation :** Docker & Docker Compose (Nginx reverse-proxy `/api/` et `/uploads/`, conteneurs non-root et `healthcheck`)
+- **Conteneurisation :** Docker & Docker Compose (Nginx reverse-proxy `/api/` et `/jumelles-products/` (photos MinIO), conteneurs non-root et `healthcheck`)
 
 ---
 
@@ -98,8 +98,14 @@ npm run dev
 
 ## 🔒 Accéder à l'Espace Administration (`/admin`)
 
-1. Définissez les variables `ADMIN_PASSWORD` et `JWT_SECRET` dans `backend/.env` (voir `.env.example`).
-2. Rendez-vous sur [http://localhost:3000/admin](http://localhost:3000/admin) et saisissez le mot de passe de gérance :
+1. Définissez les variables `ADMIN_PASSWORD` (12 caractères minimum) et `JWT_SECRET` dans `backend/.env` (voir `.env.example`). Optionnel : `ADMIN_EMAIL` pour imposer aussi l'adresse email. Sans `ADMIN_PASSWORD`, la connexion gérance est désactivée.
+2. Rendez-vous sur [http://localhost:3000/admin](http://localhost:3000/admin) et connectez-vous avec ce mot de passe. Vous pouvez ensuite le remplacer depuis l'Espace Gérance (le mot de passe actuel est demandé) : `ADMIN_PASSWORD` n'est alors plus accepté et toutes les autres sessions sont déconnectées.
    - La session est stockée dans un **cookie `HttpOnly; SameSite=Strict`** (aucun jeton exposé dans `localStorage` ni `sessionStorage`).
    - Suivi du chiffre d'affaires, des commandes et des rappels téléphoniques.
    - Création/modification d'articles et gestion des stocks par pointure/couleur.
+
+## 💾 Persistance des données
+
+- Chaque écriture est d'abord enregistrée sur disque (`backend/data/store.json`, volume Docker `backend_data`), puis dans PostgreSQL.
+- Si PostgreSQL est indisponible, le fichier `backend/data/pg-pending` est créé et la synchronisation est relancée toutes les 30 s ; au redémarrage, le disque (plus récent) est recopié dans PostgreSQL. Aucune commande n'est perdue.
+- En production, si PostgreSQL est injoignable au démarrage et qu'aucune sauvegarde disque n'existe, le serveur refuse de démarrer (pour ne jamais écraser la vraie base avec le catalogue de démonstration).

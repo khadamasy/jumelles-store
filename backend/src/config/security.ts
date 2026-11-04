@@ -87,15 +87,25 @@ export const saveAdminCredentials = (email: string, password: string): void => {
   fs.writeFileSync(ADMIN_AUTH_FILE, JSON.stringify(data, null, 2), 'utf8');
 };
 
+/** Longueur minimale des mots de passe administrateur */
+export const MIN_ADMIN_PASSWORD_LENGTH = 12;
+
+/**
+ * Version des identifiants : change à chaque modification du mot de passe,
+ * ce qui invalide toutes les sessions ouvertes avec l'ancien mot de passe.
+ */
+export const getCredentialsVersion = (): string => {
+  const stored = readStoredAdminCredentials();
+  const source = stored ? `${stored.salt}:${stored.passwordHash}` : `env:${adminPassword}`;
+  return crypto.createHmac('sha256', JWT_SECRET).update(source).digest('hex').slice(0, 16);
+};
+
 export const getAdminAuthStatus = (): { configured: boolean; email: string } => {
   const stored = readStoredAdminCredentials();
   if (stored) {
     return { configured: true, email: stored.email };
   }
-  if (adminEmailEnv) {
-    return { configured: true, email: adminEmailEnv };
-  }
-  return { configured: false, email: '' };
+  return { configured: adminPassword.length >= MIN_ADMIN_PASSWORD_LENGTH, email: adminEmailEnv };
 };
 
 /** Comparaison en temps constant (anti attaque temporelle) */
@@ -106,9 +116,8 @@ export const verifyAdminPassword = (candidate: unknown): boolean => {
   if (stored) {
     const derived = crypto.pbkdf2Sync(candidate, stored.salt, 100000, 32, 'sha256');
     const expected = Buffer.from(stored.passwordHash, 'hex');
-    if (derived.length === expected.length && crypto.timingSafeEqual(derived, expected)) {
-      return true;
-    }
+    // Une fois des identifiants personnalisés enregistrés, ADMIN_PASSWORD (.env) n'est plus accepté
+    return derived.length === expected.length && crypto.timingSafeEqual(derived, expected);
   }
 
   if (adminPassword.length < 12) return false;
@@ -119,9 +128,8 @@ export const verifyAdminPassword = (candidate: unknown): boolean => {
 
 /**
  * Vérifie le couple (email + mot de passe) de l'administrateur.
- * Si aucun email/mot de passe personnalisé n'a encore été enregistré par l'administrateur
- * (en développement local), le premier couple (email + mot de passe) saisi par l'admin
- * est enregistré comme ses identifiants officiels.
+ * Tant qu'aucun identifiant personnalisé n'a été enregistré depuis l'Espace Gérance,
+ * la connexion se fait avec ADMIN_PASSWORD (et ADMIN_EMAIL s'il est défini) du fichier .env.
  */
 export const verifyAdminCredentials = (
   email: unknown,
@@ -151,14 +159,9 @@ export const verifyAdminCredentials = (
     return { valid: false, email: '', message: 'Email ou mot de passe administrateur incorrect.' };
   }
 
-  // En développement local, si aucun identifiant n'a encore été enregistré par l'admin :
-  // enregistrer directement l'email et le mot de passe choisis par l'admin lors de sa première connexion.
-  if (!isProduction && !adminEmailEnv) {
-    saveAdminCredentials(cleanEmail, password);
-    return { valid: true, email: cleanEmail, firstSetup: true };
-  }
-
-  // Sinon, vérifier par rapport à ADMIN_EMAIL et ADMIN_PASSWORD du fichier .env
+  // Aucun identifiant enregistré : seule la valeur ADMIN_PASSWORD du fichier .env est acceptée.
+  // (L'ancienne création automatique au premier login permettait à n'importe quel visiteur
+  // de devenir administrateur tant que personne ne s'était connecté.)
   if (adminEmailEnv) {
     const emailHashA = crypto.createHash('sha256').update(cleanEmail).digest();
     const emailHashB = crypto.createHash('sha256').update(adminEmailEnv).digest();

@@ -9,9 +9,23 @@ export const pool = new Pool(
   process.env.DATABASE_URL ? { connectionString: process.env.DATABASE_URL } : {}
 );
 
-let isPgAvailable = true;
+// Sans ce gestionnaire, une connexion inactive coupée (redémarrage ou panne de PostgreSQL)
+// émet un événement 'error' non géré qui arrête tout le serveur Node.js.
+pool.on('error', (err) => {
+  console.error(`[PostgreSQL] Connexion perdue : ${err.message}`);
+});
+
+/** PostgreSQL n'est utilisé que si DATABASE_URL est défini */
+let pgEnabled = Boolean(process.env.DATABASE_URL);
 const DATA_DIR = path.resolve(__dirname, '../../data');
 const SNAPSHOT_FILE = path.join(DATA_DIR, 'store.json');
+/**
+ * Marqueur « PostgreSQL en retard » : présent tant que des écritures du snapshot disque
+ * n'ont pas encore été recopiées dans PostgreSQL (panne, redémarrage...).
+ * Au démarrage, s'il existe, le snapshot disque est la source la plus récente.
+ */
+const PG_PENDING_FILE = path.join(DATA_DIR, 'pg-pending');
+const PG_RETRY_INTERVAL_MS = 30_000;
 const INIT_SQL_FILE = path.resolve(__dirname, '../../prisma/init.sql');
 
 export interface Category {
@@ -625,15 +639,15 @@ const loadFromPostgres = async (): Promise<boolean> => {
 };
 
 /** Synchronise l'état courant vers PostgreSQL dans une transaction atomique */
-const syncToPostgres = async () => {
-  if (!pool || !isPgAvailable) return;
+const syncToPostgres = async (): Promise<boolean> => {
+  if (!pgEnabled) return false;
   let client: any = null;
   try {
     if (typeof pool.connect === 'function') {
       client = await pool.connect();
     }
     const runner = client && typeof client.query === 'function' ? client : pool;
-    if (typeof runner.query !== 'function') return;
+    if (typeof runner.query !== 'function') return false;
 
     await runner.query('BEGIN');
 
@@ -763,13 +777,15 @@ const syncToPostgres = async () => {
     }
 
     await runner.query('COMMIT');
+    return true;
   } catch (err: any) {
-    isPgAvailable = false;
+    console.error(`[PostgreSQL] Échec de synchronisation (nouvel essai automatique) : ${err.message}`);
     try {
       if (client && typeof client.query === 'function') await client.query('ROLLBACK');
     } catch {
       // ignore rollback error when connection failed
     }
+    return false;
   } finally {
     if (client && typeof client.release === 'function') {
       client.release();
@@ -777,53 +793,146 @@ const syncToPostgres = async () => {
   }
 };
 
+const markPgPending = () => {
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(PG_PENDING_FILE, new Date().toISOString(), 'utf8');
+  } catch (err: any) {
+    console.warn(`[Persistance] Impossible d'écrire ${PG_PENDING_FILE} : ${err.message}`);
+  }
+};
+
+const clearPgPending = () => {
+  try {
+    if (fs.existsSync(PG_PENDING_FILE)) fs.unlinkSync(PG_PENDING_FILE);
+  } catch {
+    // ignore
+  }
+};
+
+let pgRetryTimer: NodeJS.Timeout | null = null;
+
+/** Relance périodiquement la synchronisation tant que PostgreSQL est en retard sur le disque */
+const schedulePgRetry = () => {
+  if (pgRetryTimer || !pgEnabled) return;
+  pgRetryTimer = setInterval(() => {
+    if (!fs.existsSync(PG_PENDING_FILE)) {
+      clearInterval(pgRetryTimer!);
+      pgRetryTimer = null;
+      return;
+    }
+    void persistStore();
+  }, PG_RETRY_INTERVAL_MS);
+  pgRetryTimer.unref();
+};
+
+/** File d'attente : une seule synchronisation à la fois (pas de transactions concurrentes) */
+let persistQueue: Promise<void> = Promise.resolve();
+
 /**
  * Persiste toutes les modifications (commandes, stocks, articles, rappels) :
- * 1. Sur PostgreSQL via requêtes SQL paramétrées et transactionnelles (avec SELECT ... FOR UPDATE)
- * 2. Sur disque local (backend/data/store.json) pour ne rien perdre au redémarrage
+ * 1. Sur disque local (backend/data/store.json) immédiatement
+ * 2. Sur PostgreSQL dans une transaction ; en cas d'échec, le marqueur pg-pending est conservé
+ *    et la synchronisation est relancée automatiquement jusqu'à réussite
  */
-export const persistStore = async (): Promise<void> => {
-  saveSnapshotToDisk();
-  await syncToPostgres();
+export const persistStore = (): Promise<void> => {
+  const run = async () => {
+    saveSnapshotToDisk();
+    if (!pgEnabled) return;
+    markPgPending();
+    if (await syncToPostgres()) {
+      clearPgPending();
+    } else {
+      schedulePgRetry();
+    }
+  };
+  persistQueue = persistQueue.then(run, run);
+  return persistQueue;
 };
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * Initialise la persistance au démarrage du serveur :
- * - Charge depuis le snapshot disque local s'il existe
- * - Se connecte à PostgreSQL si DATABASE_URL est configuré (charge ou initialise les tables)
+ * - Lit le snapshot disque local s'il existe
+ * - Si DATABASE_URL est défini : charge PostgreSQL (avec plusieurs tentatives), sauf si le
+ *   snapshot disque est plus récent (marqueur pg-pending), auquel cas c'est lui qui est
+ *   recopié dans PostgreSQL. Jamais de catalogue de démonstration écrasant une vraie base.
  */
 export const initDatabase = async (): Promise<void> => {
+  let snapshot: any = null;
   if (fs.existsSync(SNAPSHOT_FILE)) {
     try {
-      const raw = JSON.parse(fs.readFileSync(SNAPSHOT_FILE, 'utf8'));
-      if (Array.isArray(raw.categories) && raw.categories.length > 0) memoryStore.categories = raw.categories;
-      if (Array.isArray(raw.products) && raw.products.length > 0) memoryStore.products = raw.products;
-      if (Array.isArray(raw.orders)) memoryStore.orders = raw.orders;
-      if (Array.isArray(raw.phoneCallbacks)) memoryStore.phoneCallbacks = raw.phoneCallbacks;
-      console.log(`[Persistance] État restauré depuis ${SNAPSHOT_FILE} (${memoryStore.products.length} articles, ${memoryStore.orders.length} commandes).`);
+      snapshot = JSON.parse(fs.readFileSync(SNAPSHOT_FILE, 'utf8'));
     } catch (err: any) {
       console.warn(`[Persistance] Lecture de ${SNAPSHOT_FILE} ignorée : ${err.message}`);
     }
   }
 
-  if (pool && process.env.DATABASE_URL) {
-    try {
-      const hadData = await loadFromPostgres();
-      isPgAvailable = true;
-      if (!hadData) {
-        await syncToPostgres();
-        console.log('[PostgreSQL] Base initialisée avec le catalogue Jumelles Store.');
-      } else {
-        console.log(`[PostgreSQL] Données chargées depuis PostgreSQL (${memoryStore.products.length} articles, ${memoryStore.orders.length} commandes).`);
-      }
-      saveSnapshotToDisk();
-    } catch (err: any) {
-      isPgAvailable = false;
-      console.warn(`[PostgreSQL] Non joignable (${err.message}). Persistance disque locale active (${SNAPSHOT_FILE}).`);
-      saveSnapshotToDisk();
-    }
-  } else {
+  const applySnapshot = () => {
+    if (!snapshot) return;
+    if (Array.isArray(snapshot.categories) && snapshot.categories.length > 0) memoryStore.categories = snapshot.categories;
+    if (Array.isArray(snapshot.products) && snapshot.products.length > 0) memoryStore.products = snapshot.products;
+    if (Array.isArray(snapshot.orders)) memoryStore.orders = snapshot.orders;
+    if (Array.isArray(snapshot.phoneCallbacks)) memoryStore.phoneCallbacks = snapshot.phoneCallbacks;
+    console.log(`[Persistance] État restauré depuis ${SNAPSHOT_FILE} (${memoryStore.products.length} articles, ${memoryStore.orders.length} commandes).`);
+  };
+
+  if (!pgEnabled) {
+    applySnapshot();
     saveSnapshotToDisk();
     console.info(`[Persistance] Sauvegarde automatique sur disque active (${SNAPSHOT_FILE}).`);
+    return;
   }
+
+  const snapshotIsNewer = Boolean(snapshot) && fs.existsSync(PG_PENDING_FILE);
+
+  let hadData = false;
+  let lastError: any = null;
+  for (let attempt = 1; attempt <= 10; attempt++) {
+    try {
+      hadData = await loadFromPostgres();
+      lastError = null;
+      break;
+    } catch (err: any) {
+      lastError = err;
+      console.warn(`[PostgreSQL] Tentative ${attempt}/10 échouée : ${err.message}`);
+      await wait(3000);
+    }
+  }
+
+  if (!lastError) {
+    if (snapshotIsNewer) {
+      applySnapshot();
+      console.log('[PostgreSQL] Le snapshot disque est plus récent : rattrapage de PostgreSQL.');
+      await persistStore();
+    } else if (!hadData) {
+      applySnapshot();
+      await persistStore();
+      console.log('[PostgreSQL] Base initialisée avec le catalogue Jumelles Store.');
+    } else {
+      console.log(`[PostgreSQL] Données chargées depuis PostgreSQL (${memoryStore.products.length} articles, ${memoryStore.orders.length} commandes).`);
+      saveSnapshotToDisk();
+    }
+    return;
+  }
+
+  // PostgreSQL injoignable au démarrage
+  if (snapshot) {
+    applySnapshot();
+    markPgPending();
+    schedulePgRetry();
+    console.warn(`[PostgreSQL] Non joignable (${lastError.message}). Démarrage sur ${SNAPSHOT_FILE}, synchronisation dès le retour de la base.`);
+    return;
+  }
+
+  // Ni base ni snapshot : on refuse de démarrer sur le catalogue de démonstration en production,
+  // car il écraserait la vraie base au retour de PostgreSQL.
+  if (process.env.NODE_ENV === 'production') {
+    console.error(`[PostgreSQL] Non joignable (${lastError.message}) et aucun snapshot disque. Arrêt du serveur.`);
+    process.exit(1);
+  }
+  pgEnabled = false;
+  saveSnapshotToDisk();
+  console.warn(`[PostgreSQL] Non joignable (${lastError.message}). Mode développement : PostgreSQL désactivé, persistance disque uniquement.`);
 };

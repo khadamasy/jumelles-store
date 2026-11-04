@@ -35,6 +35,21 @@ export async function initMinioBuckets() {
       await minioClient.makeBucket(BUCKET_PRODUCTS, 'us-east-1');
       console.log(`[MinIO] Bucket '${BUCKET_PRODUCTS}' créé avec succès.`);
     }
+    // Lecture publique des photos produits uniquement (pas de listing, pas d'écriture)
+    await minioClient.setBucketPolicy(
+      BUCKET_PRODUCTS,
+      JSON.stringify({
+        Version: '2012-10-17',
+        Statement: [
+          {
+            Effect: 'Allow',
+            Principal: { AWS: ['*'] },
+            Action: ['s3:GetObject'],
+            Resource: [`arn:aws:s3:::${BUCKET_PRODUCTS}/*`],
+          },
+        ],
+      })
+    );
 
     const invoicesExists = await minioClient.bucketExists(BUCKET_INVOICES);
     if (!invoicesExists) {

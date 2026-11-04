@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { getKey } from '../config/keycloak';
-import { JWT_SECRET, JWT_ISSUER } from '../config/security';
+import { JWT_SECRET, JWT_ISSUER, getCredentialsVersion } from '../config/security';
 import { SESSION_COOKIE_NAME } from '../controllers/authController';
 
 export interface AuthenticatedUser {
@@ -61,7 +61,9 @@ export const requireAuth = (req: AuthenticatedRequest, res: Response, next: Next
       const payload = jwt.verify(cookieToken, JWT_SECRET, {
         algorithms: ['HS256'],
         issuer: JWT_ISSUER,
-      }) as AuthenticatedUser;
+      }) as AuthenticatedUser & { cv?: string };
+      // Session ouverte avec un ancien mot de passe : refusée
+      if (payload.cv !== getCredentialsVersion()) return unauthorized(res);
       req.user = payload;
       return next();
     } catch {

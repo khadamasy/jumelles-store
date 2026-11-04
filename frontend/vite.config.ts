@@ -17,6 +17,11 @@ export default defineConfig({
         target: 'http://127.0.0.1:4000',
         changeOrigin: true,
       },
+      // Photos téléversées sur MinIO (développement local)
+      '/jumelles-products': {
+        target: 'http://127.0.0.1:9000',
+        changeOrigin: true,
+      },
     },
   },
 });
