@@ -93,16 +93,6 @@
                 />
               </div>
             </div>
-
-            <div>
-              <label class="block text-xs font-bold text-stone-700 mb-1">Instructions ou remarques pour le livreur (Optionnel)</label>
-              <textarea
-                v-model="form.customerNote"
-                rows="2"
-                placeholder="Ex: Appelez-moi avant de partir, livraison souhaitée l'après-midi..."
-                class="w-full px-4 py-2.5 rounded-xl border border-stone-300 text-xs focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 outline-none"
-              ></textarea>
-            </div>
           </div>
         </div>
 
@@ -313,9 +303,7 @@ const handleCheckoutWhatsApp = async () => {
       customerEmail: clientEmail,
       customerPhone: form.customerPhone.trim(),
       shippingCity: form.shippingCity,
-      shippingAddress: form.customerNote.trim()
-        ? `${form.shippingAddress.trim()} (Note: ${form.customerNote.trim()})`
-        : form.shippingAddress.trim(),
+      shippingAddress: form.shippingAddress.trim(),
       items: cartStore.items.map((item) => ({
         productVariantId: item.variantId,
         quantity: item.quantity,
@@ -377,7 +365,7 @@ Je souhaite confirmer ma commande enregistrée sur votre site internet :
 • Nom : ${form.customerName.trim()}
 • Téléphone : ${form.customerPhone.trim()}
 • Ville : ${form.shippingCity}
-• Adresse de livraison : ${form.shippingAddress.trim()}${form.customerNote.trim() ? '\n• Note spéciale : ' + form.customerNote.trim() : ''}
+• Adresse de livraison : ${form.shippingAddress.trim()}
 
 *ARTICLES COMMANDÉS (PRIX SERVEUR) :*
 ${itemsListText}
