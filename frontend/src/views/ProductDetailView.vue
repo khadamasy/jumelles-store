@@ -208,6 +208,17 @@
             </button>
           </div>
 
+          <!-- Commander par Téléphone / WhatsApp avec lien photo -->
+          <button
+            type="button"
+            @click="orderProductByPhone"
+            :disabled="!selectedVariant || selectedVariant.stockQuantity <= 0"
+            class="w-full py-3.5 px-5 rounded-2xl text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <IconWhatsApp className="w-4 h-4 text-[#25D366]" />
+            <span>Commander cet article sur WhatsApp (avec photo)</span>
+          </button>
+
           <p class="text-center text-[11px] text-stone-500 pt-1">
             Livraison express sous 24h à Dakar • Confirmation directe sur WhatsApp
           </p>
@@ -324,11 +335,19 @@ const whatsappOrderUrl = computed(() => {
   if (!product.value || !selectedVariant.value) {
     return 'https://wa.me/221772087820';
   }
+  const photoUrl = phoneStore.toAbsolutePhotoUrl(activeImage.value);
   const text = encodeURIComponent(
-    `Bonjour Jumelles Store, je souhaite commander l'article "${product.value.name}" en ${selectedVariant.value.color} (Taille/Pointure: ${selectedVariant.value.sizeOrShoeSize}) au prix de ${currencyStore.toXofOnly(currentPrice.value)} (~${currencyStore.toEurOnly(currentPrice.value)}). Mon numéro est disponible.`
+    `Bonjour Jumelles Store, je souhaite commander par téléphone l'article suivant : ${product.value.name} (${selectedVariant.value.color} / ${selectedVariant.value.sizeOrShoeSize} x${quantity.value}) - Total: ${currencyStore.toXofOnly(currentPrice.value * quantity.value)}${photoUrl ? `\n📷 Photo : ${photoUrl}` : ''}`
   );
   return `https://wa.me/221772087820?text=${text}`;
 });
+
+const orderProductByPhone = () => {
+  if (!product.value || !selectedVariant.value) return;
+  const photoUrl = phoneStore.toAbsolutePhotoUrl(activeImage.value);
+  const summary = `${product.value.name} (${selectedVariant.value.color} / ${selectedVariant.value.sizeOrShoeSize} x${quantity.value})${photoUrl ? `\n📷 Photo : ${photoUrl}` : ''} - Total: ${currencyStore.toXofOnly(currentPrice.value * quantity.value)}`;
+  phoneStore.openModal(summary, activeImage.value);
+};
 
 const addToCart = () => {
   if (!selectedVariant.value || !product.value) return;

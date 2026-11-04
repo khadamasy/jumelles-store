@@ -27,7 +27,7 @@
       </a>
       <a
         class="wa"
-        href="https://wa.me/221772087820?text=Bonjour%20Jumelles%20Store%2C%20je%20souhaite%20commander."
+        :href="dockWhatsAppUrl"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -45,16 +45,33 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import Navbar from './components/Navbar.vue';
 import Footer from './components/Footer.vue';
 import CartDrawer from './components/CartDrawer.vue';
 import PhoneServiceModal from './components/PhoneServiceModal.vue';
 import { useAuthStore } from './stores/auth';
+import { useCartStore } from './stores/cart';
+import { toAbsolutePhotoUrl } from './stores/phone';
 
 const authStore = useAuthStore();
+const cartStore = useCartStore();
 const dockHidden = ref(false);
 let lastScrollY = 0;
+
+const dockWhatsAppUrl = computed(() => {
+  if (cartStore.items.length > 0) {
+    const summary = cartStore.items
+      .map((i) => {
+        const photoUrl = toAbsolutePhotoUrl(i.imageUrl);
+        return `${i.productName} (${i.color} / ${i.sizeOrShoeSize} x${i.quantity})${photoUrl ? `\n📷 Photo : ${photoUrl}` : ''}`;
+      })
+      .join('\n\n');
+    const msg = `Bonjour Jumelles Store, je souhaite commander par téléphone l'article suivant : Panier Jumelles Store: ${summary} - Total: ${cartStore.formattedSubtotal}`;
+    return `https://wa.me/221772087820?text=${encodeURIComponent(msg)}`;
+  }
+  return 'https://wa.me/221772087820?text=Bonjour%20Jumelles%20Store%2C%20je%20souhaite%20commander.';
+});
 
 const handleScroll = () => {
   const y = window.scrollY;

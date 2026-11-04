@@ -138,10 +138,17 @@ const phoneStore = usePhoneStore();
 
 const orderCartByPhone = () => {
   const summary = cartStore.items
-    .map((i) => `${i.productName} (${i.color} / ${i.sizeOrShoeSize} x${i.quantity})`)
-    .join(', ');
+    .map((i) => {
+      const photoUrl = phoneStore.toAbsolutePhotoUrl(i.imageUrl);
+      return `${i.productName} (${i.color} / ${i.sizeOrShoeSize} x${i.quantity})${photoUrl ? `\n📷 Photo : ${photoUrl}` : ''}`;
+    })
+    .join('\n\n');
+  const firstPhoto = cartStore.items[0]?.imageUrl || '';
   cartStore.toggleDrawer(false);
-  phoneStore.openModal(`Panier Jumelles Store: ${summary} - Total: ${cartStore.formattedSubtotal}`);
+  phoneStore.openModal(
+    `Panier Jumelles Store: ${summary} - Total: ${cartStore.formattedSubtotal}`,
+    firstPhoto
+  );
 };
 
 const formatPrice = (price: number) => {

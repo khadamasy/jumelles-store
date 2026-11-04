@@ -45,12 +45,18 @@
           </div>
         </div>
 
-        <!-- Contexte Article si ouvert depuis une fiche -->
-        <div v-if="phoneStore.productContext" class="bg-gold-50/70 border border-gold-200 rounded-xl p-3 text-xs flex items-center gap-2">
-          <ShoppingBag class="w-4 h-4 text-gold-700 shrink-0" />
-          <div>
-            <span class="font-bold text-stone-900">Article sélectionné :</span>
-            <span class="text-stone-700 ml-1">{{ phoneStore.productContext }}</span>
+        <!-- Contexte Article si ouvert depuis une fiche ou le panier -->
+        <div v-if="phoneStore.productContext" class="bg-gold-50/70 border border-gold-200 rounded-xl p-3 text-xs flex items-center gap-3">
+          <img
+            v-if="phoneStore.productImage"
+            :src="phoneStore.productImage"
+            alt="Aperçu article"
+            class="w-12 h-12 rounded-lg object-cover border border-gold-300 shrink-0"
+          />
+          <ShoppingBag v-else class="w-4 h-4 text-gold-700 shrink-0" />
+          <div class="min-w-0 flex-1">
+            <span class="font-bold text-stone-900 block">Article sélectionné (lien photo inclus sur WhatsApp) :</span>
+            <span class="text-stone-700 whitespace-pre-line break-words">{{ phoneStore.productContext }}</span>
           </div>
         </div>
 

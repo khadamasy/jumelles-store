@@ -256,6 +256,7 @@ import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
 import { useCartStore } from '../stores/cart';
 import { useAuthStore } from '../stores/auth';
 import { useCurrencyStore } from '../stores/currency';
+import { toAbsolutePhotoUrl } from '../stores/phone';
 import { OrderService } from '../services/api';
 
 const router = useRouter();
@@ -337,11 +338,22 @@ const handleCheckoutWhatsApp = async () => {
     }> = Array.isArray(serverOrder.items) ? serverOrder.items : [];
     const verifiedTotal: number = Number(serverOrder.totalAmount) || 0;
 
-    // 2. Formatage du message WhatsApp exclusivement à partir des montants et articles validés par le serveur
+    // 2. Formatage du message WhatsApp exclusivement à partir des montants et articles validés par le serveur + lien photo de chaque article
+    const cartPhotosByVariant = new Map(
+      cartStore.items.map((ci) => [ci.variantId, toAbsolutePhotoUrl(ci.imageUrl)])
+    );
+    const cartPhotosByName = new Map(
+      cartStore.items.map((ci) => [ci.productName, toAbsolutePhotoUrl(ci.imageUrl)])
+    );
+
     const itemsListText = serverItems
-      .map((item, index) => {
+      .map((item: any, index: number) => {
         const lineTotal = currencyStore.toXofOnly(item.totalPrice);
-        return `  ${index + 1}. *${item.productName}*\n     ↳ Détails : ${item.variantDetails}\n     ↳ Quantité : x${item.quantity}\n     ↳ Prix vérifié : ${lineTotal}`;
+        const photoUrl =
+          cartPhotosByVariant.get(item.productVariantId) ||
+          cartPhotosByName.get(item.productName) ||
+          '';
+        return `  ${index + 1}. *${item.productName}*\n     ↳ Détails : ${item.variantDetails}\n     ↳ Quantité : x${item.quantity}\n     ↳ Prix vérifié : ${lineTotal}${photoUrl ? `\n     ↳ 📷 Photo : ${photoUrl}` : ''}`;
       })
       .join('\n\n');
 
