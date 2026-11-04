@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col bg-[#faf7f2] text-[#241d19] font-sans selection:bg-gold-200 pb-20 md:pb-0">
+  <div class="min-h-screen flex flex-col">
     <Navbar />
 
     <main class="flex-1">
@@ -9,33 +9,37 @@
     <CartDrawer />
     <Footer />
 
-    <!-- Barre de contact fixe mobile-first (Appeler + WhatsApp) avec masquage intelligent au défilement -->
     <div
       v-if="$route.path !== '/admin'"
+      class="dock"
+      :class="{ hide: dockHidden }"
+      id="dock"
       role="complementary"
       aria-label="Contact direct"
-      class="fixed left-3 right-3 md:left-auto md:right-6 md:min-w-[360px] bottom-[calc(10px+env(safe-area-inset-bottom,0px))] z-35 flex gap-2 bg-stone-950/95 backdrop-blur-md border border-white/15 rounded-[22px] p-2 shadow-2xl transition-transform duration-300"
-      :class="dockHidden ? 'translate-y-[140%]' : 'translate-y-0'"
     >
-      <a
-        href="tel:+221772087820"
-        class="flex-1 min-h-[48px] rounded-[15px] bg-white/10 hover:bg-white/20 active:scale-95 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all"
-      >
-        <IconPhoneSolid className="w-5 h-5 text-gold-400" />
-        <span>Appeler</span>
+      <a class="call" href="tel:+221772087820">
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11 11 0 0 0 3.5.56 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.2.2 2.4.56 3.5a1 1 0 0 1-.25 1z"
+          />
+        </svg>
+        Appeler
       </a>
       <a
+        class="wa"
         href="https://wa.me/221772087820?text=Bonjour%20Jumelles%20Store%2C%20je%20souhaite%20commander."
         target="_blank"
         rel="noopener noreferrer"
-        class="flex-1 min-h-[48px] rounded-[15px] bg-[#1f9d55] hover:bg-[#198246] active:scale-95 text-[#08140d] font-bold text-sm flex items-center justify-center gap-2 transition-all"
       >
-        <IconWhatsApp className="w-5 h-5 text-[#08140d]" />
-        <span>WhatsApp</span>
+        <svg viewBox="0 0 24 24">
+          <path
+            d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.2 14.3c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .2-3.3-.7-2.8-1.1-4.5-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.4.6c-.1.2-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1.1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.8-.1 1.4z"
+          />
+        </svg>
+        WhatsApp
       </a>
     </div>
 
-    <!-- Modal Téléphonique Interactif -->
     <PhoneServiceModal />
   </div>
 </template>
@@ -46,13 +50,9 @@ import Navbar from './components/Navbar.vue';
 import Footer from './components/Footer.vue';
 import CartDrawer from './components/CartDrawer.vue';
 import PhoneServiceModal from './components/PhoneServiceModal.vue';
-import IconPhoneSolid from './components/icons/IconPhoneSolid.vue';
-import IconWhatsApp from './components/icons/IconWhatsApp.vue';
 import { useAuthStore } from './stores/auth';
-import { usePhoneStore } from './stores/phone';
 
 const authStore = useAuthStore();
-const phoneStore = usePhoneStore();
 const dockHidden = ref(false);
 let lastScrollY = 0;
 
