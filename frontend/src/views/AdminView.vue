@@ -15,6 +15,27 @@
         <p class="text-xs text-stone-500">Accès réservé à la direction de Jumelles Store.</p>
       </div>
 
+      <div
+        v-if="!authStore.adminConfigured"
+        class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 leading-relaxed"
+      >
+        <strong>Première configuration :</strong> saisissez l'<strong>adresse email</strong> et le <strong>mot de passe</strong> de votre choix ci-dessous. Ils seront enregistrés comme vos identifiants administrateur officiels.
+      </div>
+
+      <div>
+        <label for="admin-email" class="block text-xs font-bold text-stone-700 mb-1">Adresse Email Administrateur</label>
+        <input
+          id="admin-email"
+          v-model="adminEmail"
+          type="email"
+          placeholder="Ex: votre-email@gmail.com"
+          autocomplete="username"
+          maxlength="160"
+          required
+          class="w-full px-4 py-3 rounded-xl border border-stone-300 text-sm focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500 outline-none"
+        />
+      </div>
+
       <div>
         <div class="flex items-center justify-between mb-1">
           <label for="admin-password" class="block text-xs font-bold text-stone-700">Mot de passe</label>
@@ -30,7 +51,7 @@
           id="admin-password"
           v-model="adminPassword"
           :type="showPassword ? 'text' : 'password'"
-          placeholder="Entrez votre mot de passe gérance"
+          placeholder="Entrez votre mot de passe"
           autocomplete="current-password"
           maxlength="200"
           required
@@ -45,10 +66,10 @@
 
       <button
         type="submit"
-        :disabled="authStore.isLoading || !adminPassword"
+        :disabled="authStore.isLoading || !adminEmail || !adminPassword"
         class="w-full py-3 bg-stone-950 hover:bg-gold-600 disabled:opacity-60 text-white text-sm font-bold rounded-xl shadow-md transition-all cursor-pointer"
       >
-        {{ authStore.isLoading ? 'Vérification...' : 'Se connecter' }}
+        {{ authStore.isLoading ? 'Vérification...' : authStore.adminConfigured ? 'Se connecter' : 'Enregistrer et se connecter' }}
       </button>
     </form>
   </div>
@@ -77,11 +98,17 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-2 self-start lg:self-center">
+        <div class="flex flex-wrap items-center gap-2 self-start lg:self-center">
           <div class="flex items-center gap-2.5 bg-emerald-500/15 border border-emerald-400/30 text-emerald-300 px-4 py-2.5 rounded-2xl text-xs font-semibold">
             <CheckCircle2 class="w-4 h-4 text-emerald-400" />
-            <span>Session sécurisée</span>
+            <span>{{ authStore.user?.email || 'Session sécurisée' }}</span>
           </div>
+          <button
+            @click="openCredentialsModal"
+            class="px-4 py-2.5 bg-gold-500/20 hover:bg-gold-500 text-gold-300 hover:text-stone-950 border border-gold-400/40 rounded-2xl text-xs font-bold transition-colors cursor-pointer"
+          >
+            Modifier Email / Mot de passe
+          </button>
           <button
             @click="authStore.logout()"
             class="px-4 py-2.5 bg-white/10 hover:bg-rosewood-600 border border-white/20 text-white rounded-2xl text-xs font-bold transition-colors cursor-pointer"
@@ -106,6 +133,67 @@
       <button @click="toastMessage = ''" class="text-xs font-bold px-2 py-1 hover:opacity-70">
         <X class="w-4 h-4" />
       </button>
+    </div>
+
+    <!-- Modal Modification Email / Mot de passe Admin -->
+    <div
+      v-if="showCredentialsModal"
+      class="fixed inset-0 z-50 bg-stone-950/70 backdrop-blur-sm flex items-center justify-center p-4"
+      @click.self="showCredentialsModal = false"
+    >
+      <form
+        @submit.prevent="handleUpdateCredentials"
+        class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 border border-stone-200 shadow-2xl space-y-5"
+      >
+        <div class="flex items-center justify-between border-b border-stone-100 pb-3">
+          <h3 class="font-serif text-xl font-bold text-stone-900">Identifiants Administrateur</h3>
+          <button type="button" @click="showCredentialsModal = false" class="text-stone-400 hover:text-stone-700 font-bold">✕</button>
+        </div>
+
+        <p class="text-xs text-stone-500">
+          Définissez l'adresse email et le mot de passe qui seront demandés pour accéder à l'Espace Gérance.
+        </p>
+
+        <div>
+          <label class="block text-xs font-bold text-stone-700 mb-1">Nouvelle Adresse Email Admin *</label>
+          <input
+            v-model="credForm.email"
+            type="email"
+            required
+            placeholder="Ex: votre-email@gmail.com"
+            class="w-full px-4 py-3 rounded-xl border border-stone-300 text-sm outline-none focus:ring-2 focus:ring-gold-500/40"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-stone-700 mb-1">Nouveau Mot de passe Admin *</label>
+          <input
+            v-model="credForm.password"
+            type="text"
+            required
+            minlength="4"
+            placeholder="Choisissez votre mot de passe"
+            class="w-full px-4 py-3 rounded-xl border border-stone-300 text-sm outline-none focus:ring-2 focus:ring-gold-500/40"
+          />
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button
+            type="button"
+            @click="showCredentialsModal = false"
+            class="px-4 py-2.5 rounded-xl border border-stone-300 text-xs font-bold text-stone-700 hover:bg-stone-50"
+          >
+            Annuler
+          </button>
+          <button
+            type="submit"
+            :disabled="authStore.isLoading"
+            class="px-5 py-2.5 rounded-xl bg-stone-950 hover:bg-gold-600 text-white text-xs font-bold shadow cursor-pointer"
+          >
+            Enregistrer mes identifiants
+          </button>
+        </div>
+      </form>
     </div>
 
     <!-- KPI Cards Grid -->
@@ -1646,15 +1734,42 @@ const handleCallStatus = async (id: string, status: 'PENDING' | 'CALLED') => {
   }
 };
 
-// Connexion sécurisée de la gérance
+// Connexion sécurisée de la gérance (Email + Mot de passe définis par l'admin)
+const adminEmail = ref('');
 const adminPassword = ref('');
 const showPassword = ref(false);
 const loginError = ref('');
+
+const showCredentialsModal = ref(false);
+const credForm = reactive({
+  email: '',
+  password: '',
+});
+
+const openCredentialsModal = () => {
+  credForm.email = authStore.user?.email || adminEmail.value || '';
+  credForm.password = '';
+  showCredentialsModal.value = true;
+};
+
+const handleUpdateCredentials = async () => {
+  try {
+    await authStore.updateCredentials(credForm.email, credForm.password);
+    showCredentialsModal.value = false;
+    showToast('Vos identifiants administrateur (Email et Mot de passe) ont été mis à jour !');
+  } catch (err: any) {
+    showToast(err.response?.data?.message || 'Erreur lors de la mise à jour des identifiants.', 'error');
+  }
+};
+
 const handleAdminLogin = async () => {
   loginError.value = '';
   try {
-    await authStore.loginAdmin(adminPassword.value);
+    const res = await authStore.loginAdmin(adminEmail.value, adminPassword.value);
     adminPassword.value = '';
+    if (res?.firstSetup) {
+      showToast(`Bienvenue ! Vos identifiants (${authStore.user?.email}) sont maintenant enregistrés.`);
+    }
     await loadData();
   } catch (err: any) {
     loginError.value = err.response?.data?.message || 'Connexion impossible. Vérifiez que le serveur est démarré.';
@@ -1662,6 +1777,7 @@ const handleAdminLogin = async () => {
 };
 
 onMounted(async () => {
+  await authStore.checkAdminStatus();
   if (!authStore.sessionChecked) {
     await authStore.checkSession();
   }

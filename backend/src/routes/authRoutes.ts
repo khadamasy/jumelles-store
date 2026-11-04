@@ -1,6 +1,12 @@
 import { Router } from 'express';
-import { adminLogin, adminLogout, me } from '../controllers/authController';
-import { requireAuth } from '../middlewares/authMiddleware';
+import {
+  adminLogin,
+  adminLogout,
+  adminAuthStatus,
+  updateAdminCredentials,
+  me,
+} from '../controllers/authController';
+import { requireAuth, requireRole } from '../middlewares/authMiddleware';
 import { rateLimit } from '../middlewares/security';
 
 const router = Router();
@@ -14,7 +20,9 @@ const loginLimiter = rateLimit({
   message: 'Trop de tentatives de connexion. Réessayez dans 15 minutes.',
 });
 
+router.get('/admin/status', adminAuthStatus);
 router.post('/admin/login', loginLimiter, adminLogin);
+router.put('/admin/credentials', requireAuth, requireRole('ROLE_ADMIN'), updateAdminCredentials);
 router.post('/logout', adminLogout);
 router.get('/me', requireAuth, me);
 

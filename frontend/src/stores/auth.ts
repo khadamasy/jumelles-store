@@ -50,6 +50,7 @@ export const useAuthStore = defineStore('auth', {
     user: null as UserProfile | null,
     isLoading: false,
     sessionChecked: false,
+    adminConfigured: false,
   }),
 
   getters: {
@@ -62,6 +63,15 @@ export const useAuthStore = defineStore('auth', {
     /** Vérifie auprès du serveur si un cookie HttpOnly de session valide est présent */
     async initKeycloak() {
       await this.checkSession();
+    },
+
+    async checkAdminStatus() {
+      try {
+        const res = await apiClient.get('/auth/admin/status');
+        this.adminConfigured = !!res.data?.data?.configured;
+      } catch {
+        // ignore
+      }
     },
 
     async checkSession() {
@@ -81,15 +91,33 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    /** Connexion de la gérance : le serveur pose un cookie HttpOnly (aucun token dans le navigateur) */
-    async loginAdmin(password: string) {
+    /** Connexion de la gérance par Email + Mot de passe : le serveur pose un cookie HttpOnly */
+    async loginAdmin(email: string, password: string) {
       purgeSensitiveBrowserStorage();
       this.isLoading = true;
       try {
-        const res = await apiClient.post('/auth/admin/login', { password });
+        const res = await apiClient.post('/auth/admin/login', { email, password });
         const { user } = res.data.data;
         this.user = user;
         this.isAuthenticated = true;
+        this.adminConfigured = true;
+        return res.data;
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    /** Modification de l'Email et du Mot de passe par l'administrateur */
+    async updateCredentials(email: string, password: string) {
+      purgeSensitiveBrowserStorage();
+      this.isLoading = true;
+      try {
+        const res = await apiClient.put('/auth/admin/credentials', { email, password });
+        const { user } = res.data.data;
+        this.user = user;
+        this.isAuthenticated = true;
+        this.adminConfigured = true;
+        return res.data;
       } finally {
         this.isLoading = false;
       }
