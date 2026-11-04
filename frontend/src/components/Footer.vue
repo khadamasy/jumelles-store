@@ -1,111 +1,69 @@
 <template>
-  <footer class="bg-gradient-to-b from-stone-900 to-stone-950 text-stone-300 pt-12 pb-10 border-t border-stone-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-16 pb-12 border-b border-stone-800/80">
-        <!-- Brand Info -->
-        <div class="space-y-4">
-          <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-stone-800 to-stone-900 flex items-center justify-center text-gold-400 border border-gold-500/40 shadow-lg">
-              <span class="font-serif font-black text-2xl">J</span>
-            </div>
-            <div>
-              <span class="font-serif font-bold text-xl tracking-wider text-white block">JUMELLES STORE</span>
-              <span class="text-[10px] tracking-[0.25em] text-gold-500 font-bold block uppercase">Maison de Maroquinerie</span>
-            </div>
-          </div>
-          <p class="text-sm text-stone-400 leading-relaxed font-light">
-            La référence dakaroise du chic et de l'élégance : sacs à main luxueux, pochettes de gala et chaussures haut de gamme taillées sur-mesure pour sublimer chaque silhouette.
-          </p>
-          <div class="flex flex-wrap gap-2 pt-1">
-            <span class="inline-flex items-center gap-1.5 text-[11px] bg-stone-800/80 text-stone-300 px-3 py-1 rounded-full border border-stone-700/60">
-              <MapPin class="w-3 h-3 text-gold-400" />
-              <span>Dakar, Sénégal</span>
-            </span>
-            <span class="inline-flex items-center gap-1.5 text-[11px] bg-stone-800/80 text-stone-300 px-3 py-1 rounded-full border border-stone-700/60">
-              <Truck class="w-3 h-3 text-gold-400" />
-              <span>Livraison Express 24h</span>
-            </span>
-            <a
-              href="https://www.tiktok.com/@khadamasy6"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center gap-1.5 text-[11px] bg-gold-500/15 hover:bg-gold-500/25 text-gold-300 px-3 py-1 rounded-full border border-gold-500/40 font-bold transition-all"
-            >
-              <IconTikTok className="w-3.5 h-3.5 text-gold-400" />
-              <span>TikTok @khadamasy6</span>
-            </a>
-          </div>
+  <footer class="bg-[#17110e] text-[#f6ece0] py-8 mt-6">
+    <div class="max-w-[1080px] mx-auto px-4 md:px-7 grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr] gap-6 md:gap-8">
+      <!-- Colonne 1 : Marque & Réseaux Sociaux (TikTok en bas du site) -->
+      <div class="space-y-3">
+        <div class="font-serif font-bold text-[22px] tracking-[0.14em] text-[#f6ece0]">
+          JUMELLES
         </div>
+        <p class="text-[#bfb1a3] text-[13px] leading-relaxed max-w-sm">
+          Sacs et chaussures à Dakar. Ouvert 7j/7, de 08h à 22h.
+        </p>
 
-        <!-- Univers Collections (Vrais Liens) -->
-        <div>
-          <h4 class="font-serif text-white font-bold mb-4 text-base tracking-wide flex items-center gap-2">
-            <ShoppingBag class="w-4 h-4 text-gold-400" />
-            <span>Collections</span>
-          </h4>
-          <ul class="space-y-2.5 text-sm text-stone-400">
-            <li><router-link to="/catalog?type=SAC" class="hover:text-gold-400 transition-colors">Sacs Cabas & Portés Main</router-link></li>
-            <li><router-link to="/catalog?category=pochettes-matelassees" class="hover:text-gold-400 transition-colors">Pochettes Bijou de Gala</router-link></li>
-            <li><router-link to="/catalog?type=CHAUSSURE" class="hover:text-gold-400 transition-colors">Escarpins & Souliers (37-42)</router-link></li>
-            <li><router-link to="/catalog?category=sandales-plates" class="hover:text-gold-400 transition-colors">Sandales & Mules Dorées</router-link></li>
-            <li><router-link to="/catalog" class="hover:text-gold-400 transition-colors text-xs font-bold text-gold-500">Voir tout le catalogue →</router-link></li>
-          </ul>
+        <!-- Icône TikTok officielle en bas du site -->
+        <div id="social" aria-label="Réseaux sociaux" class="flex flex-wrap gap-2.5 pt-1">
+          <a
+            href="https://www.tiktok.com/@khadamasy6"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="TikTok @khadamasy6"
+            title="Suivez-nous sur TikTok @khadamasy6"
+            class="inline-flex items-center gap-2 px-3.5 h-11 rounded-xl border border-white/20 hover:border-[#d9ad5c] text-[#f6ece0] hover:text-[#d9ad5c] transition-colors"
+          >
+            <IconTikTok className="w-5 h-5" />
+            <span class="text-xs font-semibold">TikTok @khadamasy6</span>
+          </a>
         </div>
-
-        <!-- Section Légal (Conforme à la maquette fournie) -->
-        <div>
-          <h4 class="text-white font-bold mb-4 text-base tracking-wide flex items-center gap-2">
-            <ShieldCheck class="w-4 h-4 text-sky-400" />
-            <span>Légal</span>
-          </h4>
-          <ul class="space-y-3 text-sm text-stone-400">
-            <li>
-              <router-link
-                to="/conditions-utilisation"
-                class="flex items-center gap-2.5 hover:text-white transition-colors group"
-              >
-                <FileText class="w-4 h-4 text-stone-400 group-hover:text-sky-400 transition-colors shrink-0" />
-                <span>Conditions d'utilisation</span>
-              </router-link>
-            </li>
-            <li>
-              <router-link
-                to="/politique-confidentialite"
-                class="flex items-center gap-2.5 hover:text-white transition-colors group"
-              >
-                <Lock class="w-4 h-4 text-stone-400 group-hover:text-sky-400 transition-colors shrink-0" />
-                <span>Politique de confidentialité</span>
-              </router-link>
-            </li>
-            <li>
-              <router-link
-                to="/faq-livraison"
-                class="flex items-center gap-2.5 hover:text-white transition-colors group text-xs text-stone-400"
-              >
-                <HelpCircle class="w-4 h-4 text-stone-400 group-hover:text-gold-400 transition-colors shrink-0" />
-                <span>Guide de livraison Dakar</span>
-              </router-link>
-            </li>
-          </ul>
-        </div>
-
-
       </div>
 
-      <!-- Bottom Credits -->
-      <div class="pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-stone-500 gap-4">
-        <p>© 2026 Jumelles Store Dakar. Tous droits réservés.</p>
-        <div class="flex flex-wrap items-center justify-center gap-4 text-xs">
-          <router-link to="/faq-livraison" class="text-gold-400 hover:text-gold-300 font-bold transition-colors">
-            FAQ & Guide de Livraison Dakar
+      <!-- Colonne 2 : Boutique -->
+      <div>
+        <h4 class="font-sans font-bold text-xs tracking-[0.2em] uppercase text-[#d9ad5c] mb-2">
+          Boutique
+        </h4>
+        <div class="flex flex-col text-sm">
+          <router-link to="/catalog?type=SAC" class="py-1.5 text-[#e7dccf] hover:text-[#d9ad5c] transition-colors">
+            Sacs
           </router-link>
-          <span>•</span>
-          <router-link to="/orders" class="text-stone-400 hover:text-gold-400 transition-colors">
-            Suivi de Commande
+          <router-link to="/catalog?category=pochettes-matelassees" class="py-1.5 text-[#e7dccf] hover:text-[#d9ad5c] transition-colors">
+            Pochettes
           </router-link>
-          <span>•</span>
-          <router-link to="/catalog" class="text-stone-400 hover:text-gold-400 transition-colors">
-            Tout le Catalogue
+          <router-link to="/catalog?type=CHAUSSURE" class="py-1.5 text-[#e7dccf] hover:text-[#d9ad5c] transition-colors">
+            Chaussures
+          </router-link>
+          <router-link to="/catalog?category=sandales-plates" class="py-1.5 text-[#e7dccf] hover:text-[#d9ad5c] transition-colors">
+            Sandales
+          </router-link>
+        </div>
+      </div>
+
+      <!-- Colonne 3 : Aide -->
+      <div>
+        <h4 class="font-sans font-bold text-xs tracking-[0.2em] uppercase text-[#d9ad5c] mb-2">
+          Aide
+        </h4>
+        <div class="flex flex-col text-sm">
+          <router-link to="/orders" class="py-1.5 text-[#e7dccf] hover:text-[#d9ad5c] transition-colors">
+            Suivre ma commande
+          </router-link>
+          <router-link to="/faq-livraison" class="py-1.5 text-[#e7dccf] hover:text-[#d9ad5c] transition-colors">
+            Livraison et échanges
+          </router-link>
+          <router-link to="/conditions-utilisation" class="py-1.5 text-[#e7dccf] hover:text-[#d9ad5c] transition-colors">
+            Conditions
+          </router-link>
+          <router-link to="/politique-confidentialite" class="py-1.5 text-[#e7dccf] hover:text-[#d9ad5c] transition-colors">
+            Confidentialité
           </router-link>
         </div>
       </div>
@@ -114,15 +72,5 @@
 </template>
 
 <script setup lang="ts">
-import {
-  MapPin,
-  Truck,
-  ShoppingBag,
-  Sparkles,
-  ShieldCheck,
-  FileText,
-  Lock,
-  HelpCircle,
-} from 'lucide-vue-next';
 import IconTikTok from './icons/IconTikTok.vue';
 </script>

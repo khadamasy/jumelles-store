@@ -1,485 +1,321 @@
 <template>
-  <div class="space-y-12 sm:space-y-20 pb-20">
-    <!-- 1. Ruban Défilant Haute Couture (Motion Design Marquee) -->
-    <div class="bg-stone-950 text-gold-400 border-y border-gold-500/30 py-2.5 overflow-hidden select-none">
-      <div class="animate-marquee whitespace-nowrap text-xs font-bold uppercase tracking-[0.25em] flex items-center gap-8">
-        <span class="flex items-center gap-2">
-          <Sparkles class="w-3.5 h-3.5 text-gold-400" />
-          <span>Nouvelle Collection Dakar 2026</span>
-        </span>
-        <span class="text-stone-600">•</span>
-        <span class="flex items-center gap-2">
-          <Truck class="w-3.5 h-3.5 text-gold-400" />
-          <span>Livraison Express 24h à Domicile</span>
-        </span>
-        <span class="text-stone-600">•</span>
-        <span class="flex items-center gap-2">
-          <ShieldCheck class="w-3.5 h-3.5 text-gold-400" />
-          <span>Validation Directe sur WhatsApp</span>
-        </span>
-        <span class="text-stone-600">•</span>
-        <span class="flex items-center gap-2">
-          <RefreshCw class="w-3.5 h-3.5 text-gold-400" />
-          <span>Échange de Pointure Garanti sous 48h</span>
-        </span>
-        <span class="text-stone-600">•</span>
-        <span class="flex items-center gap-2">
-          <Award class="w-3.5 h-3.5 text-gold-400" />
-          <span>Maison de Maroquinerie Fine & Souliers de Gala</span>
-        </span>
-        <span class="text-stone-600">•</span>
-        <!-- Duplication pour boucle infinie fluide -->
-        <span class="flex items-center gap-2">
-          <Sparkles class="w-3.5 h-3.5 text-gold-400" />
-          <span>Nouvelle Collection Dakar 2026</span>
-        </span>
-        <span class="text-stone-600">•</span>
-        <span class="flex items-center gap-2">
-          <Truck class="w-3.5 h-3.5 text-gold-400" />
-          <span>Livraison Express 24h à Domicile</span>
-        </span>
-        <span class="text-stone-600">•</span>
-        <span class="flex items-center gap-2">
-          <ShieldCheck class="w-3.5 h-3.5 text-gold-400" />
-          <span>Validation Directe sur WhatsApp</span>
-        </span>
+  <div class="bg-[#faf7f2] text-[#241d19]">
+    <div class="max-w-[1080px] mx-auto px-4 md:px-7">
+      <!-- 1. HERO MOBILE-FIRST (jumelles-accueil-mobile-first.html) -->
+      <div class="pt-7 pb-2 md:py-14 grid grid-cols-1 md:grid-cols-[1.15fr_1fr] items-center gap-5 md:gap-10">
+        <div>
+          <span class="inline-flex items-center gap-2 font-sans font-bold text-[11px] tracking-[0.18em] uppercase text-[#b8893a]">
+            <i class="w-2 h-2 rounded-full bg-[#b8893a] animate-ping"></i>
+            Collection 2026 · Dakar
+          </span>
+
+          <h1 class="font-serif font-bold text-[clamp(34px,9vw,54px)] leading-[1.08] tracking-tight text-[#241d19] mt-2.5 mb-3">
+            L’élégance du sac, la grâce du soulier.
+          </h1>
+
+          <p class="text-[#6f625a] text-base leading-relaxed max-w-[34em]">
+            Maroquinerie en cuir sélectionné et chaussures pour toutes vos occasions. Commandez en 2 minutes, confirmez sur WhatsApp, recevez chez vous.
+          </p>
+
+          <div class="grid grid-cols-1 md:grid-cols-[auto_auto] justify-start gap-2.5 mt-5">
+            <router-link
+              to="/catalog?type=SAC"
+              class="min-h-[52px] px-6 rounded-2xl font-bold text-base flex items-center justify-center bg-gradient-to-br from-[#d9ad5c] to-[#b8893a] text-[#17110e] shadow-[0_8px_24px_rgba(36,29,25,.12)] active:scale-97 transition-transform"
+            >
+              Découvrir les sacs
+            </router-link>
+            <router-link
+              to="/catalog?type=CHAUSSURE"
+              class="min-h-[52px] px-6 rounded-2xl font-bold text-base flex items-center justify-center border-[1.5px] border-[#e9e0d6] text-[#241d19] hover:bg-[#e9e0d6]/40 active:scale-97 transition-all"
+            >
+              Voir les chaussures
+            </router-link>
+          </div>
+        </div>
+
+        <!-- Visuel 2 Tuiles Décalées -->
+        <div class="grid grid-cols-2 gap-3">
+          <router-link
+            to="/product/sac-prestige-cuir-epsom-cadenas"
+            class="group relative rounded-[22px] overflow-hidden aspect-[3/4] text-white flex items-end p-3.5 shadow-[0_8px_24px_rgba(36,29,25,.14)] bg-gradient-to-br from-[#c58a4a] to-[#6b3f1f]"
+          >
+            <img
+              src="/products/sac-birkin-camel.jpg"
+              alt="Sac prestige cuir et cadenas"
+              class="absolute inset-0 w-full h-full object-cover group-hover:scale-106 transition-transform duration-700"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent"></div>
+            <span class="relative z-10 font-serif font-semibold text-[15px] leading-snug">
+              <small class="block font-sans font-semibold text-[11px] text-[#d9ad5c] tracking-[0.1em] uppercase mb-0.5">
+                Best-seller
+              </small>
+              Sac prestige cuir et cadenas
+            </span>
+          </router-link>
+
+          <router-link
+            to="/product/mules-stiletto-brides-coeur-diamant-strass"
+            class="group relative rounded-[22px] overflow-hidden aspect-[3/4] text-white flex items-end p-3.5 shadow-[0_8px_24px_rgba(36,29,25,.14)] bg-gradient-to-br from-[#3a2b33] to-[#0f0a0d] mt-7"
+          >
+            <img
+              src="/products/mules-talon-coeur-noir.jpg"
+              alt="Mules stiletto brides cœur"
+              class="absolute inset-0 w-full h-full object-cover group-hover:scale-106 transition-transform duration-700"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent"></div>
+            <span class="relative z-10 font-serif font-semibold text-[15px] leading-snug">
+              <small class="block font-sans font-semibold text-[11px] text-[#d9ad5c] tracking-[0.1em] uppercase mb-0.5">
+                Pointures 37–42
+              </small>
+              Mules stiletto brides cœur
+            </span>
+          </router-link>
+        </div>
       </div>
     </div>
 
+    <!-- 2. BANDEAU DÉFILANT (.marq) -->
+    <div class="overflow-hidden bg-[#17110e] text-[#d9ad5c] my-6" aria-label="Nos engagements">
+      <div class="animate-marquee flex items-center gap-9 py-3 font-sans font-bold text-xs tracking-[0.16em] uppercase whitespace-nowrap">
+        <span>Livraison 24h à Dakar</span><span>·</span>
+        <span>Échange de pointure 48h</span><span>·</span>
+        <span>Confirmation sur WhatsApp</span><span>·</span>
+        <span>Règlement à la livraison</span><span>·</span>
+        <span aria-hidden="true">Livraison 24h à Dakar</span><span aria-hidden="true">·</span>
+        <span aria-hidden="true">Échange de pointure 48h</span><span aria-hidden="true">·</span>
+        <span aria-hidden="true">Confirmation sur WhatsApp</span><span aria-hidden="true">·</span>
+        <span aria-hidden="true">Règlement à la livraison</span><span aria-hidden="true">·</span>
+      </div>
+    </div>
 
+    <div class="max-w-[1080px] mx-auto px-4 md:px-7">
+      <!-- 3. DEUX UNIVERS (.cats) -->
+      <section class="py-6">
+        <h2 class="font-serif font-bold text-[26px] text-[#241d19] mb-1">Deux univers</h2>
+        <p class="text-[#6f625a] text-base mb-4">Choisissez par où commencer.</p>
 
-    <!-- 3. Hero Section Éditoriale Haute Maroquinerie & Souliers -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 text-white rounded-3xl p-6 sm:p-12 lg:p-16 border border-stone-800 shadow-2xl relative overflow-hidden">
-        <!-- Glows dorés en arrière-plan -->
-        <div class="absolute -top-32 -left-32 w-96 h-96 bg-gold-600/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-gold-400/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          <router-link
+            to="/catalog?type=SAC"
+            class="group relative rounded-[22px] overflow-hidden min-h-[160px] md:min-h-[240px] p-5 text-white flex flex-col justify-end shadow-[0_8px_24px_rgba(36,29,25,.12)] bg-gradient-to-br from-[#b07a3f] to-[#4a2a14]"
+          >
+            <img
+              src="/products/sac-birkin-camel.jpg"
+              alt="Sacs"
+              loading="lazy"
+              class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent"></div>
+            <b class="relative z-10 font-serif font-bold text-[22px]">Sacs</b>
+            <span class="relative z-10 text-sm opacity-90">À main, cabas, pochettes</span>
+          </router-link>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
-          <!-- Colonne Gauche : Titre & Actions -->
-          <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gold-500/15 border border-gold-400/40 text-gold-300 text-[10px] sm:text-xs font-bold uppercase tracking-widest backdrop-blur-md shadow-sm">
-              <span class="w-2 h-2 rounded-full bg-gold-400 animate-ping"></span>
-              <span>Maison Jumelles • Collection 2026</span>
-            </div>
+          <router-link
+            to="/catalog?type=CHAUSSURE"
+            class="group relative rounded-[22px] overflow-hidden min-h-[160px] md:min-h-[240px] p-5 text-white flex flex-col justify-end shadow-[0_8px_24px_rgba(36,29,25,.12)] bg-gradient-to-br from-[#2d2330] to-[#0d0a0f]"
+          >
+            <img
+              src="/products/mules-h-jacquard-bordeaux-coffret.jpg"
+              alt="Chaussures"
+              loading="lazy"
+              class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent"></div>
+            <b class="relative z-10 font-serif font-bold text-[22px]">Chaussures</b>
+            <span class="relative z-10 text-sm opacity-90">Mules, escarpins, sandales</span>
+          </router-link>
+        </div>
+      </section>
 
-            <h1 class="font-serif text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.12]">
-              L'Élégance du Sac & la Grâce du Soulier.
-            </h1>
-
-            <p class="text-stone-300 text-sm sm:text-base lg:text-lg leading-relaxed font-light max-w-xl mx-auto lg:mx-0">
-              Des pièces exclusives de haute maroquinerie au cuir sélectionné et des souliers taillés pour sublimer chaque silhouette à Dakar.
-            </p>
-
-            <!-- Boutons Principaux -->
-            <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-2">
-              <router-link
-                to="/catalog?type=SAC"
-                class="px-6 sm:px-8 py-3.5 sm:py-4 bg-gradient-to-r from-gold-500 via-gold-400 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-stone-950 font-black text-xs sm:text-sm rounded-2xl shadow-xl transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2"
-              >
-                <ShoppingBag class="w-4 h-4" />
-                <span>Découvrir les Sacs</span>
-                <ArrowRight class="w-4 h-4" />
-              </router-link>
-
-              <router-link
-                to="/catalog?type=CHAUSSURE"
-                class="px-6 sm:px-8 py-3.5 sm:py-4 bg-white/10 hover:bg-white/20 text-white border border-white/30 backdrop-blur-md font-bold text-xs sm:text-sm rounded-2xl transition-all transform hover:-translate-y-0.5 active:scale-95 flex items-center gap-2"
-              >
-                <span>Voir les Chaussures (37-42)</span>
-                <ArrowRight class="w-4 h-4" />
-              </router-link>
-            </div>
-
-            <!-- Badges de réassurance sobres -->
-            <div class="pt-4 border-t border-white/15 flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 text-xs text-stone-300">
-              <span class="flex items-center gap-2">
-                <Truck class="w-3.5 h-3.5 text-gold-400" />
-                <span>Livraison 24h Dakar</span>
-              </span>
-              <span class="flex items-center gap-2">
-                <RefreshCw class="w-3.5 h-3.5 text-gold-400" />
-                <span>Échange pointure 48h</span>
-              </span>
-              <span class="flex items-center gap-2">
-                <ShieldCheck class="w-3.5 h-3.5 text-gold-400" />
-                <span>Confirmation WhatsApp & Livraison 24h</span>
-              </span>
-            </div>
+      <!-- 4. PIÈCES DU MOMENT (.rail + Grille Catalogue) -->
+      <section class="py-6">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-4">
+          <div>
+            <h2 class="font-serif font-bold text-[26px] text-[#241d19] mb-1">Pièces du moment</h2>
+            <p class="text-[#6f625a] text-base">Faites glisser pour voir la suite ou filtrez par univers.</p>
           </div>
 
-          <!-- Colonne Droite : Vitrine Visuelle Double Produit (Sacs & Souliers) -->
-          <div class="lg:col-span-5 grid grid-cols-2 gap-4">
-            <!-- Produit 1 : Sac Birkin Camel -->
-            <router-link
-              to="/product/sac-prestige-cuir-epsom-cadenas"
-              class="group relative rounded-2xl overflow-hidden bg-stone-900 border border-gold-500/30 shadow-xl aspect-[3/4] flex flex-col justify-end p-4 transition-all hover:-translate-y-1"
+          <div class="inline-flex bg-[#e9e0d6]/60 p-1 rounded-2xl border border-[#e9e0d6] self-start">
+            <button
+              @click="activeCategory = 'ALL'"
+              class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+              :class="activeCategory === 'ALL' ? 'bg-[#17110e] text-[#d9ad5c]' : 'text-[#6f625a] hover:text-[#241d19]'"
             >
+              Tout ({{ products.length }})
+            </button>
+            <button
+              @click="activeCategory = 'SAC'"
+              class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+              :class="activeCategory === 'SAC' ? 'bg-[#17110e] text-[#d9ad5c]' : 'text-[#6f625a] hover:text-[#241d19]'"
+            >
+              Sacs
+            </button>
+            <button
+              @click="activeCategory = 'CHAUSSURE'"
+              class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer"
+              :class="activeCategory === 'CHAUSSURE' ? 'bg-[#17110e] text-[#d9ad5c]' : 'text-[#6f625a] hover:text-[#241d19]'"
+            >
+              Chaussures
+            </button>
+          </div>
+        </div>
+
+        <!-- Rail Horizontal Mobile-First (scroll-snap) -->
+        <div
+          v-if="highlightProducts.length > 0"
+          class="flex gap-3 overflow-x-auto snap-x snap-mandatory py-1 px-4 -mx-4 md:px-0 md:mx-0 pb-4 mb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          tabindex="0"
+          aria-label="Produits du moment"
+        >
+          <article
+            v-for="item in highlightProducts"
+            :key="'rail-' + item.id"
+            class="flex-[0_0_72%] sm:flex-[0_0_260px] max-w-[280px] snap-start bg-white border border-[#e9e0d6] rounded-[20px] overflow-hidden shadow-[0_8px_24px_rgba(36,29,25,.08)] active:scale-98 transition-transform flex flex-col"
+          >
+            <router-link :to="`/product/${item.slug}`" class="block aspect-[4/5] bg-[#f3ece2] overflow-hidden">
               <img
-                src="/products/sac-birkin-camel.jpg"
-                alt="Sac Birkin Camel"
-                class="absolute inset-0 w-full h-full object-cover group-hover:scale-108 transition-transform duration-700"
+                v-if="item.images?.[0]?.minioUrl"
+                :src="item.images[0].minioUrl"
+                :alt="item.name"
+                loading="lazy"
+                class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
               />
-              <div class="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent"></div>
-              <div class="relative z-10 space-y-1">
-                <span class="text-[9px] uppercase tracking-wider text-gold-400 font-bold block">Best-Seller</span>
-                <p class="font-serif font-bold text-xs sm:text-sm text-white line-clamp-1">Sac prestige cuir et cadenas</p>
-                <span class="text-xs font-extrabold text-gold-300 block">15 000 FCFA</span>
+            </router-link>
+            <div class="p-3.5 flex-1 flex flex-col justify-between">
+              <div>
+                <router-link :to="`/product/${item.slug}`">
+                  <h3 class="font-serif font-semibold text-base text-[#241d19] leading-snug line-clamp-2 mb-1">
+                    {{ item.name }}
+                  </h3>
+                </router-link>
+                <span class="font-extrabold text-[#b8893a] text-sm block">
+                  {{ currencyStore.formatPrice(item.basePrice) }}
+                </span>
               </div>
-            </router-link>
-
-            <!-- Produit 2 : Mules Talon Cœur Noir -->
-            <router-link
-              to="/product/mules-stiletto-brides-coeur-diamant-strass"
-              class="group relative rounded-2xl overflow-hidden bg-stone-900 border border-gold-500/30 shadow-xl aspect-[3/4] flex flex-col justify-end p-4 transition-all hover:-translate-y-1 mt-6"
-            >
-              <img
-                src="/products/mules-talon-coeur-noir.jpg"
-                alt="Mules Talon Cœur Noir"
-                class="absolute inset-0 w-full h-full object-cover group-hover:scale-108 transition-transform duration-700"
-              />
-              <div class="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent"></div>
-              <div class="relative z-10 space-y-1">
-                <span class="text-[9px] uppercase tracking-wider text-gold-400 font-bold block">Pointures 37-42</span>
-                <p class="font-serif font-bold text-xs sm:text-sm text-white line-clamp-1">Mules stiletto brides cœur</p>
-                <span class="text-xs font-extrabold text-gold-300 block">12 000 FCFA</span>
-              </div>
-            </router-link>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. Piliers de Confiance & Prestige (4 Cartes Modernes) -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-stone-200/90 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="flex items-start gap-4 p-3 rounded-2xl hover:bg-stone-50 transition-colors">
-          <div class="w-12 h-12 rounded-2xl bg-gold-50 border border-gold-200 text-gold-700 flex items-center justify-center shrink-0 shadow-2xs">
-            <Award class="w-6 h-6" />
-          </div>
-          <div>
-            <h4 class="font-serif font-bold text-stone-900 text-sm">Finition Prestige</h4>
-            <p class="text-xs text-stone-500 mt-1">Cuir grainé sélectionné et bouclerie dorée inoxydable.</p>
-          </div>
+              <button
+                @click="quickAddToCart(item)"
+                class="mt-2.5 w-full min-h-[44px] rounded-xl border-[1.5px] border-[#e9e0d6] bg-transparent hover:bg-[#b8893a] hover:text-[#17110e] hover:border-[#b8893a] active:bg-[#b8893a] active:text-[#17110e] text-[#241d19] font-bold text-sm transition-colors cursor-pointer"
+              >
+                Ajouter au panier
+              </button>
+            </div>
+          </article>
         </div>
 
-        <div class="flex items-start gap-4 p-3 rounded-2xl hover:bg-stone-50 transition-colors">
-          <div class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 text-amber-700 flex items-center justify-center shrink-0 shadow-2xs">
-            <Truck class="w-6 h-6" />
-          </div>
-          <div>
-            <h4 class="font-serif font-bold text-stone-900 text-sm">Livraison Express 24h</h4>
-            <p class="text-xs text-stone-500 mt-1">À domicile ou au bureau partout à Dakar et banlieue.</p>
-          </div>
+        <!-- Grille Complète de tous les articles -->
+        <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div
+            v-for="n in 6"
+            :key="n"
+            class="bg-white rounded-3xl h-96 animate-pulse border border-[#e9e0d6]"
+          ></div>
         </div>
 
-        <div class="flex items-start gap-4 p-3 rounded-2xl hover:bg-stone-50 transition-colors">
-          <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 shadow-2xs p-1">
-            <IconWhatsApp className="w-6 h-6 text-[#25D366]" />
-          </div>
-          <div>
-            <h4 class="font-serif font-bold text-stone-900 text-sm">Validation Directe WhatsApp</h4>
-            <p class="text-xs text-stone-500 mt-1">Confirmation immédiate avec le détail complet de vos articles.</p>
-          </div>
-        </div>
-
-        <div class="flex items-start gap-4 p-3 rounded-2xl hover:bg-stone-50 transition-colors">
-          <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0 shadow-2xs">
-            <RefreshCw class="w-6 h-6" />
-          </div>
-          <div>
-            <h4 class="font-serif font-bold text-stone-900 text-sm">Échange Garanti 48h</h4>
-            <p class="text-xs text-stone-500 mt-1">Échange facile de pointure sous 48h de 37 à 42.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 5. Les Deux Univers Emblématiques (Bannières Haute Couture) -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center max-w-xl mx-auto mb-10">
-        <span class="text-xs font-bold text-gold-700 uppercase tracking-widest bg-gold-50 px-4 py-1.5 rounded-full border border-gold-200">
-          Collections Exclusives 2026
-        </span>
-        <h2 class="font-serif text-3xl sm:text-4xl font-extrabold text-stone-950 mt-3">
-          Maroquinerie Fine & Souliers
-        </h2>
-        <p class="text-stone-500 text-xs sm:text-sm mt-1.5">
-          Choisissez votre univers pour explorer nos pièces en stock immédiat à Dakar.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-        <!-- Univers Sacs -->
-        <router-link
-          to="/catalog?type=SAC"
-          class="group relative h-[400px] sm:h-[460px] rounded-3xl overflow-hidden shadow-xl flex items-end p-6 sm:p-8 text-white transition-all hover:-translate-y-1.5 border border-stone-200"
-        >
-          <img
-            src="/products/sac-birkin-camel.jpg"
-            alt="Collection Sacs Jumelles Store"
-            class="absolute inset-0 w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <ProductCard
+            v-for="product in visibleProducts"
+            :key="product.id"
+            :product="product"
           />
-          <div class="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/45 to-transparent"></div>
-          <div class="relative z-10 space-y-2">
-            <div class="flex items-center gap-2">
-              <span class="text-[10px] sm:text-xs uppercase tracking-widest text-gold-400 font-black">Maroquinerie & Cabas</span>
-              <span class="px-2.5 py-0.5 rounded-full bg-gold-500 text-stone-950 font-black text-xs shadow">15 000 FCFA</span>
-            </div>
-            <h3 class="font-serif text-2xl sm:text-3xl font-extrabold">Sacs à Main, Cabas & Pochettes</h3>
-            <p class="text-xs sm:text-sm text-stone-300 max-w-md font-light">Cuir grainé effet crocodile, bouclerie dorée luxueuse et chaînettes amovibles.</p>
-            <span class="inline-flex items-center gap-2 text-xs font-bold text-gold-400 pt-1 group-hover:underline">
-              <span>Explorer la collection Sacs (8 modèles)</span>
-              <ArrowRight class="w-3.5 h-3.5" />
-            </span>
-          </div>
-        </router-link>
-
-        <!-- Univers Chaussures -->
-        <router-link
-          to="/catalog?type=CHAUSSURE"
-          class="group relative h-[400px] sm:h-[460px] rounded-3xl overflow-hidden shadow-xl flex items-end p-6 sm:p-8 text-white transition-all hover:-translate-y-1.5 border border-stone-200"
-        >
-          <img
-            src="/products/mules-talon-coeur-noir.jpg"
-            alt="Collection Chaussures Jumelles Store"
-            class="absolute inset-0 w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out"
-          />
-          <div class="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/45 to-transparent"></div>
-          <div class="relative z-10 space-y-2">
-            <div class="flex items-center gap-2">
-              <span class="text-[10px] sm:text-xs uppercase tracking-widest text-gold-400 font-black">Souliers & Sandales</span>
-              <span class="px-2.5 py-0.5 rounded-full bg-gold-500 text-stone-950 font-black text-xs shadow">12 000 FCFA</span>
-            </div>
-            <h3 class="font-serif text-2xl sm:text-3xl font-extrabold">Escarpins, Sandales & Mules</h3>
-            <p class="text-xs sm:text-sm text-stone-300 max-w-md font-light">Des pointures du 37 au 42 avec un confort de marche incomparable et un galbe parfait.</p>
-            <span class="inline-flex items-center gap-2 text-xs font-bold text-gold-400 pt-1 group-hover:underline">
-              <span>Choisir ma pointure (37 à 42)</span>
-              <ArrowRight class="w-3.5 h-3.5" />
-            </span>
-          </div>
-        </router-link>
-      </div>
-    </section>
-
-    <!-- 6. Sélection Coups de Cœur avec Filtre Fast-Fashion Instantané -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 border-b border-stone-200 pb-5">
-        <div>
-          <span class="text-xs font-bold text-gold-700 uppercase tracking-widest bg-gold-50 px-3 py-1 rounded-full border border-gold-200">
-            Articles Disponibles Immédiatement
-          </span>
-          <h2 class="font-serif text-3xl font-extrabold text-stone-950 mt-2">Nos Pièces Phares du Moment</h2>
         </div>
+      </section>
 
-        <!-- Onglets Filtres Rapides Fast-Fashion -->
-        <div class="flex items-center gap-1.5 bg-stone-100 p-1 rounded-2xl border border-stone-200">
-          <button
-            @click="activeCategory = 'ALL'"
-            class="px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer"
-            :class="activeCategory === 'ALL' ? 'bg-stone-950 text-white shadow' : 'text-stone-600 hover:text-stone-950'"
-          >
-            Tous ({{ products.length }})
-          </button>
-          <button
-            @click="activeCategory = 'SAC'"
-            class="px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer"
-            :class="activeCategory === 'SAC' ? 'bg-stone-950 text-white shadow' : 'text-stone-600 hover:text-stone-950'"
-          >
-            Sacs (8)
-          </button>
-          <button
-            @click="activeCategory = 'CHAUSSURE'"
-            class="px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer"
-            :class="activeCategory === 'CHAUSSURE' ? 'bg-stone-950 text-white shadow' : 'text-stone-600 hover:text-stone-950'"
-          >
-            Chaussures (5)
-          </button>
-        </div>
-      </div>
+      <!-- 5. COMMANDER EN CONFIANCE (.trust) -->
+      <section class="py-6">
+        <h2 class="font-serif font-bold text-[26px] text-[#241d19] mb-1">Commander en confiance</h2>
+        <p class="text-[#6f625a] text-base mb-4">Simple, local, sans surprise.</p>
 
-      <!-- Loading State -->
-      <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div v-for="n in 4" :key="n" class="bg-stone-200 animate-pulse rounded-3xl h-80"></div>
-      </div>
-
-      <!-- Products Grid -->
-      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <ProductCard
-          v-for="product in visibleProducts"
-          :key="product.id"
-          :product="product"
-        />
-      </div>
-
-      <!-- Bouton d'accès au catalogue complet -->
-      <div class="text-center pt-10">
-        <router-link
-          to="/catalog"
-          class="inline-flex items-center gap-2.5 px-8 py-4 bg-stone-950 hover:bg-gold-600 text-white font-bold text-xs uppercase tracking-wider rounded-2xl shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-0.5 active:scale-95"
-        >
-          <span>Accéder à Tout le Catalogue ({{ products.length }} Articles)</span>
-          <ArrowRight class="w-4 h-4" />
-        </router-link>
-      </div>
-    </section>
-
-    <!-- 7. Témoignages de Clientes Vérifiées à Dakar -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="bg-gradient-to-b from-stone-50 to-stone-100/70 border border-stone-200 rounded-3xl p-8 sm:p-12 shadow-sm space-y-8">
-        <div class="text-center max-w-lg mx-auto space-y-2">
-          <span class="text-xs font-bold text-gold-700 uppercase tracking-widest bg-gold-50 px-3.5 py-1 rounded-full border border-gold-200">
-            Avis Clientes Vérifiées
-          </span>
-          <h3 class="font-serif text-2xl sm:text-3xl font-bold text-stone-900">
-            Ce que disent nos clientes à Dakar
-          </h3>
-          <p class="text-xs sm:text-sm text-stone-500 font-light">
-            Des centaines de femmes satisfaites par la qualité de nos cuirs et la rapidité de nos livraisons.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3">
-            <div class="flex items-center text-amber-400 gap-1 text-sm">
-              <Star class="w-4 h-4 fill-amber-400" />
-              <Star class="w-4 h-4 fill-amber-400" />
-              <Star class="w-4 h-4 fill-amber-400" />
-              <Star class="w-4 h-4 fill-amber-400" />
-              <Star class="w-4 h-4 fill-amber-400" />
-            </div>
-            <p class="text-xs sm:text-sm text-stone-700 italic leading-relaxed">
-              « Le Sac Birkin Camel est tout simplement magnifique. Finition cuir irréprochable et bouclerie lourde. Livré en 3 heures à Dakar Almadies ! »
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+          <div class="flex gap-3.5 items-start bg-white border border-[#e9e0d6] rounded-[18px] p-4">
+            <svg class="w-7 h-7 stroke-[#b8893a] fill-none stroke-[1.7] shrink-0" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 7h11v9H3zM14 10h4l3 3v3h-7" />
+              <circle cx="7" cy="17.5" r="1.7" />
+              <circle cx="17" cy="17.5" r="1.7" />
+            </svg>
+            <p class="m-0">
+              <b class="block text-[#241d19] font-bold text-sm">Livraison 24h à Dakar</b>
+              <span class="text-[#6f625a] text-sm">Votre commande est suivie par numéro et téléphone.</span>
             </p>
-            <div class="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
-              <span class="font-bold text-stone-900">Fatou S.</span>
-              <span class="text-stone-400">Almadies, Dakar</span>
-            </div>
           </div>
 
-          <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3">
-            <div class="flex items-center text-amber-400 gap-1 text-sm">
-              <Star class="w-4 h-4 fill-amber-400" />
-              <Star class="w-4 h-4 fill-amber-400" />
-              <Star class="w-4 h-4 fill-amber-400" />
-              <Star class="w-4 h-4 fill-amber-400" />
-              <Star class="w-4 h-4 fill-amber-400" />
-            </div>
-            <p class="text-xs sm:text-sm text-stone-700 italic leading-relaxed">
-              « J'avais peur pour la pointure mais les escarpins en 39 taillent parfaitement. Confort incroyable pour danser toute la soirée. »
+          <div class="flex gap-3.5 items-start bg-white border border-[#e9e0d6] rounded-[18px] p-4">
+            <svg class="w-7 h-7 stroke-[#b8893a] fill-none stroke-[1.7] shrink-0" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 12a8 8 0 0 1 14-5l2 2M20 12a8 8 0 0 1-14 5l-2-2M20 4v5h-5M4 20v-5h5" />
+            </svg>
+            <p class="m-0">
+              <b class="block text-[#241d19] font-bold text-sm">Échange de pointure 48h</b>
+              <span class="text-[#6f625a] text-sm">Une pointure qui ne va pas : on la change.</span>
             </p>
-            <div class="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
-              <span class="font-bold text-stone-900">Aïssatou D.</span>
-              <span class="text-stone-400">Point E, Dakar</span>
-            </div>
           </div>
 
-          <div class="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs space-y-3">
-            <div class="flex items-center text-amber-400 gap-1 text-sm">
-              <Star class="w-4 h-4 fill-amber-400" />
-              <Star class="w-4 h-4 fill-amber-400" />
-              <Star class="w-4 h-4 fill-amber-400" />
-              <Star class="w-4 h-4 fill-amber-400" />
-              <Star class="w-4 h-4 fill-amber-400" />
-            </div>
-            <p class="text-xs sm:text-sm text-stone-700 italic leading-relaxed">
-              « Commande sur WhatsApp en un clic, confirmée immédiatement. Très professionnel et le packaging est sublime. »
+          <div class="flex gap-3.5 items-start bg-white border border-[#e9e0d6] rounded-[18px] p-4">
+            <svg class="w-7 h-7 stroke-[#b8893a] fill-none stroke-[1.7] shrink-0" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z" />
+              <path d="M9 12l2 2 4-4" />
+            </svg>
+            <p class="m-0">
+              <b class="block text-[#241d19] font-bold text-sm">Règlement à la livraison</b>
+              <span class="text-[#6f625a] text-sm">Payez au moment de la remise de votre colis.</span>
             </p>
-            <div class="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
-              <span class="font-bold text-stone-900">Mariama B.</span>
-              <span class="text-stone-400">Mermoz, Dakar</span>
-            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
 
-    <!-- 8. Bandeau Commande Rapide via WhatsApp -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 rounded-3xl p-8 sm:p-12 text-white border border-gold-500/30 shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-8">
-        <div class="space-y-4 max-w-xl text-center lg:text-left">
-          <span class="inline-block bg-[#25D366]/20 text-[#25D366] text-xs uppercase tracking-widest font-black px-4 py-1.5 rounded-full border border-[#25D366]/30">
-            Commande Facile Sans Paiement en Ligne
-          </span>
-          <h3 class="font-serif text-2xl sm:text-4xl font-bold leading-tight">
-            Validez votre commande directement sur WhatsApp
-          </h3>
-          <p class="text-stone-300 text-xs sm:text-sm leading-relaxed font-light">
-            Sélectionnez vos modèles sur le site : votre commande est directement transmise avec les détails des articles à notre équipe pour convenir de la livraison sous 24h à Dakar. Règlement à la réception.
-          </p>
-          <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
-            <router-link
-              to="/catalog"
-              class="px-6 py-3 rounded-full bg-gold-500 hover:bg-gold-600 active:scale-95 text-stone-950 font-bold text-xs uppercase tracking-wider transition-all shadow-md inline-flex items-center gap-2 cursor-pointer"
-            >
-              <span>Découvrir la Collection</span>
-              <ArrowRight class="w-4 h-4" />
-            </router-link>
-          </div>
-        </div>
-
-        <div class="flex flex-col sm:flex-row items-center gap-4 shrink-0 w-full sm:w-auto">
-          <!-- WhatsApp Card -->
-          <a
-            href="https://wa.me/221772087820?text=Bonjour%20Maison%20Jumelles%2C%20je%20souhaite%20des%20renseignements%20sur%20vos%20articles."
-            target="_blank"
-            rel="noopener noreferrer"
-            class="bg-[#25D366]/15 hover:bg-[#25D366]/25 border border-[#25D366]/40 p-5 rounded-2xl flex items-center gap-4 w-full sm:w-64 shadow-lg transition-all group"
-          >
-            <div class="w-12 h-12 rounded-xl bg-[#25D366]/20 flex items-center justify-center shrink-0">
-              <IconWhatsApp className="w-8 h-8 text-[#25D366] group-hover:scale-110 transition-transform" />
-            </div>
-            <div>
-              <p class="font-black text-sm text-white">WhatsApp Boutique</p>
-              <p class="text-xs text-stone-300 font-mono">+221 77 208 78 20</p>
-              <span class="text-[10px] text-[#25D366] font-bold">Réponse rapide • 7j/7</span>
-            </div>
-          </a>
-
-          <!-- TikTok Card -->
-          <a
-            href="https://www.tiktok.com/@khadamasy6"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="bg-white/10 hover:bg-white/15 border border-gold-500/40 p-5 rounded-2xl flex items-center gap-4 w-full sm:w-64 shadow-lg transition-all group"
-          >
-            <div class="w-12 h-12 rounded-xl bg-gold-500/20 flex items-center justify-center shrink-0">
-              <IconTikTok className="w-7 h-7 text-gold-400 group-hover:scale-110 transition-transform" />
-            </div>
-            <div>
-              <p class="font-black text-sm text-white">TikTok Officiel</p>
-              <p class="text-xs text-gold-400 font-mono">@khadamasy6</p>
-              <span class="text-[10px] text-stone-300 font-bold">Vidéos des articles →</span>
-            </div>
-          </a>
-        </div>
-      </div>
-    </section>
+    <!-- Toast de notification rapide -->
+    <div
+      role="status"
+      aria-live="polite"
+      class="fixed left-1/2 bottom-24 md:bottom-7 -translate-x-1/2 bg-[#241d19] text-[#faf7f2] px-4 py-2.5 rounded-xl text-sm font-medium shadow-xl pointer-events-none transition-all duration-250 z-50 max-w-[90vw]"
+      :class="toastMessage ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'"
+    >
+      {{ toastMessage }}
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import {
-  Sparkles,
-  Truck,
-  ShieldCheck,
-  RefreshCw,
-  ShoppingBag,
-  ArrowRight,
-  Award,
-  Star,
-} from 'lucide-vue-next';
-import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
-import IconTikTok from '../components/icons/IconTikTok.vue';
 import { ProductService } from '../services/api';
+import { useCartStore } from '../stores/cart';
+import { useCurrencyStore } from '../stores/currency';
 import ProductCard from '../components/ProductCard.vue';
 
 const products = ref<any[]>([]);
 const loading = ref(true);
 const activeCategory = ref<'ALL' | 'SAC' | 'CHAUSSURE'>('ALL');
+const toastMessage = ref('');
+let toastTimer: any = null;
 
+const cartStore = useCartStore();
+const currencyStore = useCurrencyStore();
 
+const showToast = (msg: string) => {
+  toastMessage.value = msg;
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toastMessage.value = '';
+  }, 2200);
+};
+
+const quickAddToCart = (product: any) => {
+  const availableVariant =
+    product.variants?.find((v: any) => v.stockQuantity > 0) || product.variants?.[0];
+  if (!availableVariant) return;
+
+  cartStore.addItem({
+    variantId: availableVariant.id,
+    productId: product.id,
+    productName: product.name,
+    imageUrl: product.images?.[0]?.minioUrl || '',
+    color: availableVariant.color,
+    sizeOrShoeSize: availableVariant.sizeOrShoeSize,
+    price: product.basePrice + (availableVariant.priceAdjustment || 0),
+    quantity: 1,
+    maxStock: availableVariant.stockQuantity,
+  });
+  showToast(`Ajouté : ${product.name}`);
+};
 
 onMounted(async () => {
   try {
@@ -492,11 +328,13 @@ onMounted(async () => {
   }
 });
 
+const highlightProducts = computed(() => products.value.slice(0, 4));
+
 const visibleProducts = computed(() => {
   if (activeCategory.value === 'ALL') return products.value;
   return products.value.filter((p) => {
-    const isSac = p.category?.type === 'SAC' || p.categoryId.includes('sac');
-    const isShoe = p.category?.type === 'CHAUSSURE' || p.categoryId.includes('shoe');
+    const isSac = p.category?.type === 'SAC' || p.categoryId?.includes('sac');
+    const isShoe = p.category?.type === 'CHAUSSURE' || p.categoryId?.includes('shoe');
     if (activeCategory.value === 'SAC') return isSac;
     if (activeCategory.value === 'CHAUSSURE') return isShoe;
     return true;
