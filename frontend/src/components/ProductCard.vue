@@ -44,15 +44,26 @@
         Rupture temporaire
       </span>
 
-      <!-- Preview des pointures ou couleurs au survol -->
-      <div class="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-wrap gap-1 z-10">
-        <span
-          v-for="v in previewVariants"
-          :key="v.id"
-          class="bg-white/95 text-stone-900 text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm"
+      <!-- Preview des pointures ou couleurs + bouton Ajouter au panier superposé sur l'image -->
+      <div class="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col gap-2 z-10">
+        <div class="flex flex-wrap gap-1">
+          <span
+            v-for="v in previewVariants"
+            :key="v.id"
+            class="bg-white/95 text-stone-900 text-[10px] font-bold px-2 py-0.5 rounded-md shadow-sm"
+          >
+            {{ isShoe ? v.sizeOrShoeSize : v.color }}
+          </span>
+        </div>
+        <button
+          v-if="totalStock > 0"
+          type="button"
+          @click.stop.prevent="quickAdd"
+          class="w-full py-2.5 px-3 bg-white/95 hover:bg-gold-500 text-stone-950 font-extrabold text-xs rounded-xl shadow-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
         >
-          {{ isShoe ? v.sizeOrShoeSize : v.color }}
-        </span>
+          <ShoppingBag class="w-3.5 h-3.5 text-gold-700" />
+          <span>+ Ajouter au panier</span>
+        </button>
       </div>
     </div>
 
@@ -71,30 +82,42 @@
         </router-link>
       </div>
 
-      <div class="pt-3 border-t border-stone-100 flex items-center justify-between gap-2">
-        <div>
-          <div v-if="product.originalPrice && product.originalPrice > product.basePrice" class="flex items-center gap-1.5">
-            <span class="text-[10px] text-rosewood-600 font-bold uppercase">Promo</span>
-            <span class="text-xs text-stone-400 line-through font-semibold">
-              {{ currencyStore.isEur ? currencyStore.toEurOnly(product.originalPrice) : currencyStore.toXofOnly(product.originalPrice) }}
+      <div class="pt-3 border-t border-stone-100 space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <div>
+            <div v-if="product.originalPrice && product.originalPrice > product.basePrice" class="flex items-center gap-1.5">
+              <span class="text-[10px] text-rosewood-600 font-bold uppercase">Promo</span>
+              <span class="text-xs text-stone-400 line-through font-semibold">
+                {{ currencyStore.isEur ? currencyStore.toEurOnly(product.originalPrice) : currencyStore.toXofOnly(product.originalPrice) }}
+              </span>
+            </div>
+            <span v-else class="text-[10px] uppercase tracking-wider text-stone-400 font-bold block">Prix boutique</span>
+            <span class="font-serif font-black text-lg text-stone-950 block">
+              {{ currencyStore.isEur ? currencyStore.toEurOnly(product.basePrice) : currencyStore.toXofOnly(product.basePrice) }}
+            </span>
+            <span class="text-[11px] text-stone-500 font-semibold block">
+              {{ currencyStore.isEur ? currencyStore.toXofOnly(product.basePrice) : '≈ ' + currencyStore.toEurOnly(product.basePrice) }}
             </span>
           </div>
-          <span v-else class="text-[10px] uppercase tracking-wider text-stone-400 font-bold block">Prix boutique</span>
-          <span class="font-serif font-black text-lg text-stone-950 block">
-            {{ currencyStore.isEur ? currencyStore.toEurOnly(product.basePrice) : currencyStore.toXofOnly(product.basePrice) }}
-          </span>
-          <span class="text-[11px] text-stone-500 font-semibold block">
-            {{ currencyStore.isEur ? currencyStore.toXofOnly(product.basePrice) : '≈ ' + currencyStore.toEurOnly(product.basePrice) }}
-          </span>
+
+          <router-link
+            :to="`/product/${product.slug || product.id}`"
+            class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-900 text-xs font-bold rounded-xl transition-all shrink-0"
+          >
+            <span>Détails</span>
+            <ArrowRight class="w-3.5 h-3.5" />
+          </router-link>
         </div>
 
-        <router-link
-          :to="`/product/${product.slug || product.id}`"
-          class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-stone-950 hover:bg-gold-600 text-white text-xs font-bold rounded-xl transition-all shadow-md hover:shadow-xl transform active:scale-95 shrink-0"
+        <button
+          type="button"
+          :disabled="totalStock === 0"
+          @click="quickAdd"
+          class="w-full py-2.5 px-4 bg-stone-950 hover:bg-gold-600 disabled:bg-stone-300 text-white text-xs font-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
         >
-          <span>Commander</span>
-          <ArrowRight class="w-3.5 h-3.5" />
-        </router-link>
+          <ShoppingBag class="w-3.5 h-3.5 text-gold-400" />
+          <span>Ajouter au panier</span>
+        </button>
       </div>
     </div>
   </div>
@@ -102,10 +125,12 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { ArrowRight, Sparkles, Flame } from 'lucide-vue-next';
+import { ArrowRight, Sparkles, Flame, ShoppingBag } from 'lucide-vue-next';
 import { useCurrencyStore } from '../stores/currency';
+import { useCartStore } from '../stores/cart';
 
 const currencyStore = useCurrencyStore();
+const cartStore = useCartStore();
 
 const props = defineProps<{
   product: any;
@@ -136,6 +161,25 @@ const previewVariants = computed(() => {
   if (!props.product.variants) return [];
   return props.product.variants.slice(0, 5);
 });
+
+const quickAdd = () => {
+  const availableVariant =
+    props.product.variants?.find((v: any) => v.stockQuantity > 0) ||
+    props.product.variants?.[0];
+  if (!availableVariant) return;
+
+  cartStore.addItem({
+    variantId: availableVariant.id,
+    productId: props.product.id,
+    productName: props.product.name,
+    imageUrl: primaryImage.value,
+    color: availableVariant.color || 'Standard',
+    sizeOrShoeSize: availableVariant.sizeOrShoeSize || 'Unique',
+    price: (props.product.basePrice || 0) + (availableVariant.priceAdjustment || 0),
+    quantity: 1,
+    maxStock: availableVariant.stockQuantity || 10,
+  });
+};
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat('fr-FR', {

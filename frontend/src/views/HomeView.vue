@@ -103,11 +103,11 @@
             :key="item.id || idx"
             class="jm-card"
           >
-            <router-link :to="`/product/${item.slug}`">
-              <div
-                class="img"
-                :style="`--g: linear-gradient(150deg, ${item.gradient || '#c58a4a,#6b3f1f'})`"
-              >
+            <div
+              class="img"
+              :style="`--g: linear-gradient(150deg, ${item.gradient || '#c58a4a,#6b3f1f'})`"
+            >
+              <router-link :to="`/product/${item.slug}`" class="block w-full h-full">
                 <img
                   v-if="item.imageUrl"
                   :src="item.imageUrl"
@@ -115,8 +115,16 @@
                   loading="lazy"
                   class="w-full h-full object-cover"
                 />
-              </div>
-            </router-link>
+              </router-link>
+              <button
+                type="button"
+                @click.stop="quickAddToCart(item)"
+                aria-label="Ajouter au panier"
+                style="position: absolute; bottom: 10px; right: 10px; width: auto; min-height: 36px; padding: 0 12px; margin: 0; border-radius: 999px; background: rgba(23, 17, 14, 0.88); color: #f6ece0; border: 1px solid #d9ad5c; font-size: 12px; font-weight: 700; backdrop-filter: blur(6px); z-index: 2;"
+              >
+                + Panier
+              </button>
+            </div>
             <div class="in">
               <div>
                 <h3>{{ item.name }}</h3>
