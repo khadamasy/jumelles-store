@@ -89,6 +89,10 @@ export interface Order {
   shippingCity: string;
   totalAmount: number;
   status: 'PENDING' | 'PAID' | 'PREPARING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
+  /** Stock déjà remis en rayon après annulation (évite une double remise) */
+  stockRestored?: boolean;
+  /** Motif d'annulation (ex: annulation automatique faute de confirmation) */
+  cancelReason?: string;
   items: OrderItem[];
   createdAt: string;
 }
@@ -607,6 +611,8 @@ const loadFromPostgres = async (): Promise<boolean> => {
       shippingCity: o.shipping_city,
       totalAmount: Number(o.total_amount),
       status: o.status,
+      stockRestored: Boolean(o.stock_restored),
+      ...(o.cancel_reason ? { cancelReason: o.cancel_reason } : {}),
       createdAt: o.created_at instanceof Date ? o.created_at.toISOString() : String(o.created_at),
       items: itemRows
         .filter((i) => i.order_id === o.id)
@@ -723,9 +729,16 @@ const syncToPostgres = async (): Promise<boolean> => {
 
     for (const o of memoryStore.orders) {
       await runner.query(
-        `INSERT INTO orders (id, order_number, customer_name, customer_email, customer_phone, shipping_address, shipping_city, total_amount, status, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP)
-         ON CONFLICT (id) DO UPDATE SET status = EXCLUDED.status, updated_at = CURRENT_TIMESTAMP`,
+        `INSERT INTO orders (id, order_number, customer_name, customer_email, customer_phone, shipping_address, shipping_city, total_amount, status, created_at, stock_restored, cancel_reason, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, CURRENT_TIMESTAMP)
+         ON CONFLICT (id) DO UPDATE SET
+           status = EXCLUDED.status,
+           stock_restored = EXCLUDED.stock_restored,
+           cancel_reason = EXCLUDED.cancel_reason,
+           updated_at = CURRENT_TIMESTAMP
+         WHERE orders.status IS DISTINCT FROM EXCLUDED.status
+            OR orders.stock_restored IS DISTINCT FROM EXCLUDED.stock_restored
+            OR orders.cancel_reason IS DISTINCT FROM EXCLUDED.cancel_reason`,
         [
           o.id,
           o.orderNumber,
@@ -737,6 +750,8 @@ const syncToPostgres = async (): Promise<boolean> => {
           o.totalAmount,
           o.status,
           o.createdAt,
+          Boolean(o.stockRestored),
+          o.cancelReason ?? null,
         ]
       );
 

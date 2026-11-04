@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { getKey } from '../config/keycloak';
 import { JWT_SECRET, JWT_ISSUER, getCredentialsVersion } from '../config/security';
 import { SESSION_COOKIE_NAME } from '../controllers/authController';
 
@@ -42,10 +41,9 @@ const readCookie = (req: Request, name: string): string | null => {
 };
 
 /**
- * Middleware d'authentification :
- * 1. Privilégie le cookie HttpOnly `jumelles_session` (aucun token exposé dans le navigateur)
- *    + exige l'en-tête anti-CSRF `X-Requested-With: JumellesStore` sur les requêtes mutatives.
- * 2. Accepte en second choix un jeton Keycloak RS256 signé via JWKS.
+ * Middleware d'authentification : cookie HttpOnly `jumelles_session` uniquement
+ * (aucun jeton exposé dans le navigateur), avec l'en-tête anti-CSRF
+ * `X-Requested-With: JumellesStore` exigé sur les requêtes mutatives.
  */
 export const requireAuth = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   const cookieToken = readCookie(req, SESSION_COOKIE_NAME);
@@ -71,37 +69,7 @@ export const requireAuth = (req: AuthenticatedRequest, res: Response, next: Next
     }
   }
 
-  // Fallback Keycloak OIDC (RS256 uniquement)
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return unauthorized(res, 'Accès non autorisé : authentification requise.');
-  }
-
-  const token = authHeader.slice(7).trim();
-  if (!token || token.length > 4096) return unauthorized(res);
-
-  const decodedHeader = jwt.decode(token, { complete: true });
-  if (!decodedHeader || typeof decodedHeader === 'string' || decodedHeader.header.alg !== 'RS256') {
-    return unauthorized(res);
-  }
-
-  const expectedIssuer = `${process.env.KEYCLOAK_AUTH_SERVER_URL || process.env.KEYCLOAK_URL || 'http://localhost:8080'}/realms/${process.env.KEYCLOAK_REALM || 'jumelles-store'}`;
-  const expectedClient = process.env.KEYCLOAK_CLIENT_ID || 'jumelles-backend';
-
-  return jwt.verify(
-    token,
-    getKey,
-    { algorithms: ['RS256'], issuer: expectedIssuer },
-    (err, decoded) => {
-      if (err || !decoded || typeof decoded === 'string') return unauthorized(res);
-      const claims = decoded as AuthenticatedUser & { azp?: string; aud?: string | string[] };
-      if (claims.azp && claims.azp !== expectedClient && claims.azp !== 'jumelles-frontend') {
-        return unauthorized(res);
-      }
-      req.user = claims;
-      next();
-    }
-  );
+  return unauthorized(res, 'Accès non autorisé : authentification requise.');
 };
 
 /**

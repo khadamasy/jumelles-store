@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID as uuidv4 } from 'crypto';
 import { memoryStore, PhoneCallbackRequest, persistStore } from '../config/db';
 import { cleanText, isValidPhone } from '../middlewares/security';
+import { notifyAdmin } from '../services/notifier';
 
 export const OFFICIAL_PHONE = '+221 77 208 78 20';
 export const OFFICIAL_PHONE_RAW = '221772087820';
@@ -65,6 +66,9 @@ export const requestCallback = async (req: Request, res: Response) => {
 
     memoryStore.phoneCallbacks.unshift(newRequest);
     await persistStore();
+    void notifyAdmin(
+      `📞 Demande de rappel : ${newRequest.customerName} — ${newRequest.customerPhone}\nIntérêt : ${newRequest.productInterest}`
+    );
 
     res.status(201).json({
       success: true,

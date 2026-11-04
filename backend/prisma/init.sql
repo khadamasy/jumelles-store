@@ -1,5 +1,4 @@
 -- Initialisation de la base de données Jumelles Store
-CREATE SCHEMA IF NOT EXISTS keycloak;
 
 -- 1. Table des Catégories
 CREATE TABLE IF NOT EXISTS categories (
@@ -62,6 +61,10 @@ CREATE TABLE IF NOT EXISTS orders (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Colonnes ajoutées après la première version (migration idempotente)
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS stock_restored BOOLEAN DEFAULT FALSE;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS cancel_reason VARCHAR(200);
 
 -- 6. Table des Lignes de Commande
 CREATE TABLE IF NOT EXISTS order_items (

@@ -1,0 +1,11 @@
+# HTTPS automatique : Caddy obtient et renouvelle seul le certificat Let's Encrypt.
+# Prérequis : le domaine (SITE_DOMAIN) et www.SITE_DOMAIN pointent vers l'IP du serveur,
+# et les ports 80 et 443 sont ouverts.
+{$SITE_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy frontend:80
+}
+
+www.{$SITE_DOMAIN} {
+	redir https://{$SITE_DOMAIN}{uri} permanent
+}

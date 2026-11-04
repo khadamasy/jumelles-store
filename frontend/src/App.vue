@@ -85,7 +85,7 @@ const handleScroll = () => {
 };
 
 onMounted(() => {
-  authStore.initKeycloak();
+  authStore.init();
   window.addEventListener('scroll', handleScroll, { passive: true });
 });
 

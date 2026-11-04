@@ -182,10 +182,14 @@
               <span class="font-bold text-stone-900">{{ cartStore.formattedSubtotal }}</span>
             </div>
             <div class="flex justify-between text-stone-600">
-              <span>Livraison 24h Dakar :</span>
-              <span class="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+              <span>{{ isDakarDelivery ? 'Livraison 24h Dakar :' : 'Livraison ' + form.shippingCity + ' :' }}</span>
+              <span
+                v-if="isDakarDelivery"
+                class="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200"
+              >
                 Offerte (Promotion)
               </span>
+              <span v-else class="text-stone-700 font-bold">Frais confirmés sur WhatsApp</span>
             </div>
             <div class="border-t border-stone-200 pt-3 flex justify-between items-baseline font-bold text-stone-950 text-base">
               <span>Total Commande :</span>
@@ -239,7 +243,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted } from 'vue';
+import { ref, reactive, watch, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { ShoppingBag, Sparkles, CheckCircle2, Truck } from 'lucide-vue-next';
 import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
@@ -284,6 +288,9 @@ onMounted(() => {
 const formatPrice = (price: number) => {
   return currencyStore.formatPrice(price);
 };
+
+/** Seule la livraison à Dakar intra-muros est offerte (voir FAQ) */
+const isDakarDelivery = computed(() => form.shippingCity === 'Dakar');
 
 const handleCheckoutWhatsApp = async () => {
   errorMessage.value = '';
@@ -371,7 +378,7 @@ Je souhaite confirmer ma commande enregistrée sur votre site internet :
 ${itemsListText}
 
 *TOTAL COMMANDE :* *${totalFormatted}*
-*LIVRAISON :* 24h Dakar (Offerte)
+*LIVRAISON :* ${isDakarDelivery.value ? '24h Dakar (Offerte)' : `${form.shippingCity} (frais et délai à me confirmer)`}
 *RÈGLEMENT :* À la livraison
 
 Merci de me confirmer la prise en compte de ma commande et le créneau de livraison !`;

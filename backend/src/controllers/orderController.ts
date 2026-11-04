@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
 import crypto from 'crypto';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID as uuidv4 } from 'crypto';
 import { memoryStore, Order, OrderItem, persistStore } from '../config/db';
 import { cleanText, isValidPhone } from '../middlewares/security';
+import { notifyAdmin, formatNewOrderMessage } from '../services/notifier';
 
 const MAX_ITEMS_PER_ORDER = 20;
 const MAX_QTY_PER_LINE = 10;
@@ -153,6 +154,7 @@ export const createOrder = async (req: Request, res: Response) => {
 
     memoryStore.orders.unshift(newOrder);
     await persistStore();
+    void notifyAdmin(formatNewOrderMessage(newOrder));
 
     res.status(201).json({
       success: true,
@@ -204,6 +206,21 @@ export const getAllOrders = async (req: Request, res: Response) => {
   });
 };
 
+/** Remet en stock les articles d'une commande annulée (une seule fois) */
+export const restoreOrderStock = (order: Order) => {
+  if (order.stockRestored) return;
+  for (const item of order.items) {
+    for (const p of memoryStore.products) {
+      const v = p.variants.find((variant) => variant.id === item.productVariantId);
+      if (v) {
+        v.stockQuantity += item.quantity;
+        break;
+      }
+    }
+  }
+  order.stockRestored = true;
+};
+
 const ALLOWED_STATUS_TRANSITIONS: Record<Order['status'], Order['status'][]> = {
   PENDING: ['PAID', 'PREPARING', 'SHIPPED', 'CANCELLED'],
   PAID: ['PREPARING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
@@ -246,17 +263,9 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
     }
 
     // Remise en stock unique lors de l'annulation avant expédition
-    if (targetStatus === 'CANCELLED' && !(order as any).stockRestored) {
-      for (const item of order.items) {
-        for (const p of memoryStore.products) {
-          const v = p.variants.find((variant) => variant.id === item.productVariantId);
-          if (v) {
-            v.stockQuantity += item.quantity;
-            break;
-          }
-        }
-      }
-      (order as any).stockRestored = true;
+    if (targetStatus === 'CANCELLED') {
+      restoreOrderStock(order);
+      order.cancelReason = 'Annulée par la gérance';
     }
 
     order.status = targetStatus;
@@ -314,4 +323,33 @@ export const getDashboardStats = async (req: Request, res: Response) => {
       lowStockItems: lowStockVariants,
     },
   });
+};
+
+/**
+ * Annule automatiquement les commandes restées « En attente » plus de PENDING_ORDER_TTL_HOURS heures
+ * (48 h par défaut ; 0 pour désactiver) et remet leur stock en rayon. Empêche qu'une cliente qui
+ * ne confirme jamais, ou de fausses commandes, bloquent le stock indéfiniment.
+ */
+export const expireStalePendingOrders = async (): Promise<number> => {
+  const ttlHours = Number(process.env.PENDING_ORDER_TTL_HOURS ?? 48);
+  if (!Number.isFinite(ttlHours) || ttlHours <= 0) return 0;
+  const cutoff = Date.now() - ttlHours * 60 * 60 * 1000;
+
+  const expired = memoryStore.orders.filter(
+    (o) => o.status === 'PENDING' && new Date(o.createdAt).getTime() < cutoff
+  );
+  if (expired.length === 0) return 0;
+
+  for (const order of expired) {
+    restoreOrderStock(order);
+    order.status = 'CANCELLED';
+    order.cancelReason = `Annulée automatiquement : non confirmée sous ${ttlHours} h`;
+  }
+  await persistStore();
+  console.info(`[Commandes] ${expired.length} commande(s) non confirmée(s) annulée(s), stock remis en rayon.`);
+  void notifyAdmin(
+    `⏱️ ${expired.length} commande(s) non confirmée(s) depuis ${ttlHours} h annulée(s) automatiquement, stock remis en rayon :\n` +
+      expired.map((o) => `• ${o.orderNumber} — ${o.customerName} (${o.customerPhone})`).join('\n')
+  );
+  return expired.length;
 };

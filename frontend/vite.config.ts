@@ -17,6 +17,8 @@ export default defineConfig({
         target: 'http://127.0.0.1:4000',
         changeOrigin: true,
       },
+      '/robots.txt': 'http://127.0.0.1:4000',
+      '/sitemap.xml': 'http://127.0.0.1:4000',
       // Photos téléversées sur MinIO (développement local)
       '/jumelles-products': {
         target: 'http://127.0.0.1:9000',

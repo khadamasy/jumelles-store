@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import multer from 'multer';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID as uuidv4 } from 'crypto';
 import { minioClient, BUCKET_PRODUCTS, isMinioConfigured } from '../config/minio';
 
 const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp'];

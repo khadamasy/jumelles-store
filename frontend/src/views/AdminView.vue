@@ -214,6 +214,7 @@
                     {{ o.customerName }} · {{ o.shippingCity }} · {{ formatAgo(o.createdAt) }}
                   </div>
                   <div class="m" v-if="o.shippingAddress">Adresse : {{ o.shippingAddress }}</div>
+                  <div class="m" v-if="o.cancelReason" style="color:#9f1239">{{ o.cancelReason }}</div>
                 </div>
                 <span class="adm-st" :class="`s-${o.status}`">{{ statusLabels[o.status] || o.status }}</span>
               </div>
@@ -295,6 +296,7 @@
                     {{ o.customerName }} ({{ o.customerPhone }}) · {{ o.shippingCity }} · {{ formatAgo(o.createdAt) }}
                   </div>
                   <div class="m" v-if="o.shippingAddress">Adresse : {{ o.shippingAddress }}</div>
+                  <div class="m" v-if="o.cancelReason" style="color:#9f1239">{{ o.cancelReason }}</div>
                 </div>
                 <span class="adm-st" :class="`s-${o.status}`">{{ statusLabels[o.status] || o.status }}</span>
               </div>

@@ -266,6 +266,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { applySeo, setProductJsonLd } from '../utils/seo';
 import { useRoute, useRouter } from 'vue-router';
 import { ProductService } from '../services/api';
 import { useCartStore } from '../stores/cart';
@@ -373,6 +374,14 @@ onMounted(async () => {
     const slug = route.params.slug as string;
     const res = await ProductService.getByIdOrSlug(slug);
     product.value = res.data.data;
+    const p = product.value;
+    applySeo({
+      title: `${p.name} — ${Number(p.basePrice).toLocaleString('fr-FR')} FCFA | Jumelles Store Dakar`,
+      description: p.description,
+      path: `/product/${p.slug}`,
+      image: p.images?.[0]?.minioUrl,
+    });
+    setProductJsonLd(p);
 
     if (product.value.images && product.value.images.length > 0) {
       activeImage.value = product.value.images[0].minioUrl;

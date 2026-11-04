@@ -9,6 +9,7 @@ import orderRoutes from './routes/orderRoutes';
 import uploadRoutes from './routes/uploadRoutes';
 import phoneRoutes from './routes/phoneRoutes';
 import authRoutes from './routes/authRoutes';
+import seoRoutes from './routes/seoRoutes';
 import { securityHeaders, rateLimit } from './middlewares/security';
 
 const app: Application = express();
@@ -69,6 +70,9 @@ app.use(
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'UP', timestamp: new Date().toISOString() });
 });
+
+// robots.txt et sitemap.xml (servis à la racine du site via Nginx / Vite)
+app.use(seoRoutes);
 
 // Enregistrement des routes API
 app.use('/api/auth', authRoutes);

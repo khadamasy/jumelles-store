@@ -66,36 +66,7 @@ services:
       - jumelles-network
 
   # ==========================================
-  # 3. Serveur d'authentification Keycloak (IAM)
-  # ==========================================
-  keycloak:
-    image: quay.io/keycloak/keycloak:24.0.5
-    container_name: jumelles-keycloak
-    restart: always
-    command: start --import-realm --http-enabled=true --hostname-strict=false
-    environment:
-      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Definissez KEYCLOAK_ADMIN_PASSWORD dans .env}
-      KC_DB: postgres
-      KC_DB_URL_HOST: postgres
-      KC_DB_URL_PORT: 5432
-      KC_DB_URL_DATABASE: ${POSTGRES_DB:-jumelles_db}
-      KC_DB_SCHEMA: keycloak
-      KC_DB_USERNAME: ${POSTGRES_USER:-jumelles_admin}
-      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:?Definissez POSTGRES_PASSWORD dans .env}
-      KC_HEALTH_ENABLED: "true"
-    ports:
-      - "127.0.0.1:8080:8080"
-    volumes:
-      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm.json:ro
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - jumelles-network
-
-  # ==========================================
-  # 4. API Backend Node.js / Express
+  # 3. API Backend Node.js / Express
   # ==========================================
   backend:
     build:
@@ -106,14 +77,19 @@ services:
     environment:
       PORT: 4000
       NODE_ENV: production
-      TRUST_PROXY: "1"
+      # Chaîne de proxys : Caddy (HTTPS) -> Nginx (frontend) -> backend
+      TRUST_PROXY: "2"
+      SITE_URL: "https://${SITE_DOMAIN:?Definissez SITE_DOMAIN dans .env}"
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Definissez ADMIN_PASSWORD dans .env}
       JWT_SECRET: ${JWT_SECRET:?Definissez JWT_SECRET dans .env (32 caracteres minimum)}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://${SITE_DOMAIN}}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      # Notifications de nouvelles commandes (optionnel, voir README)
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID:-}
+      # Annulation automatique des commandes non confirmées (stock libéré)
+      PENDING_ORDER_TTL_HOURS: ${PENDING_ORDER_TTL_HOURS:-48}
       DATABASE_URL: postgresql://${POSTGRES_USER:-jumelles_admin}:${POSTGRES_PASSWORD:?Definissez POSTGRES_PASSWORD dans .env}@postgres:5432/${POSTGRES_DB:-jumelles_db}?schema=public
-      KEYCLOAK_AUTH_SERVER_URL: http://keycloak:8080
-      KEYCLOAK_REALM: jumelles-store
-      KEYCLOAK_CLIENT_ID: jumelles-backend
       MINIO_ENDPOINT: minio
       MINIO_PORT: 9000
       MINIO_USE_SSL: "false"
@@ -136,18 +112,66 @@ services:
       - jumelles-network
 
   # ==========================================
-  # 5. Application Frontend Vue.js 3 (Nginx)
+  # 4. Application Frontend Vue.js 3 (Nginx)
   # ==========================================
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_SITE_URL: "https://${SITE_DOMAIN:?Definissez SITE_DOMAIN dans .env}"
     container_name: jumelles-frontend
     restart: always
     ports:
-      - "3000:80"
+      - "127.0.0.1:3000:80"   # accès local uniquement : le public passe par Caddy (HTTPS)
     depends_on:
       - backend
+    networks:
+      - jumelles-network
+
+  # ==========================================
+  # 5. Caddy : HTTPS automatique (Let's Encrypt)
+  # ==========================================
+  caddy:
+    image: caddy:2.8.4-alpine
+    container_name: jumelles-caddy
+    restart: always
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:?Definissez SITE_DOMAIN dans .env}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+    networks:
+      - jumelles-network
+
+  # ==========================================
+  # 6. Sauvegardes quotidiennes (base + photos)
+  # ==========================================
+  backup:
+    image: postgres:16.3-alpine
+    container_name: jumelles-backup
+    restart: always
+    environment:
+      PGHOST: postgres
+      PGUSER: ${POSTGRES_USER:-jumelles_admin}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?Definissez POSTGRES_PASSWORD dans .env}
+      PGDATABASE: ${POSTGRES_DB:-jumelles_db}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-14}
+    volumes:
+      - ./backups:/backups
+      - ./scripts/backup.sh:/backup.sh:ro
+      - minio_data:/minio_data:ro
+    entrypoint: ["/bin/sh", "/backup.sh"]
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - jumelles-network
 
@@ -159,3 +183,5 @@ volumes:
   postgres_data:
   minio_data:
   backend_data:
+  caddy_data:
+  caddy_config:

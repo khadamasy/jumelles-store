@@ -61,7 +61,7 @@ export const useAuthStore = defineStore('auth', {
 
   actions: {
     /** Vérifie auprès du serveur si un cookie HttpOnly de session valide est présent */
-    async initKeycloak() {
+    async init() {
       await this.checkSession();
     },
 
