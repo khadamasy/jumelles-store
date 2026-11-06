@@ -1,33 +1,34 @@
 <template>
-  <article class="pc">
-    <router-link :to="productUrl" class="pc-img" :aria-label="product.name">
-      <img :src="primaryImage" :alt="product.name" loading="lazy" decoding="async" />
-      <span v-if="discount > 0" class="pc-tag promo">-{{ discount }}%</span>
-      <span v-if="totalStock === 0" class="pc-tag out">Bientôt de retour</span>
-      <span v-else-if="totalStock <= 3" class="pc-tag low">Dernières pièces</span>
-    </router-link>
-
-    <button
-      v-if="totalStock > 0"
-      type="button"
-      class="pc-add"
-      :aria-label="needsChoice ? `Choisir la taille ou le coloris : ${product.name}` : `Ajouter au panier : ${product.name}`"
-      @click="quickAdd"
-    >
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path v-if="needsChoice" d="M5 12h14M13 6l6 6-6 6" />
-        <path v-else d="M12 5v14M5 12h14" />
-      </svg>
-    </button>
+  <article class="pc" :class="{ soldout: totalStock === 0 }">
+    <div class="pc-media">
+      <router-link :to="productUrl" class="pc-img" :aria-label="product.name" tabindex="-1">
+        <img :src="primaryImage" :alt="product.name" loading="lazy" decoding="async" />
+      </router-link>
+      <div class="pc-tags">
+        <span v-if="discount > 0" class="pc-tag promo tnum">-{{ discount }}%</span>
+        <span v-if="totalStock === 0" class="pc-tag out">Bientôt de retour</span>
+        <span v-else-if="totalStock <= 3" class="pc-tag low">Dernières pièces</span>
+      </div>
+      <button
+        v-if="totalStock > 0"
+        type="button"
+        class="pc-add"
+        :aria-label="needsChoice ? `Choisir la taille ou le coloris : ${product.name}` : `Ajouter au panier : ${product.name}`"
+        :title="needsChoice ? 'Choisir taille / coloris' : 'Ajouter au panier'"
+        @click="quickAdd"
+      >
+        <ArrowRight v-if="needsChoice" aria-hidden="true" />
+        <Plus v-else aria-hidden="true" />
+      </button>
+    </div>
 
     <router-link :to="productUrl" class="pc-in">
-      <span class="pc-cat">{{ categoryLabel }}</span>
+      <span class="pc-cat">{{ categoryLabel }}<template v-if="colorCount > 1"> · {{ colorCount }} coloris</template></span>
       <h3>{{ product.name }}</h3>
-      <div class="pc-price">
+      <div class="pc-price tnum">
         <span>{{ formatFcfa(product.basePrice) }}</span>
         <s v-if="discount > 0">{{ formatFcfa(product.originalPrice) }}</s>
       </div>
-      <span v-if="colorCount > 1" class="pc-meta">{{ colorCount }} coloris</span>
     </router-link>
   </article>
 </template>
@@ -35,6 +36,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { ArrowRight, Plus } from 'lucide-vue-next';
 import { useCartStore } from '../stores/cart';
 
 const cartStore = useCartStore();
@@ -107,143 +109,157 @@ const quickAdd = () => {
   position: relative;
   display: flex;
   flex-direction: column;
-  background: var(--card);
-  border: 1px solid var(--bd);
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 4px 14px rgba(36, 29, 25, 0.06);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-.pc:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow);
+  min-width: 0;
 }
 
+.pc-media {
+  position: relative;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--bg-sunken);
+  isolation: isolate;
+}
 /* Toutes les photos dans le même cadre 4:5, quelle que soit leur taille d'origine */
 .pc-img {
-  position: relative;
   display: block;
   aspect-ratio: 4 / 5;
-  background: #efe7dc;
-  overflow: hidden;
 }
 .pc-img img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s;
+  transition: transform 0.8s var(--ease-out), opacity var(--dur-3);
 }
 .pc:hover .pc-img img {
-  transform: scale(1.04);
+  transform: scale(1.045);
+}
+.soldout .pc-img img {
+  opacity: 0.6;
+  filter: grayscale(0.4);
 }
 
-.pc-tag {
+.pc-tags {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  font: 700 10px/1 system-ui, sans-serif;
-  letter-spacing: 0.04em;
-  padding: 5px 8px;
-  border-radius: 999px;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  pointer-events: none;
+}
+.pc-tag {
+  padding: 5px 9px;
+  border-radius: var(--r-full);
+  font: 700 10.5px/1 var(--font-sans);
+  letter-spacing: 0.03em;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 .pc-tag.promo {
-  background: #a63333;
+  background: var(--danger);
   color: #fff;
 }
 .pc-tag.low {
-  background: rgba(255, 255, 255, 0.92);
-  color: #7a5214;
+  background: rgb(255 255 255 / 0.9);
+  color: var(--accent-text);
 }
 .pc-tag.out {
-  background: rgba(23, 17, 14, 0.82);
+  background: rgb(var(--c-sand-950) / 0.8);
   color: var(--on-ink);
-}
-.pc-tag.promo + .pc-tag {
-  top: 32px;
 }
 
 .pc-add {
   position: absolute;
-  right: 8px;
-  /* En bas à droite de la photo : un % de marge se calcule sur la LARGEUR de la carte,
-     donc 125 % = hauteur de la photo au format 4:5 */
-  top: 0;
-  margin-top: calc(125% - 46px);
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 0;
-  background: rgba(255, 255, 255, 0.94);
-  color: var(--ink);
+  right: 10px;
+  bottom: 10px;
   display: grid;
   place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.94);
+  color: var(--ink);
   cursor: pointer;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-  transition: transform 0.15s, background 0.15s;
-}
-.pc-add:hover {
-  background: var(--gold2);
-}
-.pc-add:active {
-  transform: scale(0.9);
+  box-shadow: var(--sh-2);
+  transition: transform var(--dur-2) var(--ease-spring), opacity var(--dur-2), background-color var(--dur-2),
+    color var(--dur-2);
 }
 .pc-add svg {
   width: 18px;
   height: 18px;
-  fill: none;
-  stroke: currentColor;
   stroke-width: 2.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+}
+.pc-add:hover {
+  background: var(--ink);
+  color: var(--on-ink);
+  transform: scale(1.06);
+}
+.pc-add:active {
+  transform: scale(0.9);
 }
 
 .pc-in {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding: 10px 12px 12px;
-  flex: 1;
+  gap: 4px;
+  padding: var(--s-3) 2px 0;
 }
 .pc-cat {
-  font: 700 9.5px/1 system-ui, sans-serif;
-  letter-spacing: 0.16em;
+  font: 600 10.5px/1.2 var(--font-sans);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--text-muted);
 }
 .pc-in h3 {
-  margin: 2px 0 0;
-  font-size: 14.5px;
-  font-weight: 400;
-  line-height: 1.3;
-  color: var(--tx);
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  line-height: var(--lh-snug);
+  letter-spacing: 0;
+  color: var(--text);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  transition: color var(--dur-2);
+}
+.pc-in:hover h3 {
+  color: var(--accent-text);
 }
 .pc-price {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 6px;
-  margin-top: auto;
-  padding-top: 4px;
-  font-weight: 800;
-  font-size: 14px;
-  color: var(--tx);
+  gap: 2px 8px;
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  color: var(--text);
 }
 .pc-price s {
   font-weight: 500;
-  font-size: 12px;
-  color: var(--mut);
+  font-size: var(--fs-xs);
+  color: var(--text-faint);
 }
-.pc-meta {
-  font-size: 11.5px;
-  color: var(--mut);
+
+/* Écran tactile : bouton toujours visible ; souris : il apparaît au survol */
+@media (hover: hover) and (min-width: 720px) {
+  .pc-add {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  .pc:hover .pc-add,
+  .pc-add:focus-visible {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 @media (min-width: 720px) {
   .pc-in h3 {
-    font-size: 16px;
+    font-size: 15px;
   }
   .pc-price {
     font-size: 15px;

@@ -1,21 +1,23 @@
 <template>
   <div class="pd-page">
     <div class="wrap">
-      <nav class="crumb" aria-label="Fil d'Ariane">
+      <nav class="crumb pd-crumb" aria-label="Fil d'Ariane">
         <router-link to="/">Accueil</router-link>
-        <span aria-hidden="true">/</span>
+        <ChevronRight class="crumb-sep" aria-hidden="true" />
         <router-link :to="categoryLink">{{ isShoe ? 'Chaussures' : 'Sacs' }}</router-link>
-        <span aria-hidden="true">/</span>
-        <span class="cur">{{ product?.name || 'Article' }}</span>
+        <ChevronRight class="crumb-sep" aria-hidden="true" />
+        <span class="cur" aria-current="page">{{ product?.name || 'Article' }}</span>
       </nav>
 
       <!-- Chargement -->
       <div v-if="loading" class="pd-grid" aria-hidden="true">
-        <div class="skel img"></div>
-        <div class="skel-col">
-          <div class="skel l1"></div>
-          <div class="skel l2"></div>
-          <div class="skel l3"></div>
+        <div class="skel sk-img"></div>
+        <div class="sk-col">
+          <div class="skel sk-l0"></div>
+          <div class="skel sk-l1"></div>
+          <div class="skel sk-l2"></div>
+          <div class="skel sk-l3"></div>
+          <div class="skel sk-l4"></div>
         </div>
       </div>
 
@@ -24,8 +26,10 @@
         <!-- Galerie -->
         <section class="gal" aria-label="Photos de l'article">
           <div class="gal-main">
-            <img :src="activeImage" :alt="activeImageAlt" />
-            <span v-if="discount > 0" class="tag promo">-{{ discount }}%</span>
+            <Transition name="img-fade">
+              <img :key="activeImage" :src="activeImage" :alt="activeImageAlt" />
+            </Transition>
+            <span v-if="discount > 0" class="gal-tag tnum">-{{ discount }}%</span>
           </div>
           <div v-if="product.images && product.images.length > 1" class="gal-thumbs">
             <button
@@ -36,7 +40,7 @@
               :aria-pressed="activeImage === img.minioUrl"
               @click="activeImage = img.minioUrl"
             >
-              <img loading="lazy" decoding="async" :src="img.minioUrl" :alt="''" />
+              <img loading="lazy" decoding="async" :src="img.minioUrl" alt="" />
             </button>
           </div>
         </section>
@@ -47,89 +51,85 @@
           <h1>{{ product.name }}</h1>
 
           <div class="price-row">
-            <span class="price">{{ formatMain(currentPrice) }}</span>
-            <s v-if="discount > 0">{{ formatMain(product.originalPrice) }}</s>
-            <span class="price-alt">{{ formatAlt(currentPrice) }}</span>
+            <span class="price tnum">{{ formatMain(currentPrice) }}</span>
+            <s v-if="discount > 0" class="tnum">{{ formatMain(product.originalPrice) }}</s>
+            <span class="price-alt tnum">{{ formatAlt(currentPrice) }}</span>
           </div>
 
           <p class="stock" :class="stockClass">
             <i aria-hidden="true"></i>
             <span v-if="!selectedVariant || selectedVariant.stockQuantity <= 0">Cette taille est épuisée pour le moment</span>
-            <span v-else-if="selectedVariant.stockQuantity <= 3">Plus que {{ selectedVariant.stockQuantity }} pièce{{ selectedVariant.stockQuantity > 1 ? 's' : '' }} à Dakar</span>
+            <span v-else-if="selectedVariant.stockQuantity <= 3">
+              Plus que {{ selectedVariant.stockQuantity }} pièce{{ selectedVariant.stockQuantity > 1 ? 's' : '' }} à Dakar
+            </span>
             <span v-else>En stock à Dakar · livraison en 24 h</span>
           </p>
 
-          <!-- Coloris -->
-          <div v-if="uniqueColors.length > 1 || uniqueColors[0] !== 'Unique'" class="pick">
-            <div class="pick-h">
-              <span>Coloris</span>
-              <b>{{ selectedVariant?.color }}</b>
+          <div class="picks">
+            <!-- Coloris -->
+            <div v-if="uniqueColors.length > 1 || uniqueColors[0] !== 'Unique'" class="pick">
+              <div class="pick-h">
+                <span>Coloris</span>
+                <b>{{ selectedVariant?.color }}</b>
+              </div>
+              <div class="opts">
+                <button
+                  v-for="c in uniqueColors"
+                  :key="c"
+                  type="button"
+                  class="opt"
+                  :class="{ off: !colorInStock(c) }"
+                  :aria-pressed="selectedVariant?.color === c"
+                  @click="selectColor(c)"
+                >
+                  {{ c }}
+                </button>
+              </div>
             </div>
-            <div class="opts">
-              <button
-                v-for="c in uniqueColors"
-                :key="c"
-                type="button"
-                class="opt"
-                :class="{ off: !colorInStock(c) }"
-                :aria-pressed="selectedVariant?.color === c"
-                @click="selectColor(c)"
-              >
-                {{ c }}
-              </button>
-            </div>
-          </div>
 
-          <!-- Pointure / format -->
-          <div class="pick">
-            <div class="pick-h">
-              <span>{{ isShoe ? 'Pointure' : 'Format' }}</span>
-              <b>{{ selectedVariant?.sizeOrShoeSize }}</b>
-              <router-link v-if="isShoe" to="/faq-livraison" class="pick-link">Échange sous 48 h</router-link>
-            </div>
-            <div class="opts">
-              <button
-                v-for="v in availableSizesForColor"
-                :key="v.id"
-                type="button"
-                class="opt"
-                :class="{ sq: isShoe }"
-                :disabled="v.stockQuantity <= 0"
-                :aria-pressed="selectedVariant?.id === v.id"
-                @click="selectVariant(v)"
-              >
-                {{ v.sizeOrShoeSize }}
-              </button>
+            <!-- Pointure / format -->
+            <div class="pick">
+              <div class="pick-h">
+                <span>{{ isShoe ? 'Pointure' : 'Format' }}</span>
+                <b>{{ selectedVariant?.sizeOrShoeSize }}</b>
+                <router-link v-if="isShoe" to="/faq-livraison" class="pick-link">
+                  <Repeat aria-hidden="true" />Échange sous 48 h
+                </router-link>
+              </div>
+              <div class="opts">
+                <button
+                  v-for="v in availableSizesForColor"
+                  :key="v.id"
+                  type="button"
+                  class="opt tnum"
+                  :class="{ sq: isShoe }"
+                  :disabled="v.stockQuantity <= 0"
+                  :aria-pressed="selectedVariant?.id === v.id"
+                  @click="selectVariant(v)"
+                >
+                  {{ v.sizeOrShoeSize }}
+                </button>
+              </div>
             </div>
           </div>
 
           <!-- Achat -->
           <div class="buy">
-            <div class="qty" role="group" aria-label="Quantité">
-              <button type="button" aria-label="Diminuer la quantité" :disabled="quantity <= 1" @click="quantity--">−</button>
-              <span aria-live="polite">{{ quantity }}</span>
-              <button
-                type="button"
-                aria-label="Augmenter la quantité"
-                :disabled="quantity >= (selectedVariant?.stockQuantity || 1)"
-                @click="quantity++"
-              >
-                +
-              </button>
-            </div>
+            <UiQty v-model="quantity" :min="1" :max="selectedVariant?.stockQuantity || 1" />
             <button
               type="button"
-              class="btn gold add"
+              class="btn gold lg add"
               :disabled="!selectedVariant || selectedVariant.stockQuantity <= 0"
               @click="addToCart"
             >
+              <ShoppingBag aria-hidden="true" />
               {{ selectedVariant && selectedVariant.stockQuantity > 0 ? 'Ajouter au panier' : 'Épuisé' }}
             </button>
           </div>
 
           <button
             type="button"
-            class="wa-link"
+            class="btn line block wa-link"
             :disabled="!selectedVariant || selectedVariant.stockQuantity <= 0"
             @click="orderProductByPhone"
           >
@@ -139,56 +139,60 @@
 
           <!-- Réassurance -->
           <ul class="perks">
+            <li><Truck aria-hidden="true" /><span>Livraison 24 h<br />à Dakar</span></li>
+            <li><Banknote aria-hidden="true" /><span>Paiement<br />à la livraison</span></li>
             <li>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7" /><circle cx="7" cy="17.5" r="1.7" /><circle cx="17" cy="17.5" r="1.7" /></svg>
-              Livraison 24 h à Dakar
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z" /><path d="M9 12l2 2 4-4" /></svg>
-              Paiement à la livraison
-            </li>
-            <li>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5l2 2M20 12a8 8 0 0 1-14 5l-2-2M20 4v5h-5M4 20v-5h5" /></svg>
-              {{ isShoe ? 'Échange de pointure 48 h' : 'Emballage cadeau soigné' }}
+              <component :is="isShoe ? Repeat : Gift" aria-hidden="true" />
+              <span v-if="isShoe">Échange de<br />pointure 48 h</span>
+              <span v-else>Emballage<br />cadeau soigné</span>
             </li>
           </ul>
 
           <!-- Détails repliables -->
-          <details class="acc" open>
-            <summary>Description</summary>
-            <p>{{ product.description }}</p>
-          </details>
-          <details class="acc">
-            <summary>Livraison & paiement</summary>
-            <p>
-              Livraison sous 24 h à Dakar, offerte. Banlieue et régions : expédition sous 24 à 48 h, frais confirmés
-              sur WhatsApp. Vous payez à la réception du colis, en espèces ou par mobile money.
-            </p>
-          </details>
-          <details v-if="isShoe" class="acc">
-            <summary>Pointures & échanges</summary>
-            <p>
-              Nos modèles chaussent normalement. La pointure ne convient pas ? Nous l'échangeons sous 48 h, article non porté
-              et dans sa boîte. <router-link to="/faq-livraison">Voir toutes les conditions</router-link>
-            </p>
-          </details>
+          <div class="accs">
+            <details class="acc" open>
+              <summary>Description<ChevronDown aria-hidden="true" /></summary>
+              <p>{{ product.description }}</p>
+            </details>
+            <details class="acc">
+              <summary>Livraison & paiement<ChevronDown aria-hidden="true" /></summary>
+              <p>
+                Livraison sous 24 h à Dakar, offerte. Banlieue et régions : expédition sous 24 à 48 h, frais confirmés
+                sur WhatsApp. Vous payez à la réception du colis, en espèces ou par mobile money.
+              </p>
+            </details>
+            <details v-if="isShoe" class="acc">
+              <summary>Pointures & échanges<ChevronDown aria-hidden="true" /></summary>
+              <p>
+                Nos modèles chaussent normalement. La pointure ne convient pas ? Nous l'échangeons sous 48 h, article non
+                porté et dans sa boîte. <router-link to="/faq-livraison">Voir toutes les conditions</router-link>
+              </p>
+            </details>
+          </div>
         </section>
       </div>
 
       <!-- Article introuvable ou retiré du catalogue -->
-      <div v-else class="empty">
-        <h1>{{ loadError ? 'Impossible de charger cet article.' : 'Cet article n\'est plus disponible.' }}</h1>
-        <p>{{ loadError ? 'Vérifiez votre connexion puis réessayez.' : 'Il a peut-être été vendu ou retiré de la collection.' }}</p>
-        <div class="empty-acts">
-          <button v-if="loadError" type="button" class="btn line" @click="loadProduct">Réessayer</button>
-          <router-link to="/catalog" class="btn gold">Voir toute la collection</router-link>
-        </div>
-      </div>
+      <UiEmpty
+        v-else
+        heading-tag="h1"
+        :title="loadError ? 'Impossible de charger cet article' : 'Cet article n\'est plus disponible'"
+        :text="loadError ? 'Vérifiez votre connexion puis réessayez.' : 'Il a peut-être été vendu ou retiré de la collection.'"
+      >
+        <template #icon>
+          <WifiOff v-if="loadError" />
+          <PackageX v-else />
+        </template>
+        <button v-if="loadError" type="button" class="btn line" @click="loadProduct">
+          <RotateCw aria-hidden="true" />Réessayer
+        </button>
+        <router-link to="/catalog" class="btn dark">Voir toute la collection</router-link>
+      </UiEmpty>
 
       <!-- Vous aimerez aussi -->
-      <section v-if="related.length > 0" class="related" aria-label="Articles similaires">
-        <h2>Vous aimerez aussi</h2>
-        <div class="rel-grid">
+      <section v-if="related.length > 0" class="related" aria-labelledby="rel-title">
+        <h2 id="rel-title">Vous aimerez aussi</h2>
+        <div class="rel-grid stagger">
           <ProductCard v-for="p in related" :key="p.id" :product="p" />
         </div>
       </section>
@@ -206,6 +210,20 @@ import { useCurrencyStore } from '../stores/currency';
 import { usePhoneStore } from '../stores/phone';
 import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
 import ProductCard from '../components/ProductCard.vue';
+import UiQty from '../components/ui/UiQty.vue';
+import UiEmpty from '../components/ui/UiEmpty.vue';
+import {
+  ChevronRight,
+  ChevronDown,
+  ShoppingBag,
+  Truck,
+  Banknote,
+  Repeat,
+  Gift,
+  WifiOff,
+  PackageX,
+  RotateCw,
+} from 'lucide-vue-next';
 
 const route = useRoute();
 const cartStore = useCartStore();
@@ -359,66 +377,102 @@ const loadProduct = async () => {
 // Rechargé aussi quand on passe d'un article à l'autre (le composant est réutilisé par le routeur)
 watch(() => route.params.slug, () => void loadProduct(), { immediate: true });
 </script>
-
 <style scoped>
 .pd-page {
-  padding: 14px 0 40px;
+  padding: var(--s-4) 0 var(--s-10);
 }
-
-.crumb {
-  display: flex;
+.pd-crumb {
   flex-wrap: nowrap;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--mut);
-  margin-bottom: 14px;
   white-space: nowrap;
   overflow: hidden;
 }
-.crumb a:hover {
-  color: var(--gold);
-}
-.crumb .cur {
+.pd-crumb .cur {
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--tx);
+}
+.crumb-sep {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  opacity: 0.6;
 }
 
 .pd-grid {
   display: grid;
-  gap: 22px;
+  gap: var(--s-6);
 }
 
-/* ---------- Galerie ---------- */
+/* ----- Chargement ----- */
+.sk-img {
+  aspect-ratio: 4 / 5;
+  border-radius: var(--r-xl);
+}
+.sk-col {
+  display: grid;
+  gap: var(--s-3);
+  align-content: start;
+}
+.sk-l0 {
+  height: 12px;
+  width: 30%;
+}
+.sk-l1 {
+  height: 36px;
+  width: 85%;
+}
+.sk-l2 {
+  height: 24px;
+  width: 40%;
+}
+.sk-l3 {
+  height: 48px;
+  margin-top: var(--s-4);
+}
+.sk-l4 {
+  height: 56px;
+}
+
+/* ----- Galerie ----- */
 .gal-main {
   position: relative;
+  display: grid;
   aspect-ratio: 4 / 5;
-  border-radius: 22px;
+  border-radius: var(--r-xl);
   overflow: hidden;
-  background: #efe7dc;
-  box-shadow: var(--shadow);
+  background: var(--bg-sunken);
+  box-shadow: var(--sh-2);
 }
 .gal-main img {
+  grid-area: 1 / 1;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-.tag.promo {
+.img-fade-enter-active,
+.img-fade-leave-active {
+  transition: opacity var(--dur-3) var(--ease-out);
+}
+.img-fade-enter-from,
+.img-fade-leave-to {
+  opacity: 0;
+}
+.gal-tag {
   position: absolute;
-  top: 12px;
-  left: 12px;
-  background: #a63333;
-  color: #fff;
-  font: 700 11px/1 system-ui, sans-serif;
+  top: var(--s-3);
+  left: var(--s-3);
   padding: 6px 10px;
-  border-radius: 999px;
+  border-radius: var(--r-full);
+  background: var(--danger);
+  color: #fff;
+  font: 700 var(--fs-xs) / 1 var(--font-sans);
 }
 .gal-thumbs {
   display: flex;
-  gap: 8px;
-  margin-top: 10px;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
   overflow-x: auto;
   scrollbar-width: none;
+  padding: 2px;
 }
 .gal-thumbs::-webkit-scrollbar {
   display: none;
@@ -428,17 +482,24 @@ watch(() => route.params.slug, () => void loadProduct(), { immediate: true });
   width: 64px;
   height: 80px;
   padding: 0;
-  border-radius: 12px;
+  border: 0;
+  border-radius: var(--r-sm);
   overflow: hidden;
-  border: 2px solid transparent;
-  background: #efe7dc;
-  opacity: 0.65;
+  background: var(--bg-sunken);
   cursor: pointer;
-  transition: opacity 0.15s, border-color 0.15s;
+  opacity: 0.6;
+  box-shadow: 0 0 0 1px var(--border);
+  transition: opacity var(--dur-2), box-shadow var(--dur-2), transform var(--dur-1);
+}
+.gal-thumbs button:hover {
+  opacity: 0.9;
+}
+.gal-thumbs button:active {
+  transform: scale(0.95);
 }
 .gal-thumbs button[aria-pressed='true'] {
   opacity: 1;
-  border-color: var(--gold);
+  box-shadow: 0 0 0 2px var(--ink);
 }
 .gal-thumbs img {
   width: 100%;
@@ -446,343 +507,273 @@ watch(() => route.params.slug, () => void loadProduct(), { immediate: true });
   object-fit: cover;
 }
 
-/* ---------- Informations ---------- */
+/* ----- Informations ----- */
 .info h1 {
-  font-size: clamp(26px, 6.5vw, 36px);
+  margin: var(--s-2) 0 var(--s-3);
+  font-size: var(--fs-3xl);
+  line-height: var(--lh-tight);
   font-weight: 400;
-  line-height: 1.15;
-  margin: 8px 0 12px;
 }
 .price-row {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 10px;
+  gap: 4px var(--s-3);
 }
 .price {
-  font-size: 24px;
-  font-weight: 800;
-  color: var(--tx);
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: 500;
 }
 .price-row s {
-  color: var(--mut);
-  font-size: 15px;
+  color: var(--text-faint);
+  font-size: var(--fs-sm);
 }
 .price-alt {
-  font-size: 13px;
-  color: var(--mut);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
 }
 
 .stock {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin: 12px 0 4px;
-  font-size: 13.5px;
+  gap: var(--s-2);
+  margin: var(--s-3) 0 0;
+  padding: 6px 12px;
+  border-radius: var(--r-full);
+  font-size: var(--fs-xs);
   font-weight: 600;
 }
 .stock i {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  flex: none;
+  background: currentColor;
 }
 .stock.ok {
-  color: #1f7a4a;
-}
-.stock.ok i {
-  background: #1f9d55;
+  background: var(--success-soft);
+  color: var(--success);
 }
 .stock.low {
-  color: #8a5a12;
+  background: var(--warning-soft);
+  color: var(--warning);
 }
 .stock.low i {
-  background: var(--gold);
+  animation: blink 1.6s var(--ease-in-out) infinite;
 }
 .stock.out {
-  color: #a63333;
-}
-.stock.out i {
-  background: #a63333;
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
-.pick {
-  margin-top: 18px;
+.picks {
+  display: grid;
+  gap: var(--s-5);
+  margin-top: var(--s-6);
 }
 .pick-h {
   display: flex;
   align-items: baseline;
-  gap: 8px;
-  margin-bottom: 10px;
-  font-size: 13.5px;
+  gap: var(--s-2);
+  margin-bottom: var(--s-3);
+  font-size: var(--fs-sm);
 }
 .pick-h span {
-  color: var(--mut);
+  font-weight: 700;
+}
+.pick-h b {
+  font-weight: 500;
+  color: var(--text-muted);
 }
 .pick-link {
   margin-left: auto;
-  font-size: 12.5px;
-  color: var(--gold);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--fs-xs);
   font-weight: 600;
+  color: var(--accent-text);
+}
+.pick-link svg {
+  width: 13px;
+  height: 13px;
+}
+.pick-link:hover {
   text-decoration: underline;
+  text-underline-offset: 3px;
 }
 .opts {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--s-2);
 }
 .opt {
-  min-height: 42px;
-  padding: 0 14px;
-  border-radius: 12px;
-  border: 1px solid var(--bd);
-  background: var(--card);
-  color: var(--tx);
-  font-weight: 600;
-  font-size: 13.5px;
+  min-height: var(--tap);
+  padding: 0 var(--s-4);
+  border-radius: var(--r-md);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  font: 600 var(--fs-sm) var(--font-sans);
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  transition: border-color var(--dur-2), background-color var(--dur-2), color var(--dur-2), transform var(--dur-1);
 }
 .opt:hover:not(:disabled) {
-  border-color: var(--gold);
+  border-color: var(--text-faint);
+}
+.opt:active:not(:disabled) {
+  transform: scale(0.96);
 }
 .opt.sq {
-  min-width: 48px;
-  padding: 0 10px;
+  width: 54px;
+  padding: 0;
 }
-.opt.off {
-  color: var(--mut);
+.opt.off,
+.opt:disabled {
+  color: var(--text-faint);
+  background: var(--bg-sunken);
+  text-decoration: line-through;
 }
 .opt:disabled {
-  color: #b9aea4;
-  background: transparent;
-  text-decoration: line-through;
   cursor: not-allowed;
 }
 .opt[aria-pressed='true'] {
-  background: var(--ink);
   border-color: var(--ink);
+  background: var(--ink);
   color: var(--on-ink);
   text-decoration: none;
 }
 
 .buy {
   display: flex;
-  gap: 10px;
-  margin-top: 22px;
+  gap: var(--s-2);
+  margin-top: var(--s-6);
 }
-.qty {
-  display: flex;
-  align-items: center;
-  border: 1px solid var(--bd);
-  border-radius: 16px;
-  background: var(--card);
-}
-.qty button {
-  width: 42px;
-  height: 50px;
-  border: 0;
-  background: transparent;
-  font-size: 20px;
-  color: var(--tx);
-  cursor: pointer;
-}
-.qty button:disabled {
-  color: #cdc3b8;
-  cursor: not-allowed;
-}
-.qty span {
-  min-width: 22px;
-  text-align: center;
-  font-weight: 700;
-}
-.add {
+.buy .add {
   flex: 1;
 }
-.add:disabled {
-  background: #ddd3c7;
-  color: var(--mut);
-  box-shadow: none;
-  cursor: not-allowed;
-}
-
 .wa-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  margin-top: 10px;
-  min-height: 46px;
-  border-radius: 14px;
-  border: 1px solid #cfe9da;
-  background: #f1faf4;
-  color: #17643a;
-  font-weight: 700;
-  font-size: 14px;
-  cursor: pointer;
-}
-.wa-link:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  margin-top: var(--s-2);
+  color: var(--wa);
+  font-size: var(--fs-sm);
 }
 
 .perks {
-  list-style: none;
-  padding: 0;
-  margin: 22px 0 8px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: var(--s-2);
+  list-style: none;
+  margin: var(--s-6) 0 0;
+  padding: 0;
 }
 .perks li {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
   gap: 6px;
-  padding: 12px 6px;
-  border-radius: 14px;
-  background: var(--card);
-  border: 1px solid var(--bd);
-  font-size: 11.5px;
+  padding: var(--s-3) var(--s-2);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: var(--fs-2xs);
   font-weight: 600;
   line-height: 1.3;
+  text-align: center;
+  color: var(--text-muted);
 }
 .perks svg {
-  width: 22px;
-  height: 22px;
-  fill: none;
-  stroke: var(--gold);
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  width: 20px;
+  height: 20px;
+  color: var(--accent-text);
+  stroke-width: 1.6;
 }
 
+.accs {
+  margin-top: var(--s-6);
+  border-top: 1px solid var(--border);
+}
 .acc {
-  border-bottom: 1px solid var(--bd);
+  border-bottom: 1px solid var(--border);
 }
 .acc summary {
-  list-style: none;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 16px 0;
-  font-weight: 700;
-  font-size: 15px;
+  justify-content: space-between;
+  min-height: 56px;
+  font-weight: 600;
   cursor: pointer;
+  list-style: none;
 }
 .acc summary::-webkit-details-marker {
   display: none;
 }
-.acc summary::after {
-  content: '+';
-  font-size: 20px;
-  font-weight: 400;
-  color: var(--gold);
+.acc summary svg {
+  width: 18px;
+  height: 18px;
+  color: var(--text-muted);
+  transition: transform var(--dur-3) var(--ease-out);
 }
-.acc[open] summary::after {
-  content: '−';
+.acc[open] summary svg {
+  transform: rotate(180deg);
 }
 .acc p {
-  margin: 0 0 16px;
-  color: var(--mut);
-  font-size: 14.5px;
+  margin: 0 0 var(--s-5);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+  line-height: 1.65;
+  white-space: pre-line;
+  animation: rise-in var(--dur-3) var(--ease-out);
 }
-.acc a {
-  color: var(--gold);
+.acc p a {
+  color: var(--accent-text);
+  font-weight: 600;
   text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-/* ---------- Similaires ---------- */
+/* ----- Suggestions ----- */
 .related {
-  margin-top: 40px;
+  margin-top: var(--s-16);
 }
 .related h2 {
-  font-weight: 400;
-  font-size: 26px;
-  margin: 0 0 14px;
+  margin: 0 0 var(--s-5);
+  font-size: var(--fs-2xl);
 }
 .rel-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: var(--s-4) var(--s-3);
 }
 
-/* ---------- États ---------- */
-.empty {
-  text-align: center;
-  padding: 56px 16px;
-  background: var(--card);
-  border: 1px solid var(--bd);
-  border-radius: 22px;
-}
-.empty h1 {
-  font-weight: 400;
-  font-size: 26px;
-  margin: 0 0 8px;
-}
-.empty p {
-  color: var(--mut);
-  margin: 0 0 20px;
-}
-.empty-acts {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.empty-acts .btn {
-  width: auto;
-}
-
-.skel {
-  border-radius: 14px;
-  background: linear-gradient(100deg, #efe7dc 40%, #f7f1e9 50%, #efe7dc 60%) 0 0 / 200% 100%;
-  animation: shimmer 1.3s linear infinite;
-}
-.skel.img {
-  aspect-ratio: 4 / 5;
-  border-radius: 22px;
-}
-.skel-col {
-  display: grid;
-  gap: 12px;
-  align-content: start;
-}
-.skel.l1 {
-  height: 34px;
-  width: 80%;
-}
-.skel.l2 {
-  height: 26px;
-  width: 40%;
-}
-.skel.l3 {
-  height: 120px;
-}
-@keyframes shimmer {
-  to {
-    background-position: -200% 0;
+@keyframes blink {
+  50% {
+    opacity: 0.35;
   }
 }
 
-@media (min-width: 900px) {
+/* ----- Tablette et plus ----- */
+@media (min-width: 720px) {
   .pd-page {
-    padding-top: 22px;
+    padding-top: var(--s-6);
   }
+  .rel-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--s-8) var(--s-5);
+  }
+}
+
+@media (min-width: 1024px) {
   .pd-grid {
-    grid-template-columns: 1.1fr 1fr;
-    gap: 48px;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: var(--s-12);
     align-items: start;
   }
   .gal {
     position: sticky;
-    top: 76px;
+    top: calc(var(--header-h) + var(--s-4));
   }
-  .rel-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 18px;
+  .info {
+    padding-top: var(--s-4);
   }
 }
 </style>

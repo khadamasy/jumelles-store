@@ -5,150 +5,177 @@
       <header class="cat-head">
         <nav class="crumb" aria-label="Fil d'Ariane">
           <router-link to="/">Accueil</router-link>
-          <span aria-hidden="true">/</span>
-          <span>Catalogue</span>
+          <ChevronRight class="crumb-sep" aria-hidden="true" />
+          <span aria-current="page">Catalogue</span>
         </nav>
         <span class="eyebrow"><i></i>Collection 2026 · Dakar</span>
-        <h1>{{ pageTitle }}</h1>
+        <Transition name="fade" mode="out-in">
+          <h1 :key="pageTitle">{{ pageTitle }}</h1>
+        </Transition>
         <p class="lead">{{ pageSubtitle }}</p>
       </header>
+    </div>
 
-      <!-- Recherche -->
-      <div class="cat-search">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
-        <input
-          v-model="searchQuery"
-          type="search"
-          placeholder="Rechercher un sac, une mule…"
-          aria-label="Rechercher un article"
-        />
-      </div>
-
-      <!-- Catégories : une seule rangée qui défile sur téléphone -->
-      <div class="cat-chips" role="group" aria-label="Catégories">
-        <button
-          v-for="c in categoryChips"
-          :key="c.key"
-          type="button"
-          class="chip"
-          :aria-pressed="activeChip === c.key"
-          @click="selectChip(c)"
-        >
-          {{ c.label }}
-        </button>
-      </div>
-
-      <!-- Barre d'outils : nombre de résultats, filtres, tri -->
-      <div class="cat-bar">
-        <span class="count">{{ loading ? 'Chargement…' : `${filteredProducts.length} article${filteredProducts.length > 1 ? 's' : ''}` }}</span>
-        <div class="cat-bar-r">
-          <button type="button" class="tool" @click="filtersOpen = true">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4" /></svg>
-            Filtrer<span v-if="activeFilterCount > 0" class="dot">{{ activeFilterCount }}</span>
+    <!-- Barre collante : recherche, catégories, filtres -->
+    <div class="cat-sticky">
+      <div class="wrap">
+        <div class="cat-tools">
+          <div class="cat-search">
+            <Search aria-hidden="true" />
+            <input
+              v-model="searchQuery"
+              type="search"
+              enterkeyhint="search"
+              placeholder="Rechercher un sac, une mule…"
+              aria-label="Rechercher un article"
+            />
+            <Transition name="fade">
+              <button v-if="searchQuery" type="button" class="cat-clear" aria-label="Effacer la recherche" @click="searchQuery = ''">
+                <X aria-hidden="true" />
+              </button>
+            </Transition>
+          </div>
+          <button type="button" class="btn line cat-flt" @click="filtersOpen = true">
+            <SlidersHorizontal aria-hidden="true" />
+            <span class="cat-flt-l">Filtrer</span>
+            <span v-if="activeFilterCount > 0" class="cat-dot tnum">{{ activeFilterCount }}</span>
           </button>
-          <label class="tool sort">
-            <span class="sr-only">Trier</span>
-            <select v-model="sortBy" aria-label="Trier les articles">
-              <option value="default">Nouveautés</option>
-              <option value="price-asc">Prix croissant</option>
-              <option value="price-desc">Prix décroissant</option>
-            </select>
-          </label>
+        </div>
+
+        <div class="cat-chips" role="group" aria-label="Catégories">
+          <button
+            v-for="c in categoryChips"
+            :key="c.key"
+            type="button"
+            class="chip"
+            :aria-pressed="activeChip === c.key"
+            @click="selectChip(c)"
+          >
+            {{ c.label }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <!-- Résultats, filtres actifs, tri -->
+      <div class="cat-bar">
+        <span class="cat-count tnum" aria-live="polite">
+          {{ loading ? 'Chargement…' : `${filteredProducts.length} article${filteredProducts.length > 1 ? 's' : ''}` }}
+        </span>
+        <label class="cat-sort">
+          <span class="sr-only">Trier</span>
+          <ArrowDownUp aria-hidden="true" />
+          <select v-model="sortBy" aria-label="Trier les articles">
+            <option value="default">Nouveautés</option>
+            <option value="price-asc">Prix croissant</option>
+            <option value="price-desc">Prix décroissant</option>
+          </select>
+        </label>
+      </div>
+
+      <TransitionGroup v-if="activeFilterCount > 0" tag="div" name="list" class="cat-active">
+        <button v-if="selectedSize" key="s" type="button" class="chip on sm" @click="selectedSize = ''">
+          Pointure {{ selectedSize }}<X aria-hidden="true" />
+        </button>
+        <button v-if="selectedColor" key="c" type="button" class="chip on sm" @click="selectedColor = ''">
+          {{ selectedColor }}<X aria-hidden="true" />
+        </button>
+        <button v-if="inStockOnly" key="i" type="button" class="chip on sm" @click="inStockOnly = false">
+          En stock<X aria-hidden="true" />
+        </button>
+        <button key="clear" type="button" class="cat-reset" @click="clearFilters">Tout effacer</button>
+      </TransitionGroup>
+
+      <!-- Chargement -->
+      <div v-if="loading" class="grid" aria-hidden="true">
+        <div v-for="n in 8" :key="n" class="sk-card">
+          <div class="skel sk-img"></div>
+          <div class="skel sk-l1"></div>
+          <div class="skel sk-l2"></div>
         </div>
       </div>
 
-      <!-- Filtres actifs -->
-      <div v-if="activeFilterCount > 0" class="cat-active">
-        <button v-if="selectedSize" type="button" @click="selectedSize = ''">Pointure {{ selectedSize }} ✕</button>
-        <button v-if="selectedColor" type="button" @click="selectedColor = ''">{{ selectedColor }} ✕</button>
-        <button v-if="inStockOnly" type="button" @click="inStockOnly = false">En stock ✕</button>
-        <button type="button" class="clear" @click="clearFilters">Tout effacer</button>
-      </div>
+      <!-- Aucun résultat -->
+      <UiEmpty
+        v-else-if="filteredProducts.length === 0"
+        title="Aucun article ne correspond"
+        text="Essayez une autre recherche ou effacez les filtres."
+      >
+        <template #icon><SearchX /></template>
+        <button type="button" class="btn dark" @click="resetFilters">Voir toute la collection</button>
+      </UiEmpty>
 
-      <!-- Grille : 2 articles par ligne sur téléphone, 3 sur tablette, 4 sur ordinateur -->
-      <div v-if="loading" class="grid">
-        <div v-for="n in 8" :key="n" class="skel"></div>
-      </div>
-
-      <div v-else-if="filteredProducts.length === 0" class="empty">
-        <h2>Aucun article ne correspond.</h2>
-        <p>Essayez une autre recherche ou effacez les filtres.</p>
-        <button type="button" class="btn gold" @click="resetFilters">Voir toute la collection</button>
-      </div>
-
-      <div v-else class="grid">
+      <!-- Grille : 2 par ligne sur téléphone, 3 sur tablette, 4 sur ordinateur -->
+      <div v-else class="grid stagger">
         <ProductCard v-for="product in filteredProducts" :key="product.id" :product="product" />
       </div>
     </div>
 
-    <!-- Panneau de filtres (glisse depuis le bas sur téléphone, depuis la droite sur ordinateur) -->
-    <div class="sheet" :class="{ on: filtersOpen }" :aria-hidden="!filtersOpen">
-      <div class="sheet-bg" @click="filtersOpen = false"></div>
-      <div class="sheet-pn" role="dialog" aria-modal="true" aria-labelledby="flt-title">
-        <div class="sheet-h">
-          <h2 id="flt-title">Filtrer</h2>
-          <button type="button" class="ib" aria-label="Fermer les filtres" @click="filtersOpen = false">
-            <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></svg>
-          </button>
-        </div>
+    <!-- Filtres -->
+    <UiModal :open="filtersOpen" variant="sheet" title="Filtrer" close-label="Fermer les filtres" @close="filtersOpen = false">
+      <div class="flt">
+        <section>
+          <h3>Pointure</h3>
+          <div class="opts">
+            <button
+              v-for="size in shoeSizes"
+              :key="size"
+              type="button"
+              class="opt sq tnum"
+              :aria-pressed="selectedSize === size"
+              @click="selectedSize = selectedSize === size ? '' : size"
+            >
+              {{ size }}
+            </button>
+          </div>
+        </section>
 
-        <div class="sheet-body">
-          <section>
-            <h3>Pointure</h3>
-            <div class="opts">
-              <button
-                v-for="size in shoeSizes"
-                :key="size"
-                type="button"
-                class="opt sq"
-                :aria-pressed="selectedSize === size"
-                @click="selectedSize = selectedSize === size ? '' : size"
-              >
-                {{ size }}
-              </button>
-            </div>
-          </section>
+        <section>
+          <h3>Couleur</h3>
+          <div class="opts">
+            <button
+              v-for="c in colors"
+              :key="c.name"
+              type="button"
+              class="opt"
+              :aria-pressed="selectedColor === c.name"
+              @click="selectedColor = selectedColor === c.name ? '' : c.name"
+            >
+              <i :style="{ background: c.hex }"></i>{{ c.name }}
+            </button>
+          </div>
+        </section>
 
-          <section>
-            <h3>Couleur</h3>
-            <div class="opts">
-              <button
-                v-for="c in colors"
-                :key="c.name"
-                type="button"
-                class="opt"
-                :aria-pressed="selectedColor === c.name"
-                @click="selectedColor = selectedColor === c.name ? '' : c.name"
-              >
-                <i :style="{ background: c.hex }"></i>{{ c.name }}
-              </button>
-            </div>
-          </section>
+        <section>
+          <label class="switch">
+            <input v-model="inStockOnly" type="checkbox" role="switch" />
+            <span class="switch-ui" aria-hidden="true"></span>
+            <span>Uniquement les articles en stock</span>
+          </label>
+        </section>
+      </div>
 
-          <section>
-            <label class="switch">
-              <input v-model="inStockOnly" type="checkbox" />
-              <span>Uniquement les articles en stock</span>
-            </label>
-          </section>
-        </div>
-
-        <div class="sheet-f">
+      <template #footer>
+        <div class="flt-ft">
           <button type="button" class="btn line" @click="clearFilters">Effacer</button>
-          <button type="button" class="btn gold" @click="filtersOpen = false">
+          <button type="button" class="btn dark" @click="filtersOpen = false">
             Voir {{ filteredProducts.length }} article{{ filteredProducts.length > 1 ? 's' : '' }}
           </button>
         </div>
-      </div>
-    </div>
+      </template>
+    </UiModal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
+import { Search, X, SearchX, SlidersHorizontal, ArrowDownUp, ChevronRight } from 'lucide-vue-next';
 import { useRoute, useRouter } from 'vue-router';
 import { ProductService } from '../services/api';
 import ProductCard from '../components/ProductCard.vue';
+import UiModal from '../components/ui/UiModal.vue';
+import UiEmpty from '../components/ui/UiEmpty.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -285,401 +312,379 @@ const loadProducts = async () => {
   }
 };
 
-// Panneau de filtres : bloque le défilement de la page derrière, se ferme avec Échap
-watch(filtersOpen, (open) => {
-  document.body.style.overflow = open ? 'hidden' : '';
-});
-const onKey = (e: KeyboardEvent) => {
-  if (e.key === 'Escape') filtersOpen.value = false;
-};
-
-onMounted(() => {
-  loadProducts();
-  window.addEventListener('keydown', onKey);
-});
-onUnmounted(() => {
-  window.removeEventListener('keydown', onKey);
-  document.body.style.overflow = '';
-});
+// Panneau de filtres : Échap et blocage du défilement gérés par UiModal
+onMounted(loadProducts);
 </script>
-
 <style scoped>
 .cat-page {
-  padding: 18px 0 40px;
+  padding: var(--s-6) 0 var(--s-10);
 }
-
-.crumb {
-  display: flex;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--mut);
-  margin-bottom: 14px;
-}
-.crumb a:hover {
-  color: var(--gold);
+.crumb-sep {
+  width: 12px;
+  height: 12px;
+  opacity: 0.6;
 }
 
 .cat-head h1 {
-  font-size: clamp(30px, 7vw, 44px);
-  line-height: 1.08;
-  margin: 10px 0 8px;
+  font-size: var(--fs-3xl);
+  line-height: var(--lh-tight);
+  margin: var(--s-3) 0 var(--s-2);
   font-weight: 400;
 }
 .cat-head .lead {
-  color: var(--mut);
-  font-size: 15px;
   margin: 0;
-  max-width: 560px;
+  max-width: 40em;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
 }
 
+/* ----- Barre collante ----- */
+.cat-sticky {
+  position: sticky;
+  top: var(--header-h);
+  z-index: 20;
+  margin-top: var(--s-5);
+  padding: var(--s-3) 0 var(--s-2);
+  background: rgb(var(--c-sand-50) / 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.cat-tools {
+  display: flex;
+  gap: var(--s-2);
+}
 .cat-search {
   position: relative;
-  margin-top: 20px;
+  flex: 1;
+  min-width: 0;
 }
-.cat-search svg {
+.cat-search > svg {
   position: absolute;
-  left: 16px;
+  left: 14px;
   top: 50%;
   width: 18px;
   height: 18px;
   transform: translateY(-50%);
-  fill: none;
-  stroke: var(--mut);
-  stroke-width: 2;
-  stroke-linecap: round;
+  color: var(--text-faint);
+  pointer-events: none;
 }
 .cat-search input {
   width: 100%;
-  height: 50px;
-  padding: 0 16px 0 44px;
-  border-radius: 14px;
-  border: 1px solid var(--bd);
-  background: var(--card);
-  font: inherit;
-  font-size: 15px;
-  color: var(--tx);
+  height: 48px;
+  padding: 0 44px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  font: 500 var(--fs-base) var(--font-sans);
+  color: var(--text);
   outline: none;
+  appearance: none;
+  transition: border-color var(--dur-2), box-shadow var(--dur-2);
+}
+.cat-search input::-webkit-search-cancel-button {
+  display: none;
+}
+.cat-search input::placeholder {
+  color: var(--text-faint);
+  font-weight: 400;
 }
 .cat-search input:focus {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(184, 137, 58, 0.15);
+  border-color: var(--accent);
+  box-shadow: var(--focus-ring);
+}
+.cat-clear {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.cat-clear:hover {
+  background: var(--bg-sunken);
+}
+.cat-clear svg {
+  width: 16px;
+  height: 16px;
+}
+.cat-flt {
+  flex: none;
+  padding: 0 14px;
+}
+.cat-flt-l {
+  display: none;
+}
+.cat-dot {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--ink);
+  color: var(--on-ink);
+  font-size: 11px;
+  line-height: 20px;
+  font-weight: 700;
 }
 
 .cat-chips {
   display: flex;
-  gap: 8px;
+  gap: var(--s-2);
   overflow-x: auto;
+  margin: var(--s-3) calc(-1 * var(--gutter)) 0;
+  padding: 2px var(--gutter) 4px;
   scrollbar-width: none;
-  margin: 14px -16px 0;
-  padding: 2px 16px 4px;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 var(--gutter), #000 calc(100% - 32px), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 var(--gutter), #000 calc(100% - 32px), transparent);
 }
 .cat-chips::-webkit-scrollbar {
   display: none;
 }
-.chip {
-  flex: none;
-  height: 38px;
-  padding: 0 16px;
-  border-radius: 999px;
-  border: 1px solid var(--bd);
-  background: var(--card);
-  color: var(--tx);
-  font-weight: 600;
-  font-size: 13.5px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
-}
-.chip[aria-pressed='true'] {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: var(--on-ink);
-}
 
+/* ----- Résultats ----- */
 .cat-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  margin: 18px 0 12px;
-  padding-top: 14px;
-  border-top: 1px solid var(--bd);
+  gap: var(--s-3);
+  margin: var(--s-5) 0 var(--s-3);
 }
-.count {
-  font-size: 13px;
-  color: var(--mut);
+.cat-count {
+  font-size: var(--fs-sm);
   font-weight: 600;
+  color: var(--text-muted);
 }
-.cat-bar-r {
-  display: flex;
-  gap: 8px;
-}
-.tool {
+.cat-sort {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  height: 38px;
-  padding: 0 12px;
-  border-radius: 12px;
-  border: 1px solid var(--bd);
-  background: var(--card);
-  font-weight: 600;
-  font-size: 13.5px;
-  color: var(--tx);
-  cursor: pointer;
 }
-.tool svg {
-  width: 16px;
-  height: 16px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
+.cat-sort svg {
+  position: absolute;
+  left: 10px;
+  width: 15px;
+  height: 15px;
+  color: var(--text-muted);
+  pointer-events: none;
 }
-.tool .dot {
-  min-width: 18px;
-  height: 18px;
-  border-radius: 9px;
-  background: var(--gold);
-  color: var(--ink);
-  font-size: 11px;
-  line-height: 18px;
-  text-align: center;
-}
-.tool.sort {
-  padding: 0;
-}
-.tool.sort select {
-  height: 100%;
-  border: 0;
+.cat-sort select {
+  height: 40px;
+  padding: 0 12px 0 32px;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
   background: transparent;
-  font: inherit;
-  color: inherit;
-  padding: 0 10px;
-  border-radius: 12px;
+  font: 600 var(--fs-sm) var(--font-sans);
+  color: var(--text);
   cursor: pointer;
+  outline: none;
+  transition: background-color var(--dur-2), border-color var(--dur-2);
+}
+.cat-sort select:hover {
+  background: var(--surface);
+  border-color: var(--border);
+}
+.cat-sort select:focus-visible {
+  box-shadow: var(--focus-ring);
 }
 
 .cat-active {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 12px;
+  align-items: center;
+  gap: var(--s-2);
+  margin-bottom: var(--s-4);
 }
-.cat-active button {
-  height: 30px;
+.chip.sm {
+  min-height: 34px;
   padding: 0 12px;
-  border-radius: 999px;
-  border: 1px solid #ead9bd;
-  background: #fbf3e4;
-  color: #7a5214;
-  font-weight: 600;
-  font-size: 12.5px;
+  font-size: var(--fs-xs);
+}
+.chip.sm svg {
+  width: 14px;
+  height: 14px;
+}
+.cat-reset {
+  border: 0;
+  background: none;
+  padding: 8px 4px;
+  font: 600 var(--fs-xs) var(--font-sans);
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
   cursor: pointer;
 }
-.cat-active .clear {
-  background: transparent;
-  border-color: transparent;
-  text-decoration: underline;
-  color: var(--mut);
+.cat-reset:hover {
+  color: var(--text);
 }
 
+/* ----- Grille ----- */
 .grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: var(--s-4) var(--s-3);
 }
-.skel {
-  aspect-ratio: 4 / 6.2;
-  border-radius: 18px;
-  background: linear-gradient(100deg, #efe7dc 40%, #f7f1e9 50%, #efe7dc 60%) 0 0 / 200% 100%;
-  animation: shimmer 1.3s linear infinite;
+.sk-card {
+  display: grid;
+  gap: var(--s-2);
 }
-@keyframes shimmer {
-  to {
-    background-position: -200% 0;
-  }
+.sk-img {
+  aspect-ratio: 4 / 5;
+  border-radius: var(--r-lg);
 }
-
-.empty {
-  text-align: center;
-  padding: 48px 16px;
-  background: var(--card);
-  border: 1px solid var(--bd);
-  border-radius: 20px;
+.sk-l1 {
+  height: 14px;
+  width: 85%;
 }
-.empty h2 {
-  font-weight: 400;
-  margin: 0 0 6px;
-}
-.empty p {
-  color: var(--mut);
-  margin: 0 0 18px;
-}
-.empty .btn {
-  display: inline-flex;
-  width: auto;
-  padding: 0 22px;
+.sk-l2 {
+  height: 14px;
+  width: 45%;
 }
 
-/* ---------- Panneau de filtres ---------- */
-.sheet {
-  position: fixed;
-  inset: 0;
-  z-index: 70;
-  visibility: hidden;
+/* ----- Filtres ----- */
+.flt {
+  display: grid;
+  gap: var(--s-6);
 }
-.sheet.on {
-  visibility: visible;
-}
-.sheet-bg {
-  position: absolute;
-  inset: 0;
-  background: rgba(23, 17, 14, 0.45);
-  opacity: 0;
-  transition: opacity 0.25s;
-}
-.sheet.on .sheet-bg {
-  opacity: 1;
-}
-.sheet-pn {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  max-height: 86vh;
-  display: flex;
-  flex-direction: column;
-  background: var(--bg);
-  border-radius: 24px 24px 0 0;
-  transform: translateY(100%);
-  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-.sheet.on .sheet-pn {
-  transform: none;
-}
-.sheet-h {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 12px 6px 20px;
-}
-.sheet-h h2 {
-  margin: 0;
-  font-weight: 400;
-  font-size: 24px;
-}
-.sheet-body {
-  overflow-y: auto;
-  padding: 4px 20px 16px;
-}
-.sheet-body section {
-  padding: 14px 0;
-  border-bottom: 1px solid var(--bd);
-}
-.sheet-body section:last-child {
-  border-bottom: 0;
-}
-.sheet-body h3 {
-  font: 700 11px system-ui, sans-serif;
-  letter-spacing: 0.16em;
+.flt section h3 {
+  margin: 0 0 var(--s-3);
+  font: 700 var(--fs-2xs) / 1 var(--font-sans);
+  letter-spacing: var(--tracking-caps);
   text-transform: uppercase;
-  color: var(--mut);
-  margin: 0 0 10px;
+  color: var(--text-muted);
 }
 .opts {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--s-2);
 }
 .opt {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  height: 40px;
-  padding: 0 14px;
-  border-radius: 12px;
-  border: 1px solid var(--bd);
-  background: var(--card);
-  color: var(--tx);
-  font-weight: 600;
-  font-size: 14px;
+  justify-content: center;
+  gap: var(--s-2);
+  min-height: var(--tap);
+  padding: 0 var(--s-4);
+  border-radius: var(--r-md);
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  font: 600 var(--fs-sm) var(--font-sans);
   cursor: pointer;
+  transition: border-color var(--dur-2), background-color var(--dur-2), color var(--dur-2), transform var(--dur-1);
+}
+.opt:hover {
+  border-color: var(--text-faint);
+}
+.opt:active {
+  transform: scale(0.96);
 }
 .opt.sq {
-  width: 48px;
-  justify-content: center;
+  width: 52px;
   padding: 0;
 }
 .opt i {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12);
 }
 .opt[aria-pressed='true'] {
   border-color: var(--ink);
   background: var(--ink);
   color: var(--on-ink);
 }
+
 .switch {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--s-3);
+  min-height: var(--tap);
   font-weight: 600;
-  font-size: 14.5px;
   cursor: pointer;
 }
 .switch input {
-  width: 20px;
-  height: 20px;
-  accent-color: var(--gold);
-}
-.sheet-f {
-  display: flex;
-  gap: 10px;
-  padding: 12px 20px calc(14px + env(safe-area-inset-bottom, 0px));
-  border-top: 1px solid var(--bd);
-}
-.sheet-f .btn {
-  flex: 1;
-}
-.sheet-f .btn.gold {
-  flex: 2;
-}
-
-.sr-only {
   position: absolute;
+  opacity: 0;
   width: 1px;
   height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
+}
+.switch-ui {
+  position: relative;
+  width: 46px;
+  height: 28px;
+  flex: none;
+  border-radius: 14px;
+  background: var(--border-strong);
+  transition: background-color var(--dur-2) var(--ease-out);
+}
+.switch-ui::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--sh-1);
+  transition: transform var(--dur-3) var(--ease-spring);
+}
+.switch input:checked + .switch-ui {
+  background: var(--ink);
+}
+.switch input:checked + .switch-ui::after {
+  transform: translateX(18px);
+}
+.switch input:focus-visible + .switch-ui {
+  box-shadow: var(--focus-ring);
 }
 
+.flt-ft {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: var(--s-2);
+}
+
+/* ----- Tablette ----- */
 @media (min-width: 720px) {
+  .cat-page {
+    padding-top: var(--s-10);
+  }
   .grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 18px;
+    gap: var(--s-8) var(--s-5);
+  }
+  .cat-flt-l {
+    display: inline;
   }
   .cat-chips {
     flex-wrap: wrap;
     overflow: visible;
-    margin: 14px 0 0;
-    padding: 0;
-  }
-  .sheet-pn {
-    left: auto;
-    top: 0;
-    width: 400px;
-    max-height: none;
-    border-radius: 24px 0 0 24px;
-    transform: translateX(100%);
+    margin-inline: 0;
+    padding-inline: 0;
+    -webkit-mask-image: none;
+    mask-image: none;
   }
 }
-@media (min-width: 1000px) {
+
+/* ----- Ordinateur ----- */
+@media (min-width: 1024px) {
   .grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .cat-search {
+    max-width: 480px;
+  }
+  .cat-tools {
+    justify-content: space-between;
   }
 }
 </style>
