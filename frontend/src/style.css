@@ -731,8 +731,15 @@ footer.jm-footer p {
   .trust {
     grid-template-columns: repeat(3, 1fr);
   }
+  /* Liens à gauche, marque JUMELLES alignée à droite */
   footer.jm-footer .cols {
-    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 2fr;
+  }
+  footer.jm-footer .brand {
+    text-align: right;
+  }
+  footer.jm-footer .brand #social {
+    justify-content: flex-end;
   }
   .dock {
     left: auto;

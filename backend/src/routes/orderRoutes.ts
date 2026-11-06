@@ -23,6 +23,15 @@ const orderLimiter = rateLimit({
   message: 'Trop de commandes envoyées. Contactez-nous directement sur WhatsApp au +221 77 208 78 20.',
 });
 
+// Plafond par IP SEUL : le limiteur ci-dessus inclut le téléphone, il suffisait donc de changer
+// de numéro à chaque envoi pour créer des commandes fictives à volonté et bloquer tout le stock.
+const orderIpLimiter = rateLimit({
+  name: 'create-order-ip',
+  windowMs: 60 * 60 * 1000,
+  max: 15,
+  message: 'Trop de commandes envoyées depuis ce réseau. Contactez-nous directement sur WhatsApp au +221 77 208 78 20.',
+});
+
 // Anti-énumération du suivi : 20 recherches par 15 minutes et par IP
 const trackLimiter = rateLimit({
   name: 'track-order',
@@ -32,7 +41,7 @@ const trackLimiter = rateLimit({
 });
 
 // Création d'une commande (clientes invitées)
-router.post('/', orderLimiter, createOrder);
+router.post('/', orderIpLimiter, orderLimiter, createOrder);
 
 // Suivi client : numéro de commande + téléphone obligatoires
 router.get('/track', trackLimiter, trackOrders);

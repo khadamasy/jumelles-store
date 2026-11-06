@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import { ProductService } from '../services/api';
 
 export interface CartItem {
   variantId: string;
@@ -55,12 +56,16 @@ export const useCartStore = defineStore('cart', {
 
   actions: {
     addItem(item: CartItem) {
+      if (item.maxStock <= 0 || item.quantity <= 0) return;
       const existing = this.items.find((i) => i.variantId === item.variantId);
       if (existing) {
-        const newQty = existing.quantity + item.quantity;
-        existing.quantity = Math.min(newQty, item.maxStock);
+        // Stock et prix les plus récents (ceux de la fiche qui vient d'être consultée)
+        existing.maxStock = item.maxStock;
+        existing.price = item.price;
+        existing.quantity = Math.min(existing.quantity + item.quantity, item.maxStock);
       } else {
-        this.items.push(item);
+        // Jamais plus que le stock disponible (sinon la commande serait refusée par le serveur)
+        this.items.push({ ...item, quantity: Math.min(item.quantity, item.maxStock) });
       }
       this.saveToStorage();
       this.isDrawerOpen = true;
@@ -93,7 +98,64 @@ export const useCartStore = defineStore('cart', {
     },
 
     saveToStorage() {
-      localStorage.setItem('jumelles_cart', JSON.stringify(this.items));
+      try {
+        localStorage.setItem('jumelles_cart', JSON.stringify(this.items));
+      } catch {
+        // Navigation privée / stockage plein : le panier reste valable pour la session en cours
+      }
+    },
+
+    /**
+     * Met le panier (conservé dans le navigateur, parfois depuis plusieurs jours) en accord avec
+     * le catalogue actuel : prix, stock, articles retirés. Retourne la liste des ajustements
+     * effectués pour en informer la cliente avant qu'elle ne valide sa commande.
+     */
+    async syncWithServer(): Promise<string[]> {
+      const notices: string[] = [];
+      const productIds = [...new Set(this.items.map((i) => i.productId).filter(Boolean))];
+      if (productIds.length === 0) return notices;
+
+      const products = new Map<string, any | null>();
+      await Promise.all(
+        productIds.map(async (id) => {
+          try {
+            const res = await ProductService.getByIdOrSlug(id);
+            products.set(id, res.data?.data || null);
+          } catch (err: any) {
+            // 404 : article retiré du catalogue ; autre erreur (réseau) : on ne touche à rien
+            if (err?.response?.status === 404) products.set(id, null);
+          }
+        })
+      );
+
+      const kept: CartItem[] = [];
+      for (const item of this.items) {
+        if (!products.has(item.productId)) {
+          kept.push(item);
+          continue;
+        }
+        const product = products.get(item.productId);
+        const variant = product?.variants?.find((v: any) => v.id === item.variantId);
+        if (!product || !variant || variant.stockQuantity <= 0) {
+          notices.push(
+            `« ${item.productName} » (${item.color} / ${item.sizeOrShoeSize}) n'est plus disponible et a été retiré du panier.`
+          );
+          continue;
+        }
+        const price = (Number(product.basePrice) || 0) + (Number(variant.priceAdjustment) || 0);
+        if (price !== item.price) {
+          notices.push(`Le prix de « ${item.productName} » a été mis à jour.`);
+        }
+        const quantity = Math.min(item.quantity, variant.stockQuantity);
+        if (quantity !== item.quantity) {
+          notices.push(`Quantité de « ${item.productName} » ajustée au stock disponible (${quantity}).`);
+        }
+        kept.push({ ...item, price, quantity, maxStock: variant.stockQuantity });
+      }
+
+      this.items = kept;
+      this.saveToStorage();
+      return notices;
     },
   },
 });

@@ -60,7 +60,7 @@ docker compose up --build
 ```
 
 Les services sont alors immédiatement accessibles :
-- **Boutique E-commerce (Vue.js) :** [http://localhost:3000](http://localhost:3000)
+- **Boutique E-commerce (Vue.js) :** [http://localhost:3001](http://localhost:3001)
 - **API REST Backend (Node.js) :** [http://localhost:4000/health](http://localhost:4000/health)
 - **Console MinIO S3 (locale) :** [http://127.0.0.1:9001](http://127.0.0.1:9001) (identifiants définis dans `.env`)
 - **Console Keycloak (locale) :** [http://127.0.0.1:8080](http://127.0.0.1:8080) (identifiants définis dans `.env`)
@@ -82,14 +82,14 @@ npm run dev
 ```bash
 cd frontend
 npm run dev
-# L'interface Vue.js démarre sur http://localhost:3000
+# L'interface Vue.js démarre sur http://localhost:3001
 ```
 
 ---
 
 ## 🛍️ Tunnel de Commande & Confirmation WhatsApp
 
-1. Ouvrez l'application web sur [http://localhost:3000](http://localhost:3000).
+1. Ouvrez l'application web sur [http://localhost:3001](http://localhost:3001).
 2. Choisissez un sac ou une paire de chaussures, sélectionnez la **pointure** (ex: 38) ou la **couleur**, et ajoutez au panier.
 3. Allez dans le panier et cliquez sur **« Valider et Commander »**.
 4. Renseignez vos coordonnées et votre adresse de livraison à Dakar ou en région, puis validez pour confirmer directement sur **WhatsApp**.
@@ -99,7 +99,7 @@ npm run dev
 ## 🔒 Accéder à l'Espace Administration (`/admin`)
 
 1. Définissez les variables `ADMIN_PASSWORD` (12 caractères minimum) et `JWT_SECRET` dans `backend/.env` (voir `.env.example`). Optionnel : `ADMIN_EMAIL` pour imposer aussi l'adresse email. Sans `ADMIN_PASSWORD`, la connexion gérance est désactivée.
-2. Rendez-vous sur [http://localhost:3000/admin](http://localhost:3000/admin) et connectez-vous avec ce mot de passe. Vous pouvez ensuite le remplacer depuis l'Espace Gérance (le mot de passe actuel est demandé) : `ADMIN_PASSWORD` n'est alors plus accepté et toutes les autres sessions sont déconnectées.
+2. Rendez-vous sur [http://localhost:3001/admin](http://localhost:3001/admin) et connectez-vous avec ce mot de passe. Vous pouvez ensuite le remplacer depuis l'Espace Gérance (le mot de passe actuel est demandé) : `ADMIN_PASSWORD` n'est alors plus accepté et toutes les autres sessions sont déconnectées.
    - La session est stockée dans un **cookie `HttpOnly; SameSite=Strict`** (aucun jeton exposé dans `localStorage` ni `sessionStorage`).
    - Suivi du chiffre d'affaires, des commandes et des rappels téléphoniques.
    - Création/modification d'articles et gestion des stocks par pointure/couleur.

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import crypto from 'crypto';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID as uuidv4 } from 'crypto';
 import { memoryStore, Order, OrderItem, persistStore } from '../config/db';
 import { cleanText, isValidPhone } from '../middlewares/security';
 
@@ -34,6 +34,7 @@ const toPublicOrder = (o: Order) => ({
   createdAt: o.createdAt,
   items: o.items.map((i) => ({
     id: i.id,
+    productVariantId: i.productVariantId,
     productName: i.productName,
     variantDetails: i.variantDetails,
     quantity: i.quantity,
@@ -126,7 +127,7 @@ export const createOrder = async (req: Request, res: Response) => {
       variant.stockQuantity -= qty;
 
       orderItems.push({
-        id: `item-${uuidv4().substring(0, 8)}`,
+        id: `item-${uuidv4()}`,
         orderId,
         productVariantId: variant.id,
         productName: product.name,
@@ -152,7 +153,7 @@ export const createOrder = async (req: Request, res: Response) => {
     };
 
     memoryStore.orders.unshift(newOrder);
-    await persistStore();
+    await persistStore({ orders: [orderId], variants: orderItems.map((i) => i.productVariantId) });
 
     res.status(201).json({
       success: true,
@@ -260,7 +261,10 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
     }
 
     order.status = targetStatus;
-    await persistStore();
+    await persistStore({
+      orders: [order.id],
+      variants: targetStatus === 'CANCELLED' ? order.items.map((i) => i.productVariantId) : [],
+    });
 
     res.json({
       success: true,
@@ -271,6 +275,62 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
     console.error('[updateOrderStatus]', error);
     res.status(500).json({ success: false, message: 'Erreur lors de la mise à jour.' });
   }
+};
+
+/**
+ * Délai après lequel une commande jamais confirmée (PENDING) est annulée et son stock libéré.
+ * ORDER_PENDING_TTL_HOURS=0 désactive l'annulation automatique. Par défaut : 48 heures.
+ */
+const PENDING_TTL_HOURS = (() => {
+  const raw = process.env.ORDER_PENDING_TTL_HOURS;
+  const n = raw === undefined || raw === '' ? 48 : Number(raw);
+  return Number.isFinite(n) && n >= 0 ? n : 48;
+})();
+
+/**
+ * Annule les commandes restées « en attente » au-delà du délai : sans cela, des commandes
+ * fictives ou abandonnées bloquent le stock indéfiniment. Retourne le nombre de commandes annulées.
+ */
+export const expireStalePendingOrders = async (now = Date.now()): Promise<number> => {
+  if (PENDING_TTL_HOURS === 0) return 0;
+  const cutoff = now - PENDING_TTL_HOURS * 60 * 60 * 1000;
+  const expired = memoryStore.orders.filter(
+    (o) => o.status === 'PENDING' && new Date(o.createdAt).getTime() < cutoff
+  );
+  if (expired.length === 0) return 0;
+
+  const variantIds: string[] = [];
+  for (const order of expired) {
+    if (!(order as any).stockRestored) {
+      for (const item of order.items) {
+        for (const p of memoryStore.products) {
+          const v = p.variants.find((variant) => variant.id === item.productVariantId);
+          if (v) {
+            v.stockQuantity += item.quantity;
+            variantIds.push(v.id);
+            break;
+          }
+        }
+      }
+      (order as any).stockRestored = true;
+    }
+    order.status = 'CANCELLED';
+  }
+
+  await persistStore({ orders: expired.map((o) => o.id), variants: variantIds });
+  console.info(
+    `[Commandes] ${expired.length} commande(s) non confirmée(s) depuis plus de ${PENDING_TTL_HOURS} h annulée(s), stock libéré.`
+  );
+  return expired.length;
+};
+
+/** Vérification toutes les 15 minutes (appelée au démarrage du serveur) */
+export const startPendingOrderExpiry = () => {
+  if (PENDING_TTL_HOURS === 0) return;
+  const run = () =>
+    expireStalePendingOrders().catch((err) => console.error('[expireStalePendingOrders]', err));
+  void run();
+  setInterval(run, 15 * 60 * 1000).unref();
 };
 
 export const getDashboardStats = async (req: Request, res: Response) => {

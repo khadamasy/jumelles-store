@@ -151,7 +151,7 @@
               :key="item.variantId"
               class="flex items-center gap-3 text-xs pt-3 first:pt-0"
             >
-              <img
+              <img loading="lazy" decoding="async"
                 :src="item.imageUrl"
                 :alt="item.productName"
                 class="w-14 h-14 object-cover rounded-xl bg-stone-100 border border-stone-200 shrink-0"
@@ -182,9 +182,15 @@
               <span class="font-bold text-stone-900">{{ cartStore.formattedSubtotal }}</span>
             </div>
             <div class="flex justify-between text-stone-600">
-              <span>Livraison 24h Dakar :</span>
-              <span class="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+              <span>{{ delivery.label }} :</span>
+              <span
+                v-if="delivery.free"
+                class="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200"
+              >
                 Offerte (Promotion)
+              </span>
+              <span v-else class="text-stone-700 font-bold bg-stone-100 px-2 py-0.5 rounded-md border border-stone-200 text-right">
+                Frais confirmés sur WhatsApp
               </span>
             </div>
             <div class="border-t border-stone-200 pt-3 flex justify-between items-baseline font-bold text-stone-950 text-base">
@@ -194,6 +200,15 @@
                 <span class="text-[11px] text-stone-400 font-medium block">≈ {{ currencyStore.toEurOnly(cartStore.subtotal) }}</span>
               </div>
             </div>
+          </div>
+
+          <!-- Ajustements du panier (prix, stock, articles retirés depuis l'ajout) -->
+          <div
+            v-if="cartNotices.length > 0"
+            role="status"
+            class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-medium space-y-1"
+          >
+            <p v-for="(notice, idx) in cartNotices" :key="idx">{{ notice }}</p>
           </div>
 
           <!-- Message d'erreur intégré à l'interface -->
@@ -239,7 +254,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch, onMounted } from 'vue';
+import { ref, reactive, watch, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { ShoppingBag, Sparkles, CheckCircle2, Truck } from 'lucide-vue-next';
 import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
@@ -256,6 +271,17 @@ const currencyStore = useCurrencyStore();
 
 const isSubmitting = ref(false);
 const errorMessage = ref('');
+const cartNotices = ref<string[]>([]);
+
+/** Recalage du panier sur le catalogue actuel (prix, stock, articles retirés) */
+const refreshCart = async () => {
+  try {
+    const notices = await cartStore.syncWithServer();
+    if (notices.length > 0) cartNotices.value = notices;
+  } catch {
+    // Hors ligne : la validation serveur de la commande reste le garde-fou
+  }
+};
 
 const form = reactive({
   customerName: '',
@@ -264,6 +290,25 @@ const form = reactive({
   shippingCity: 'Dakar',
   shippingAddress: '',
   customerNote: '',
+});
+
+/** Conditions de livraison selon la ville (cf. FAQ : gratuite à Dakar, 24h banlieue, 24-48h régions) */
+const delivery = computed(() => {
+  if (form.shippingCity === 'Dakar') {
+    return { free: true, label: 'Livraison 24h Dakar', message: '24h Dakar (Offerte)' };
+  }
+  if (form.shippingCity === 'Banlieue Dakar') {
+    return {
+      free: false,
+      label: 'Livraison 24h Banlieue',
+      message: '24h Banlieue de Dakar (frais à confirmer)',
+    };
+  }
+  return {
+    free: false,
+    label: 'Expédition 24h-48h en région',
+    message: `Expédition 24h-48h vers ${form.shippingCity} (frais à confirmer)`,
+  };
 });
 
 const fillUserData = () => {
@@ -279,6 +324,8 @@ watch(() => authStore.user, () => {
 
 onMounted(() => {
   fillUserData();
+  cartStore.toggleDrawer(false);
+  void refreshCart();
 });
 
 const formatPrice = (price: number) => {
@@ -291,8 +338,33 @@ const handleCheckoutWhatsApp = async () => {
     errorMessage.value = 'Veuillez renseigner votre nom complet, votre numéro de téléphone et votre adresse de livraison.';
     return;
   }
+  // Même règle que le serveur : vérifiée AVANT d'ouvrir l'onglet WhatsApp (sinon il s'ouvre puis se referme)
+  const phoneDigits = form.customerPhone.replace(/\D/g, '');
+  if (!/^[\d\s+\-().]+$/.test(form.customerPhone.trim()) || phoneDigits.length < 8 || phoneDigits.length > 15) {
+    errorMessage.value = 'Numéro de téléphone invalide (ex : 77 123 45 67).';
+    return;
+  }
+  if (isSubmitting.value || cartStore.items.length === 0) return;
 
   isSubmitting.value = true;
+  cartNotices.value = [];
+
+  // L'onglet WhatsApp est ouvert IMMÉDIATEMENT, pendant le clic : ouvert après les appels réseau,
+  // il serait bloqué par Safari iOS et de nombreux navigateurs Android (fenêtre « non sollicitée »).
+  // Il est redirigé vers WhatsApp une fois la commande validée, ou refermé en cas d'erreur.
+  let whatsappTab: Window | null = null;
+  try {
+    whatsappTab = window.open('', '_blank');
+    if (whatsappTab) {
+      whatsappTab.opener = null;
+      whatsappTab.document.title = 'Ouverture de WhatsApp…';
+      whatsappTab.document.body.innerHTML =
+        '<p style="font-family:sans-serif;text-align:center;margin-top:40vh">Enregistrement de votre commande, ouverture de WhatsApp…</p>';
+    }
+  } catch {
+    whatsappTab = null;
+  }
+
   try {
     const cleanPhone = form.customerPhone.replace(/\D/g, '');
     const clientEmail = form.customerEmail?.trim() || `${cleanPhone || 'client'}@client.jumelles.sn`;
@@ -336,9 +408,9 @@ const handleCheckoutWhatsApp = async () => {
     const firstLocalImage = cartStore.items[0]?.imageUrl || '';
     const firstPublicPhotoUrl = firstLocalImage ? toAbsolutePhotoUrl(firstLocalImage) : '';
 
-    // Copier aussi l'image dans le presse-papiers (permet de faire Ctrl+V directement dans WhatsApp)
+    // Copier aussi l'image dans le presse-papiers (Ctrl+V dans WhatsApp) — sans bloquer la commande
     if (firstLocalImage) {
-      await copyPhotoToClipboard(firstLocalImage);
+      void copyPhotoToClipboard(firstLocalImage);
     }
 
     const itemsListText = serverItems
@@ -371,7 +443,7 @@ Je souhaite confirmer ma commande enregistrée sur votre site internet :
 ${itemsListText}
 
 *TOTAL COMMANDE :* *${totalFormatted}*
-*LIVRAISON :* 24h Dakar (Offerte)
+*LIVRAISON :* ${delivery.value.message}
 *RÈGLEMENT :* À la livraison
 
 Merci de me confirmer la prise en compte de ma commande et le créneau de livraison !`;
@@ -408,17 +480,24 @@ Merci de me confirmer la prise en compte de ma commande et le créneau de livrai
     // Vider le panier
     cartStore.clearCart();
 
-    // 4. Ouvrir WhatsApp et afficher la page de confirmation
-    window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    // 4. Basculer l'onglet pré-ouvert sur WhatsApp et afficher la page de confirmation
+    //    (si le navigateur a tout de même bloqué l'onglet, la page de confirmation propose le bouton WhatsApp)
+    if (whatsappTab && !whatsappTab.closed) {
+      whatsappTab.location.href = whatsappUrl;
+    }
     await router.push({
       path: '/order-success',
       query: { orderNumber },
     });
   } catch (error: any) {
+    if (whatsappTab && !whatsappTab.closed) whatsappTab.close();
     errorMessage.value =
       error?.response?.data?.message ||
       error?.message ||
       'Impossible d\'enregistrer la commande. Vérifiez votre connexion ou contactez-nous au +221 77 208 78 20.';
+    // Commande refusée (stock épuisé, article retiré, prix modifié…) : on recale le panier
+    // pour que la cliente voie immédiatement ce qui a changé et puisse renvoyer sa commande.
+    if (error?.response?.status === 400) await refreshCart();
   } finally {
     isSubmitting.value = false;
   }

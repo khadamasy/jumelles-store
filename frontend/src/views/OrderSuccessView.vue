@@ -37,14 +37,14 @@
           class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between gap-3 text-xs text-emerald-900"
         >
           <span>
-            💡 <strong>Astuce :</strong> La photo de votre article est copiée ! Faites <strong>Ctrl + V</strong> (Coller) dans WhatsApp pour joindre l'image directement.
+            💡 <strong>Astuce :</strong> le lien de la photo est déjà dans le message. Sur ordinateur, vous pouvez aussi copier l'image puis faire <strong>Ctrl + V</strong> dans WhatsApp.
           </span>
           <button
             type="button"
             @click="handleCopyPhoto(orderItems[0].imageUrl)"
             class="px-3 py-1.5 bg-white hover:bg-emerald-100 border border-emerald-300 rounded-lg font-bold text-[11px] shrink-0 cursor-pointer"
           >
-            {{ photoCopied ? '✓ Photo copiée !' : 'Recopier la photo' }}
+            {{ photoCopied ? '✓ Photo copiée !' : photoCopyFailed ? 'Copie indisponible' : 'Copier la photo' }}
           </button>
         </div>
         <p class="text-[11px] text-stone-500 text-center font-light">
@@ -56,7 +56,7 @@
       <div class="border-t border-stone-100 pt-5 space-y-4">
         <div class="flex items-center justify-between">
           <span class="text-xs uppercase font-bold tracking-wider text-stone-400">Articles Commandés</span>
-          <span class="font-serif font-black text-stone-950 text-base text-gold-700">
+          <span v-if="displayAmount > 0" class="font-serif font-black text-stone-950 text-base text-gold-700">
             Total : {{ formatPrice(displayAmount) }}
           </span>
         </div>
@@ -68,7 +68,7 @@
             :key="idx"
             class="flex items-center gap-3 text-xs pt-3 first:pt-0"
           >
-            <img
+            <img loading="lazy" decoding="async"
               v-if="item.imageUrl"
               :src="item.imageUrl"
               :alt="item.productName"
@@ -112,6 +112,12 @@
     <!-- Navigation Secondaire -->
     <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
       <router-link
+        :to="{ path: '/orders', query: { orderNumber: displayOrderNumber } }"
+        class="px-6 py-3 bg-white hover:bg-stone-50 border border-stone-300 text-stone-900 text-xs font-bold rounded-xl transition-all"
+      >
+        Suivre ma commande
+      </router-link>
+      <router-link
         to="/catalog"
         class="px-6 py-3 bg-stone-900 hover:bg-gold-600 text-white text-xs font-bold rounded-xl transition-all shadow"
       >
@@ -143,6 +149,7 @@ const displayAmount = ref(0);
 const whatsappUrl = ref('');
 const orderItems = ref<any[]>([]);
 const photoCopied = ref(false);
+const photoCopyFailed = ref(false);
 const customerDetails = ref({
   name: '',
   phone: '',
@@ -152,6 +159,7 @@ const customerDetails = ref({
 
 const handleCopyPhoto = async (imgUrl: string) => {
   const ok = await copyPhotoToClipboard(imgUrl);
+  photoCopyFailed.value = !ok;
   if (ok) {
     photoCopied.value = true;
     setTimeout(() => {

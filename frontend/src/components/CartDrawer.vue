@@ -18,6 +18,8 @@
             </span>
           </div>
           <button
+            type="button"
+            aria-label="Fermer le panier"
             @click="cartStore.toggleDrawer(false)"
             class="text-stone-400 hover:text-stone-700 p-1 rounded-lg"
           >
@@ -45,7 +47,7 @@
             :key="item.variantId"
             class="flex items-center gap-4 p-3 bg-stone-50 rounded-xl border border-stone-100"
           >
-            <img
+            <img loading="lazy" decoding="async"
               :src="item.imageUrl"
               :alt="item.productName"
               class="w-20 h-20 object-cover rounded-lg bg-stone-200 shrink-0"
@@ -128,11 +130,18 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, onUnmounted } from 'vue';
 import { useCartStore } from '../stores/cart';
 import { useCurrencyStore } from '../stores/currency';
 import { usePhoneStore } from '../stores/phone';
 
 const cartStore = useCartStore();
+
+const handleEscape = (e: KeyboardEvent) => {
+  if (e.key === 'Escape' && cartStore.isDrawerOpen) cartStore.toggleDrawer(false);
+};
+onMounted(() => window.addEventListener('keydown', handleEscape));
+onUnmounted(() => window.removeEventListener('keydown', handleEscape));
 const currencyStore = useCurrencyStore();
 const phoneStore = usePhoneStore();
 

@@ -44,7 +44,7 @@
             class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 transition-all shrink-0 shadow-sm"
             :class="activeImage === img.minioUrl ? 'border-gold-600 ring-2 ring-gold-400/50' : 'border-stone-200 opacity-60 hover:opacity-100'"
           >
-            <img :src="img.minioUrl" :alt="img.altText" class="w-full h-full object-cover" />
+            <img loading="lazy" decoding="async" :src="img.minioUrl" :alt="img.altText" class="w-full h-full object-cover" />
           </button>
         </div>
       </div>
@@ -56,8 +56,17 @@
             <span class="text-xs uppercase tracking-widest text-gold-700 font-black bg-gold-50 px-3 py-0.5 rounded-full border border-gold-200">
               {{ product.category?.name || 'Maroquinerie & Souliers' }}
             </span>
-            <span class="text-xs text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+            <span
+              v-if="totalStock > 0"
+              class="text-xs text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200"
+            >
               ✓ En Stock à Dakar
+            </span>
+            <span
+              v-else
+              class="text-xs text-rosewood-700 font-bold bg-rosewood-50 px-2.5 py-0.5 rounded-full border border-rosewood-200"
+            >
+              Bientôt de retour
             </span>
           </div>
 
@@ -122,16 +131,16 @@
               {{ isShoe ? 'Pointure disponible (37-42) :' : 'Taille / Format :' }}
               <span class="text-stone-950 font-black ml-1">{{ selectedVariant?.sizeOrShoeSize }}</span>
             </label>
-            <span v-if="isShoe" class="text-xs text-gold-700 font-bold hover:underline cursor-pointer">
-              📏 Guide des correspondances
-            </span>
+            <router-link v-if="isShoe" to="/faq-livraison" class="text-xs text-gold-700 font-bold hover:underline">
+              📏 Pointures & échanges
+            </router-link>
           </div>
 
           <div class="flex flex-wrap gap-2.5">
             <button
               v-for="v in availableSizesForColor"
               :key="v.id"
-              @click="selectedVariant = v"
+              @click="selectVariant(v)"
               :disabled="v.stockQuantity <= 0"
               class="px-4 py-2.5 rounded-xl text-xs font-bold border transition-all flex items-center justify-center min-w-[55px]"
               :class="[
@@ -261,27 +270,42 @@
         </div>
       </div>
     </div>
+
+    <!-- Article introuvable ou retiré du catalogue -->
+    <div v-else class="bg-white rounded-3xl border border-stone-200 p-12 text-center space-y-4 shadow-sm">
+      <h1 class="font-serif text-2xl font-bold text-stone-900">
+        {{ loadError ? 'Impossible de charger cet article.' : 'Cet article n\'est plus disponible.' }}
+      </h1>
+      <p class="text-sm text-stone-500">
+        {{ loadError ? 'Vérifiez votre connexion puis réessayez.' : 'Il a peut-être été vendu ou retiré de la collection.' }}
+      </p>
+      <div class="flex flex-wrap justify-center gap-3">
+        <button
+          v-if="loadError"
+          type="button"
+          @click="loadProduct"
+          class="px-6 py-3 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-semibold rounded-xl"
+        >
+          Réessayer
+        </button>
+        <router-link to="/catalog" class="px-6 py-3 bg-stone-900 text-white text-xs font-semibold rounded-xl hover:bg-gold-600 transition-colors shadow">
+          Voir toute la collection
+        </router-link>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, watch } from 'vue';
+import { setPageMeta } from '../utils/seo';
 import { useRoute, useRouter } from 'vue-router';
 import { ProductService } from '../services/api';
 import { useCartStore } from '../stores/cart';
 import { useCurrencyStore } from '../stores/currency';
 import { usePhoneStore } from '../stores/phone';
-import {
-  ShoppingBag,
-  Truck,
-  ShieldCheck,
-  RefreshCw,
-  Gift,
-  Minus,
-  Plus,
-} from 'lucide-vue-next';
+import { ShoppingBag, Truck, RefreshCw, Gift, Minus, Plus } from 'lucide-vue-next';
 import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
-import IconPhoneSolid from '../components/icons/IconPhoneSolid.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -291,9 +315,21 @@ const phoneStore = usePhoneStore();
 
 const product = ref<any>(null);
 const loading = ref(true);
+const loadError = ref(false);
 const activeImage = ref('');
 const selectedVariant = ref<any>(null);
 const quantity = ref(1);
+
+const totalStock = computed(() =>
+  (product.value?.variants || []).reduce((sum: number, v: any) => sum + (v.stockQuantity || 0), 0)
+);
+
+/** Change de variante en gardant une quantité compatible avec son stock */
+const selectVariant = (v: any) => {
+  selectedVariant.value = v;
+  const max = Math.max(1, v?.stockQuantity || 0);
+  if (quantity.value > max) quantity.value = max;
+};
 
 const isShoe = computed(() => {
   return product.value?.category?.type === 'CHAUSSURE' || product.value?.categoryId?.includes('shoe');
@@ -319,26 +355,14 @@ const availableSizesForColor = computed(() => {
 });
 
 const selectColor = (color: string) => {
-  const match = product.value.variants.find((v: any) => v.color === color);
-  if (match) selectedVariant.value = match;
+  // Même pointure si elle existe dans ce coloris, sinon la première disponible
+  const ofColor = product.value.variants.filter((v: any) => v.color === color);
+  const match =
+    ofColor.find((v: any) => v.sizeOrShoeSize === selectedVariant.value?.sizeOrShoeSize && v.stockQuantity > 0) ||
+    ofColor.find((v: any) => v.stockQuantity > 0) ||
+    ofColor[0];
+  if (match) selectVariant(match);
 };
-
-const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'XOF',
-    maximumFractionDigits: 0,
-  }).format(price);
-};
-
-const whatsappOrderUrl = computed(() => {
-  if (!product.value || !selectedVariant.value) {
-    return 'https://api.whatsapp.com/send?phone=221772087820';
-  }
-  const photoUrl = phoneStore.toAbsolutePhotoUrl(activeImage.value);
-  const msg = `${photoUrl ? photoUrl + '\n\n' : ''}Bonjour Jumelles Store, je souhaite commander par téléphone l'article suivant : ${product.value.name} (${selectedVariant.value.color} / ${selectedVariant.value.sizeOrShoeSize} x${quantity.value}) - Total: ${currencyStore.toXofOnly(currentPrice.value * quantity.value)}${photoUrl ? `\nPhoto : ${photoUrl}` : ''}`;
-  return phoneStore.buildWhatsAppSendUrl(msg);
-});
 
 const orderProductByPhone = () => {
   if (!product.value || !selectedVariant.value) return;
@@ -348,7 +372,7 @@ const orderProductByPhone = () => {
 };
 
 const addToCart = () => {
-  if (!selectedVariant.value || !product.value) return;
+  if (!selectedVariant.value || !product.value || selectedVariant.value.stockQuantity <= 0) return;
   cartStore.addItem({
     variantId: selectedVariant.value.id,
     productId: product.value.id,
@@ -363,14 +387,23 @@ const addToCart = () => {
 };
 
 const buyNow = () => {
+  if (!selectedVariant.value || selectedVariant.value.stockQuantity <= 0) return;
   addToCart();
+  // Le tiroir panier s'ouvre à l'ajout : inutile au-dessus de la page de commande
+  cartStore.toggleDrawer(false);
   router.push('/checkout');
 };
 
-onMounted(async () => {
+const loadProduct = async () => {
+  const slug = route.params.slug as string;
+  if (!slug) return;
   loading.value = true;
+  loadError.value = false;
+  product.value = null;
+  selectedVariant.value = null;
+  activeImage.value = '';
+  quantity.value = 1;
   try {
-    const slug = route.params.slug as string;
     const res = await ProductService.getByIdOrSlug(slug);
     product.value = res.data.data;
 
@@ -378,13 +411,25 @@ onMounted(async () => {
       activeImage.value = product.value.images[0].minioUrl;
     }
 
-    if (product.value.variants && product.value.variants.length > 0) {
-      selectedVariant.value = product.value.variants[0];
-    }
-  } catch (err) {
+    // Première variante EN STOCK (et non la première tout court, souvent épuisée)
+    const variants = product.value.variants || [];
+    selectedVariant.value = variants.find((v: any) => v.stockQuantity > 0) || variants[0] || null;
+
+    setPageMeta({
+      title: `${product.value.name} — Jumelles Store Dakar`,
+      description: product.value.description,
+      image: product.value.images?.[0]?.minioUrl,
+      path: `/product/${product.value.slug}`,
+    });
+  } catch (err: any) {
+    // 404 : article retiré ; autre erreur : problème réseau, on propose de réessayer
+    loadError.value = err?.response?.status !== 404;
     console.error('Erreur chargement détail produit:', err);
   } finally {
     loading.value = false;
   }
-});
+};
+
+// Rechargé aussi quand on passe d'un article à l'autre (le composant est réutilisé par le routeur)
+watch(() => route.params.slug, () => void loadProduct(), { immediate: true });
 </script>

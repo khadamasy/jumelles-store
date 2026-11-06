@@ -54,12 +54,15 @@ services:
     depends_on:
       minio:
         condition: service_healthy
+    # Lecture publique des photos uniquement (s3:GetObject) : le contenu du bucket n'est pas listable
+    volumes:
+      - ./minio/products-read-policy.json:/policies/products-read-policy.json:ro
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
       /usr/bin/mc mb myminio/jumelles-products --ignore-existing;
       /usr/bin/mc mb myminio/jumelles-invoices --ignore-existing;
-      /usr/bin/mc anonymous set download myminio/jumelles-products;
+      /usr/bin/mc anonymous set-json /policies/products-read-policy.json myminio/jumelles-products;
       exit 0;
       "
     networks:
@@ -71,6 +74,9 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.5
     container_name: jumelles-keycloak
+    # Optionnel : la gérance utilise sa propre session sécurisée (cookie HttpOnly).
+    # Pour démarrer aussi Keycloak : docker compose --profile keycloak up --build
+    profiles: ["keycloak"]
     restart: always
     command: start --import-realm --http-enabled=true --hostname-strict=false
     environment:
@@ -109,7 +115,11 @@ services:
       TRUST_PROXY: "1"
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Definissez ADMIN_PASSWORD dans .env}
       JWT_SECRET: ${JWT_SECRET:?Definissez JWT_SECRET dans .env (32 caracteres minimum)}
+      # Avec HTTPS : https://votre-domaine (sinon les commandes sont refusées par le contrôle d'origine)
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+      ORDER_PENDING_TTL_HOURS: ${ORDER_PENDING_TTL_HOURS:-48}
+      KEYCLOAK_ENABLED: ${KEYCLOAK_ENABLED:-false}
+      PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-https://jumelles-store.sn}
       DATABASE_URL: postgresql://${POSTGRES_USER:-jumelles_admin}:${POSTGRES_PASSWORD:?Definissez POSTGRES_PASSWORD dans .env}@postgres:5432/${POSTGRES_DB:-jumelles_db}?schema=public
       KEYCLOAK_AUTH_SERVER_URL: http://keycloak:8080
       KEYCLOAK_REALM: jumelles-store
@@ -132,6 +142,8 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
     networks:
       - jumelles-network
 
@@ -142,20 +154,55 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_PUBLIC_SITE_URL: ${PUBLIC_SITE_URL:-}
     container_name: jumelles-frontend
     restart: always
     ports:
-      - "3000:80"
+      # Avec HTTPS (profil « https »), mettre FRONTEND_BIND=127.0.0.1 dans .env :
+      # le site n'est alors joignable que par Caddy, jamais en HTTP direct.
+      - "${FRONTEND_BIND:-0.0.0.0}:3000:80"
     depends_on:
       - backend
     networks:
       - jumelles-network
 
+  # ==========================================
+  # 6. HTTPS automatique (Caddy + Let's Encrypt)
+  # ==========================================
+  # Démarrage : docker compose --profile https up -d --build
+  # Prérequis : SITE_DOMAIN dans .env, domaine pointant vers le serveur, ports 80/443 ouverts.
+  caddy:
+    image: caddy:2.8.4-alpine
+    container_name: jumelles-caddy
+    profiles: ["https"]
+    restart: always
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:?Definissez SITE_DOMAIN dans .env (ex: jumelles-store.sn)}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+    networks:
+      jumelles-network:
+        # Adresse fixe : Nginx ne fait confiance qu'à elle pour l'IP réelle du client
+        ipv4_address: 172.31.250.10
+
 networks:
   jumelles-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.250.0/24
 
 volumes:
   postgres_data:
   minio_data:
   backend_data:
+  caddy_data:
+  caddy_config:

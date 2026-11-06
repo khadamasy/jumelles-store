@@ -120,11 +120,12 @@ export const usePhoneStore = defineStore('phone', () => {
         msg = `Bonjour Jumelles Store, je souhaite passer une commande par téléphone ou avoir des informations.`;
       }
     }
-    if (productLocalImage.value) {
-      await copyPhotoToClipboard(productLocalImage.value);
-    }
+    // Ouverture immédiate (dans le clic) : après un await, Safari iOS bloquerait la fenêtre
     const url = buildWhatsAppSendUrl(msg, phoneRaw.value);
     window.open(url, '_blank', 'noopener,noreferrer');
+    if (productLocalImage.value) {
+      void copyPhotoToClipboard(productLocalImage.value);
+    }
   };
 
   const submitCallback = async (customerName: string, customerPhone: string, notes?: string) => {

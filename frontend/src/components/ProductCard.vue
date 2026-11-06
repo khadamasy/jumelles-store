@@ -34,10 +34,10 @@
         v-if="totalStock > 0"
         type="button"
         @click.stop="quickAdd"
-        aria-label="Ajouter au panier"
+        :aria-label="needsChoice ? 'Choisir la taille ou le coloris' : 'Ajouter au panier'"
         style="position: absolute; bottom: 10px; right: 10px; width: auto; min-height: 36px; padding: 0 12px; margin: 0; border-radius: 999px; background: rgba(23, 17, 14, 0.88); color: #f6ece0; border: 1px solid #d9ad5c; font-size: 12px; font-weight: 700; backdrop-filter: blur(6px); z-index: 2;"
       >
-        + Panier
+        {{ needsChoice ? 'Choisir' : '+ Panier' }}
       </button>
     </div>
 
@@ -53,7 +53,7 @@
         :disabled="totalStock === 0"
         @click="quickAdd"
       >
-        {{ totalStock > 0 ? 'Ajouter au panier' : 'Indisponible' }}
+        {{ totalStock === 0 ? 'Indisponible' : needsChoice ? 'Choisir taille / coloris' : 'Ajouter au panier' }}
       </button>
     </div>
   </article>
@@ -61,9 +61,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useCartStore } from '../stores/cart';
 
 const cartStore = useCartStore();
+const router = useRouter();
 
 const props = defineProps<{
   product: any;
@@ -74,7 +76,7 @@ const primaryImage = computed(() => {
     const primary = props.product.images.find((img: any) => img.isPrimary);
     return primary ? primary.minioUrl : props.product.images[0].minioUrl;
   }
-  return '/products/sac-birkin-camel.jpg';
+  return '/products/sac-cadenas-camel.jpg';
 });
 
 const totalStock = computed(() => {
@@ -84,10 +86,19 @@ const totalStock = computed(() => {
 
 const formatFcfa = (n: number) => `${new Intl.NumberFormat('fr-FR').format(n || 0)} FCFA`;
 
+const inStockVariants = computed(() =>
+  (props.product.variants || []).filter((v: any) => v.stockQuantity > 0)
+);
+
+/** Plusieurs pointures / coloris disponibles : la cliente doit choisir sur la fiche article */
+const needsChoice = computed(() => inStockVariants.value.length > 1);
+
 const quickAdd = () => {
-  const availableVariant =
-    props.product.variants?.find((v: any) => v.stockQuantity > 0) ||
-    props.product.variants?.[0];
+  if (needsChoice.value) {
+    router.push(`/product/${props.product.slug || props.product.id}`);
+    return;
+  }
+  const availableVariant = inStockVariants.value[0];
   if (!availableVariant) return;
 
   cartStore.addItem({
@@ -99,7 +110,7 @@ const quickAdd = () => {
     sizeOrShoeSize: availableVariant.sizeOrShoeSize || 'Unique',
     price: (props.product.basePrice || 0) + (availableVariant.priceAdjustment || 0),
     quantity: 1,
-    maxStock: availableVariant.stockQuantity || 10,
+    maxStock: availableVariant.stockQuantity,
   });
 };
 </script>

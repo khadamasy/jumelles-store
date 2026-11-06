@@ -100,6 +100,7 @@
         <a
           href="https://wa.me/221772087820?text=Bonjour%20Jumelles%20Store%2C%20j%27ai%20une%20question%20concernant%20une%20commande"
           target="_blank"
+          rel="noopener noreferrer"
           class="px-6 py-3.5 bg-[#25D366] hover:bg-[#20ba59] active:scale-95 text-white font-bold text-xs rounded-full shadow-lg transition-all flex items-center gap-2 cursor-pointer"
         >
           <IconWhatsApp className="w-4 h-4 text-white" />

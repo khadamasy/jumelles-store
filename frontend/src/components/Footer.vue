@@ -1,7 +1,23 @@
 <template>
   <footer class="jm-footer">
     <div class="wrap cols">
-      <div>
+      <div class="col-links">
+        <h4>Boutique</h4>
+        <router-link to="/catalog?type=SAC">Sacs</router-link>
+        <router-link to="/catalog?category=pochettes-matelassees">Pochettes</router-link>
+        <router-link to="/catalog?type=CHAUSSURE">Chaussures</router-link>
+        <router-link to="/catalog?category=sandales-plates">Sandales</router-link>
+      </div>
+
+      <div class="col-links">
+        <h4>Aide</h4>
+        <router-link to="/orders">Suivre ma commande</router-link>
+        <router-link to="/faq-livraison">Livraison et échanges</router-link>
+        <router-link to="/conditions-utilisation">Conditions</router-link>
+        <router-link to="/politique-confidentialite">Confidentialité</router-link>
+      </div>
+
+      <div class="brand">
         <div class="serif" style="font-size: 22px; letter-spacing: 0.14em">
           JUMELLES
         </div>
@@ -21,23 +37,6 @@
             </svg>
           </a>
         </div>
-      </div>
-
-      <div class="col-links">
-        <h4>Boutique</h4>
-        <router-link to="/catalog?type=SAC">Sacs</router-link>
-        <router-link to="/catalog?category=pochettes-matelassees">Pochettes</router-link>
-        <router-link to="/catalog?type=CHAUSSURE">Chaussures</router-link>
-        <router-link to="/catalog?category=sandales-plates">Sandales</router-link>
-      </div>
-
-      <div class="col-links">
-        <h4>Aide</h4>
-        <router-link to="/orders">Suivre ma commande</router-link>
-        <router-link to="/faq-livraison">Livraison et échanges</router-link>
-        <router-link to="/conditions-utilisation">Conditions</router-link>
-        <router-link to="/politique-confidentialite">Confidentialité</router-link>
-        <router-link to="/admin">Espace Gérance (Admin)</router-link>
       </div>
     </div>
   </footer>

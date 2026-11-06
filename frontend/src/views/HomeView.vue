@@ -16,12 +16,12 @@
 
         <div class="visual rv">
           <router-link
-            to="/product/sac-prestige-cuir-epsom-cadenas"
+            to="/product/sac-main-cuir-graine-cadenas"
             class="tile"
             style="--g: linear-gradient(145deg, #c58a4a, #6b3f1f)"
           >
             <img
-              src="/products/sac-birkin-camel.jpg"
+              src="/products/sac-cadenas-camel.jpg"
               alt="Sac prestige cuir et cadenas"
               class="absolute inset-0 w-full h-full object-cover"
             />
@@ -68,7 +68,7 @@
             style="--g: linear-gradient(135deg, #b07a3f, #4a2a14)"
           >
             <img
-              src="/products/sac-birkin-camel.jpg"
+              src="/products/sac-cadenas-camel.jpg"
               alt="Sacs"
               loading="lazy"
               class="absolute inset-0 w-full h-full object-cover opacity-55"
@@ -83,7 +83,7 @@
             style="--g: linear-gradient(135deg, #2d2330, #0d0a0f)"
           >
             <img
-              src="/products/mules-h-jacquard-bordeaux-coffret.jpg"
+              src="/products/mules-jacquard-bordeaux-coffret.jpg"
               alt="Chaussures"
               loading="lazy"
               class="absolute inset-0 w-full h-full object-cover opacity-55"
@@ -119,10 +119,10 @@
               <button
                 type="button"
                 @click.stop="quickAddToCart(item)"
-                aria-label="Ajouter au panier"
+                :aria-label="item.needsChoice ? 'Choisir la taille ou le coloris' : 'Ajouter au panier'"
                 style="position: absolute; bottom: 10px; right: 10px; width: auto; min-height: 36px; padding: 0 12px; margin: 0; border-radius: 999px; background: rgba(23, 17, 14, 0.88); color: #f6ece0; border: 1px solid #d9ad5c; font-size: 12px; font-weight: 700; backdrop-filter: blur(6px); z-index: 2;"
               >
-                + Panier
+                {{ item.needsChoice ? 'Choisir' : '+ Panier' }}
               </button>
             </div>
             <div class="in">
@@ -131,7 +131,7 @@
                 <span class="price">{{ formatFcfa(item.price) }}</span>
               </div>
               <button type="button" @click="quickAddToCart(item)">
-                Ajouter au panier
+                {{ item.needsChoice ? 'Choisir taille / coloris' : 'Ajouter au panier' }}
               </button>
             </div>
           </article>
@@ -184,8 +184,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { ProductService } from '../services/api';
 import { useCartStore } from '../stores/cart';
+
+const router = useRouter();
 
 const products = ref<any[]>([]);
 const toastMessage = ref('');
@@ -199,9 +202,9 @@ const fallbackRail = [
     variantId: 'var-birk-1',
     name: 'Sac prestige cuir et cadenas',
     price: 15000,
-    slug: 'sac-prestige-cuir-epsom-cadenas',
+    slug: 'sac-main-cuir-graine-cadenas',
     gradient: '#c58a4a,#6b3f1f',
-    imageUrl: '/products/sac-birkin-camel.jpg',
+    imageUrl: '/products/sac-cadenas-camel.jpg',
     color: 'Camel Caramel',
     sizeOrShoeSize: 'Standard',
     maxStock: 10,
@@ -237,7 +240,7 @@ const fallbackRail = [
     price: 12000,
     slug: 'sandales-plates-cuir-verni-croise',
     gradient: '#8a6a3a,#33220f',
-    imageUrl: '/products/sandales-plates-verni-zara-collection.jpg',
+    imageUrl: '/products/sandales-plates-verni-collection.jpg',
     color: 'Bordeaux Verni',
     sizeOrShoeSize: '38',
     maxStock: 10,
@@ -247,10 +250,15 @@ const fallbackRail = [
 const gradients = ['#c58a4a,#6b3f1f', '#7d3b4b,#2c1119', '#3a2b33,#0f0a0d', '#8a6a3a,#33220f'];
 
 const railProducts = computed(() => {
-  if (products.value.length === 0) return fallbackRail;
+  // API injoignable : vitrine statique, chaque carte renvoie vers la fiche article
+  // (stock et identifiants de variante inconnus, l'ajout direct au panier serait refusé)
+  if (products.value.length === 0) return fallbackRail.map((f) => ({ ...f, needsChoice: true }));
   return products.value.map((p, idx) => {
-    const v = p.variants?.find((x: any) => x.stockQuantity > 0) || p.variants?.[0];
+    const inStock = (p.variants || []).filter((x: any) => x.stockQuantity > 0);
+    const v = inStock[0] || p.variants?.[0];
     return {
+      // Plusieurs pointures / coloris (ou rupture) : choix sur la fiche article
+      needsChoice: inStock.length !== 1,
       id: p.id,
       variantId: v?.id || p.id,
       name: p.name,
@@ -260,7 +268,7 @@ const railProducts = computed(() => {
       imageUrl: p.images?.[0]?.minioUrl || '',
       color: v?.color || 'Unique',
       sizeOrShoeSize: v?.sizeOrShoeSize || 'Standard',
-      maxStock: v?.stockQuantity || 10,
+      maxStock: v?.stockQuantity || 0,
     };
   });
 });
@@ -276,6 +284,10 @@ const showToast = (msg: string) => {
 };
 
 const quickAddToCart = (item: any) => {
+  if (item.needsChoice || item.maxStock <= 0) {
+    router.push(`/product/${item.slug}`);
+    return;
+  }
   cartStore.addItem({
     variantId: item.variantId,
     productId: item.id,

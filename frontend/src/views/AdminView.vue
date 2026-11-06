@@ -83,26 +83,15 @@
         Jumelles Store
         <small>Administration · {{ authStore.user?.email || 'Gérance' }}</small>
       </h1>
-      <span class="adm-live">Données réelles</span>
-      <router-link to="/" class="adm-b" style="min-height: 36px; padding: 0 10px; font-size: 13px">
-        ← Boutique
-      </router-link>
-      <button
-        type="button"
-        class="adm-b"
-        style="min-height: 36px; padding: 0 10px; font-size: 13px"
-        @click="openCredentialsModal"
-      >
-        Identifiants
-      </button>
-      <button
-        type="button"
-        class="adm-b"
-        style="min-height: 36px; padding: 0 10px; font-size: 13px"
-        @click="authStore.logout()"
-      >
-        Déconnexion
-      </button>
+      <router-link to="/" class="adm-b adm-sm" title="Voir la boutique">Boutique ↗</router-link>
+      <!-- Compte : identifiants + déconnexion regroupés dans un seul menu -->
+      <details ref="accountMenuRef" class="adm-menu">
+        <summary class="adm-b adm-sm" aria-label="Mon compte">Compte ▾</summary>
+        <div class="adm-menu-pn">
+          <button type="button" @click="closeAccountMenu(); openCredentialsModal()">Email & mot de passe</button>
+          <button type="button" class="d" @click="closeAccountMenu(); authStore.logout()">Se déconnecter</button>
+        </div>
+      </details>
     </header>
 
     <main class="adm-main">
@@ -120,35 +109,42 @@
               {{ p.label }}
             </button>
           </div>
-          <button type="button" class="adm-b" style="min-height: 38px; font-size: 13px" @click="loadData">
-            Actualiser les données
+          <button
+            type="button"
+            class="adm-b adm-sm"
+            :disabled="isRefreshing"
+            title="Actualiser les données"
+            @click="refreshData"
+          >
+            {{ isRefreshing ? 'Actualisation…' : '↻ Actualiser' }}
           </button>
         </div>
 
+        <!-- 4 indicateurs, une seule ligne sur ordinateur, 2 × 2 sur téléphone -->
         <div class="adm-kpis">
-          <div class="adm-k wide">
+          <div class="adm-k">
             <span>Chiffre d’affaires</span>
             <b>{{ formatMoney(periodRevenue) }}</b>
-            <em style="color: var(--adm-mut)">
-              {{ periodPaidOrders.length }} commande(s) payées ou en cours
+            <em>
+              Panier moyen :
+              {{ periodPaidOrders.length ? formatMoney(Math.round(periodRevenue / periodPaidOrders.length)) : '–' }}
             </em>
           </div>
           <div class="adm-k">
             <span>Commandes</span>
             <b>{{ periodOrders.length }}</b>
+            <em>{{ periodPaidOrders.length }} payée(s) ou en cours</em>
           </div>
-          <div class="adm-k" :class="{ a: pendingOrdersCount > 0 }">
+          <button type="button" class="adm-k adm-k-btn" :class="{ a: pendingOrdersCount > 0 }" @click="openOrdersFilter('PENDING')">
             <span>En attente</span>
             <b>{{ pendingOrdersCount }}</b>
-          </div>
-          <div class="adm-k">
-            <span>Panier moyen</span>
-            <b>{{ periodPaidOrders.length ? formatMoney(Math.round(periodRevenue / periodPaidOrders.length)) : '–' }}</b>
-          </div>
-          <div class="adm-k" :class="{ a: criticalStockItems.length > 0 }">
-            <span>Stock critique</span>
-            <b>{{ criticalStockItems.length }}</b>
-          </div>
+            <em>Voir les commandes →</em>
+          </button>
+          <button type="button" class="adm-k adm-k-btn" :class="{ a: lowStockProducts.length > 0 }" @click="switchView('v-stk')">
+            <span>Stock bas</span>
+            <b>{{ lowStockProducts.length }} <small>article(s)</small></b>
+            <em>{{ criticalStockItems.length }} taille(s) / coloris →</em>
+          </button>
         </div>
 
         <div class="adm-two">
@@ -338,74 +334,88 @@
             </article>
           </template>
           <div v-else class="adm-empty" style="grid-column: 1 / -1">
-            Aucune commande réelle ne correspond à ce filtre.
+            {{ orderStatusFilter === 'TODO' ? 'Aucune commande à traiter : tout est à jour.' : 'Aucune commande ne correspond à ce filtre.' }}
           </div>
         </div>
       </section>
 
       <!-- 3. STOCK RÉEL & CATALOGUE -->
       <section class="adm-view" :class="{ on: activeView === 'v-stk' }" aria-label="Stock et Catalogue">
-        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px">
-          <h2 style="margin: 6px 0">Stock critique (4 ou moins)</h2>
-          <button type="button" class="adm-b p" @click="isCreateModalOpen = true">
-            + Ajouter un nouvel article
-          </button>
+        <div class="adm-tools adm-tools-row">
+          <input
+            v-model="productQuery"
+            type="search"
+            placeholder="Rechercher un article"
+            aria-label="Rechercher un article"
+          />
+          <button type="button" class="adm-b p" @click="isCreateModalOpen = true">+ Nouvel article</button>
         </div>
 
-        <div class="adm-panel" style="margin-bottom: 24px">
-          <template v-if="criticalStockItems.length > 0">
-            <div v-for="s in criticalStockItems" :key="s.variantId" class="adm-row">
+        <!-- Stock bas : UNE ligne par article (et non une par taille), détail dans « Réassortir » -->
+        <h2>
+          Stock bas
+          <small class="adm-h-sub">4 pièces ou moins</small>
+        </h2>
+        <div class="adm-panel">
+          <template v-if="lowStockProducts.length > 0">
+            <div v-for="g in visibleLowStock" :key="g.product.id" class="adm-row">
               <div class="g">
-                <b>{{ s.productName }}</b>
-                <span>{{ s.variantLabel }}</span>
+                <b>{{ g.product.name }}</b>
+                <span class="adm-vchips">
+                  <i
+                    v-for="v in g.variants.slice(0, 6)"
+                    :key="v.variantId"
+                    :class="v.stock === 0 ? 'z' : ''"
+                    :title="`${v.variantLabel} : ${v.stock}`"
+                  >{{ v.short }} · {{ v.stock }}</i>
+                  <i v-if="g.variants.length > 6" class="more">+{{ g.variants.length - 6 }}</i>
+                </span>
               </div>
-              <span class="adm-low" :class="s.stock === 0 ? 'l0' : 'l1'">
-                {{ s.stock === 0 ? 'Rupture' : `${s.stock} restant(s)` }}
-              </span>
-              <button
-                type="button"
-                class="adm-b"
-                style="min-height: 34px; padding: 0 10px; font-size: 12px"
-                @click="quickReplenish(s.productId, s.variantId, 5)"
-              >
-                +5 en stock
-              </button>
+              <span v-if="g.outCount > 0" class="adm-low l0">{{ g.outCount }} en rupture</span>
+              <button type="button" class="adm-b adm-sm" @click="openManageStockModal(g.product)">Réassortir</button>
             </div>
+            <button
+              v-if="lowStockProducts.length > LOW_STOCK_PREVIEW"
+              type="button"
+              class="adm-more"
+              @click="showAllLowStock = !showAllLowStock"
+            >
+              {{ showAllLowStock ? 'Afficher moins' : `Voir les ${lowStockProducts.length - LOW_STOCK_PREVIEW} autres articles` }}
+            </button>
           </template>
-          <div v-else class="adm-empty">
-            Aucun article en stock critique (toutes vos variantes ont plus de 4 pièces en stock).
-          </div>
+          <div v-else class="adm-empty">Aucun article en stock bas : toutes les tailles ont plus de 4 pièces.</div>
         </div>
 
-        <h2>Tous les articles du catalogue ({{ products.length }})</h2>
+        <h2>
+          Catalogue
+          <small class="adm-h-sub">{{ filteredProducts.length }} article(s)</small>
+        </h2>
         <div class="adm-list">
-          <article v-for="p in products" :key="p.id" class="adm-o">
-            <div class="h" style="gap: 12px">
-              <img
-                :src="getProductThumbnail(p)"
-                :alt="p.name"
-                style="width: 56px; height: 56px; border-radius: 12px; object-fit: cover; flex: none; border: 1px solid var(--adm-bd)"
-              />
-              <div style="flex: 1; min-width: 0">
-                <div style="font-weight: 700; font-size: 15px">{{ p.name }}</div>
-                <div class="m">{{ p.category?.name || 'Catalogue' }} · {{ formatMoney(p.basePrice) }}</div>
-                <div class="m">
-                  Stock total : {{ getTotalStock(p) }} pièce(s) ({{ p.variants?.length || 0 }} variante(s))
-                </div>
+          <article v-for="p in filteredProducts" :key="p.id" class="adm-o adm-prod">
+            <img
+              loading="lazy"
+              decoding="async"
+              :src="getProductThumbnail(p)"
+              :alt="p.name"
+              class="adm-thumb"
+            />
+            <div class="adm-prod-body">
+              <div class="adm-prod-name">{{ p.name }}</div>
+              <div class="m">
+                {{ formatMoney(p.basePrice) }} ·
+                <span :class="getTotalStock(p) === 0 ? 'adm-txt-bad' : ''">{{ getTotalStock(p) }} en stock</span>
+                · {{ p.variants?.length || 0 }} taille(s)/coloris
               </div>
-            </div>
-            <div class="adm-acts">
-              <button type="button" class="adm-b p" @click="openEditProductModal(p)">
-                Modifier prix / fiche
-              </button>
-              <button type="button" class="adm-b" @click="openManageStockModal(p)">
-                Gérer stock & pointures
-              </button>
-              <button type="button" class="adm-b d" @click="handleDeleteProduct(p.id)">
-                Supprimer
-              </button>
+              <div class="adm-acts adm-acts-sm">
+                <button type="button" class="adm-b adm-sm" @click="openEditProductModal(p)">Modifier</button>
+                <button type="button" class="adm-b adm-sm" @click="openManageStockModal(p)">Stock</button>
+                <button type="button" class="adm-link-d" @click="handleDeleteProduct(p.id)">Supprimer</button>
+              </div>
             </div>
           </article>
+          <div v-if="filteredProducts.length === 0" class="adm-empty" style="grid-column: 1 / -1">
+            Aucun article ne correspond à « {{ productQuery }} ».
+          </div>
         </div>
       </section>
 
@@ -486,8 +496,8 @@
           <path d="M3 7l9-4 9 4v10l-9 4-9-4V7zM3 7l9 4 9-4M12 11v10" />
         </svg>
         Stock
-        <span v-if="criticalStockItems.length > 0" class="dot">
-          {{ criticalStockItems.length }}
+        <span v-if="lowStockProducts.length > 0" class="dot" :aria-label="`${lowStockProducts.length} article(s) en stock bas`">
+          {{ lowStockProducts.length }}
         </span>
       </button>
 
@@ -872,6 +882,56 @@ const criticalStockItems = computed(() => {
   return list.sort((a, b) => a.stock - b.stock);
 });
 
+/** Stock bas regroupé par article : une ligne par article au lieu d'une ligne par taille */
+const LOW_STOCK_PREVIEW = 5;
+const showAllLowStock = ref(false);
+
+const lowStockProducts = computed(() => {
+  const groups = new Map<string, { product: any; variants: any[]; outCount: number; minStock: number }>();
+  for (const item of criticalStockItems.value) {
+    const product = products.value.find((p) => p.id === item.productId);
+    if (!product) continue;
+    const variant = (product.variants || []).find((v: any) => v.id === item.variantId) || {};
+    const size = variant.sizeOrShoeSize && variant.sizeOrShoeSize !== 'Standard' ? variant.sizeOrShoeSize : '';
+    const color = String(variant.color || '').split(' ')[0];
+    const group = groups.get(product.id) || { product, variants: [], outCount: 0, minStock: Infinity };
+    group.variants.push({ ...item, short: [size, color].filter(Boolean).join(' ') || 'Unique' });
+    if (item.stock === 0) group.outCount += 1;
+    group.minStock = Math.min(group.minStock, item.stock);
+    groups.set(product.id, group);
+  }
+  // Ruptures d'abord, puis les stocks les plus bas
+  return [...groups.values()].sort((a, b) => b.outCount - a.outCount || a.minStock - b.minStock);
+});
+
+const visibleLowStock = computed(() =>
+  showAllLowStock.value ? lowStockProducts.value : lowStockProducts.value.slice(0, LOW_STOCK_PREVIEW)
+);
+
+// Recherche dans le catalogue
+const productQuery = ref('');
+const filteredProducts = computed(() => {
+  const q = productQuery.value.trim().toLowerCase();
+  return q ? products.value.filter((p) => p.name.toLowerCase().includes(q)) : products.value;
+});
+
+// Menu « Compte » de l'en-tête
+const accountMenuRef = ref<HTMLDetailsElement | null>(null);
+const closeAccountMenu = () => {
+  if (accountMenuRef.value) accountMenuRef.value.open = false;
+};
+
+// Actualisation manuelle avec retour visuel
+const isRefreshing = ref(false);
+const refreshData = async () => {
+  isRefreshing.value = true;
+  try {
+    await loadData();
+  } finally {
+    isRefreshing.value = false;
+  }
+};
+
 // Histogramme du chiffre d'affaires par jour à partir des vraies commandes
 const chartBars = computed(() => {
   const n = Math.min(selectedPeriod.value === 3650 ? 14 : selectedPeriod.value + 1, 14);
@@ -930,27 +990,38 @@ const todoOrders = computed(() =>
 
 // Recherche et filtre de l'onglet Commandes
 const orderQuery = ref('');
-const orderStatusFilter = ref('ALL');
+// Par défaut : seulement les commandes encore en cours (les annulées / livrées n'encombrent plus la liste)
+const ACTIVE_STATUSES = new Set(['PENDING', 'PAID', 'PREPARING', 'SHIPPED']);
+const orderStatusFilter = ref('TODO');
 
 const statusFilters = computed(() => {
-  const counts: Record<string, number> = { ALL: orders.value.length };
+  const counts: Record<string, number> = { ALL: orders.value.length, TODO: 0 };
   for (const o of orders.value) {
     counts[o.status] = (counts[o.status] || 0) + 1;
+    if (ACTIVE_STATUSES.has(o.status)) counts.TODO += 1;
   }
   return [
+    { key: 'TODO', label: 'À traiter', count: counts.TODO },
     { key: 'ALL', label: 'Toutes', count: counts.ALL || 0 },
-    ...Object.keys(statusLabels).map((k) => ({
-      key: k,
-      label: statusLabels[k],
-      count: counts[k] || 0,
-    })),
+    // Statuts sans aucune commande masqués (sauf s'il est sélectionné)
+    ...Object.keys(statusLabels)
+      .filter((k) => (counts[k] || 0) > 0 || orderStatusFilter.value === k)
+      .map((k) => ({ key: k, label: statusLabels[k], count: counts[k] || 0 })),
   ];
 });
+
+const openOrdersFilter = (status: string) => {
+  orderStatusFilter.value = status;
+  orderQuery.value = '';
+  switchView('v-ord');
+};
 
 const filteredOrders = computed(() => {
   const q = orderQuery.value.trim().toLowerCase();
   return orders.value.filter((o) => {
-    const matchStatus = orderStatusFilter.value === 'ALL' || o.status === orderStatusFilter.value;
+    const matchStatus =
+      orderStatusFilter.value === 'ALL' ||
+      (orderStatusFilter.value === 'TODO' ? ACTIVE_STATUSES.has(o.status) : o.status === orderStatusFilter.value);
     const matchQuery =
       !q ||
       `${o.orderNumber} ${o.customerName} ${o.customerPhone} ${o.shippingCity}`
@@ -1017,6 +1088,17 @@ const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
   }, 2600);
 };
 
+/** Session expirée (401) : retour à l'écran de connexion ; sinon message précis renvoyé par le serveur */
+const handleAdminError = (err: any, fallback: string) => {
+  if (err?.response?.status === 401) {
+    authStore.user = null;
+    authStore.isAuthenticated = false;
+    loginError.value = 'Session expirée : veuillez vous reconnecter.';
+    return;
+  }
+  showToast(err?.response?.data?.message || fallback, 'error');
+};
+
 // Chargement des vraies données depuis le backend
 const loadData = async () => {
   try {
@@ -1030,6 +1112,7 @@ const loadData = async () => {
     phoneCallbacks.value = Array.isArray(cbRes.data?.data) ? cbRes.data.data : [];
   } catch (err) {
     console.error('Erreur chargement données réelles Admin:', err);
+    handleAdminError(err, 'Impossible de charger les données. Vérifiez la connexion.');
   }
 };
 
@@ -1038,7 +1121,7 @@ const getProductThumbnail = (product: any) => {
   if (product.images && product.images.length > 0) {
     return product.images[0].minioUrl;
   }
-  return '/products/sac-birkin-camel.jpg';
+  return '/products/sac-cadenas-camel.jpg';
 };
 
 const getTotalStock = (product: any) => {
@@ -1051,8 +1134,8 @@ const quickReplenish = async (productId: string, variantId: string, qty: number)
     await ProductService.replenishStock({ productId, variantId, quantityToAdd: qty });
     await loadData();
     showToast(`+${qty} unité(s) ajoutées au stock.`);
-  } catch {
-    showToast('Erreur réapprovisionnement.', 'error');
+  } catch (err) {
+    handleAdminError(err, 'Erreur réapprovisionnement.');
   }
 };
 
@@ -1081,8 +1164,8 @@ const handleQuickAdjustStock = async (product: any, variant: any, delta: number)
     variant.stockQuantity = newQty;
     await loadData();
     showToast(`Stock mis à jour : ${newQty}`);
-  } catch {
-    showToast('Erreur mise à jour du stock.', 'error');
+  } catch (err) {
+    handleAdminError(err, 'Erreur mise à jour du stock.');
   }
 };
 
@@ -1094,8 +1177,8 @@ const handleAddVariant = async () => {
     const updated = products.value.find((p) => p.id === manageStockModal.value.id);
     if (updated) manageStockModal.value = updated;
     showToast('Nouvelle variante ajoutée.');
-  } catch {
-    showToast('Erreur ajout variante.', 'error');
+  } catch (err) {
+    handleAdminError(err, 'Erreur ajout variante.');
   }
 };
 
@@ -1128,8 +1211,8 @@ const handleSaveProductEdit = async () => {
     editProductModal.value = null;
     await loadData();
     showToast('Fiche article mise à jour.');
-  } catch {
-    showToast('Erreur modification article.', 'error');
+  } catch (err) {
+    handleAdminError(err, 'Erreur modification article.');
   } finally {
     isSavingEdit.value = false;
   }
@@ -1152,8 +1235,8 @@ const handleFileUpload = async (e: Event) => {
     const res = await UploadService.uploadImage(input.files[0]);
     uploadedImageUrl.value = res.data.data.url;
     showToast('Photo téléversée.');
-  } catch {
-    showToast('Erreur téléversement image.', 'error');
+  } catch (err) {
+    handleAdminError(err, 'Erreur téléversement image.');
   }
 };
 
@@ -1170,7 +1253,7 @@ const handleCreateProduct = async () => {
       isFeatured: true,
       images: [
         {
-          minioUrl: uploadedImageUrl.value || '/products/sac-birkin-camel.jpg',
+          minioUrl: uploadedImageUrl.value || '/products/sac-cadenas-camel.jpg',
           altText: newProduct.name,
           isPrimary: true,
         },
@@ -1196,8 +1279,8 @@ const handleCreateProduct = async () => {
     uploadedImageUrl.value = '';
     await loadData();
     showToast('Nouvel article ajouté au catalogue.');
-  } catch {
-    showToast('Erreur création article.', 'error');
+  } catch (err) {
+    handleAdminError(err, 'Erreur création article.');
   } finally {
     isCreating.value = false;
   }
@@ -1209,8 +1292,8 @@ const handleDeleteProduct = async (id: string) => {
     await ProductService.delete(id);
     await loadData();
     showToast('Article supprimé.');
-  } catch {
-    showToast('Erreur suppression.', 'error');
+  } catch (err) {
+    handleAdminError(err, 'Erreur suppression.');
   }
 };
 
@@ -1219,8 +1302,8 @@ const handleCallStatus = async (id: string, status: 'PENDING' | 'CALLED') => {
     await PhoneService.updateCallbackStatus(id, status);
     await loadData();
     showToast('Demande marquée traitée');
-  } catch {
-    showToast('Erreur mise à jour rappel.', 'error');
+  } catch (err) {
+    handleAdminError(err, 'Erreur mise à jour rappel.');
   }
 };
 
@@ -1853,6 +1936,173 @@ svg.adm-chart .bars rect {
 #adm-toast.on {
   opacity: 1;
   transform: translate(-50%, 0);
+}
+
+/* ---------- Mise en page allégée ---------- */
+.adm-sm {
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.adm-menu {
+  position: relative;
+}
+.adm-menu summary {
+  list-style: none;
+  cursor: pointer;
+}
+.adm-menu summary::-webkit-details-marker {
+  display: none;
+}
+.adm-menu-pn {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  min-width: 210px;
+  background: var(--adm-card);
+  border: 1px solid var(--adm-bd);
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+  padding: 6px;
+  z-index: 30;
+}
+.adm-menu-pn button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--adm-tx);
+  cursor: pointer;
+}
+.adm-menu-pn button:hover {
+  background: var(--adm-bg);
+}
+.adm-menu-pn button.d {
+  color: #a63333;
+}
+
+.adm-k small {
+  font: 600 12px system-ui, sans-serif;
+  color: var(--adm-mut);
+}
+.adm-k em {
+  display: block;
+  margin-top: 2px;
+  color: var(--adm-mut);
+  font-weight: 600;
+}
+.adm-k-btn {
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  width: 100%;
+}
+.adm-k-btn:hover {
+  border-color: var(--adm-gold);
+}
+
+.adm-h-sub {
+  font: 600 12px system-ui, sans-serif;
+  color: var(--adm-mut);
+  margin-left: 6px;
+}
+
+.adm-tools-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.adm-tools-row input[type='search'] {
+  flex: 1;
+  min-width: 0;
+}
+
+.adm-vchips {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+.adm-vchips i {
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 600;
+  background: #fbf3e4;
+  color: #7a5214;
+  border-radius: 999px;
+  padding: 1px 8px;
+  white-space: nowrap;
+}
+.adm-vchips i.z {
+  background: #fdecec;
+  color: #a63333;
+}
+.adm-vchips i.more {
+  background: var(--adm-bg);
+  color: var(--adm-mut);
+}
+
+.adm-more {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px;
+  border: 0;
+  background: transparent;
+  color: var(--adm-gold);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.adm-prod {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.adm-thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex: none;
+  border: 1px solid var(--adm-bd);
+  background: var(--adm-bg);
+}
+.adm-prod-body {
+  flex: 1;
+  min-width: 0;
+}
+.adm-prod-name {
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.3;
+}
+.adm-acts-sm {
+  margin-top: 8px;
+  align-items: center;
+}
+.adm-link-d {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: #a63333;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 6px 2px;
+}
+.adm-txt-bad {
+  color: #a63333;
+  font-weight: 700;
 }
 
 @media (min-width: 900px) {

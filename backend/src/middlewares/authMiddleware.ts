@@ -71,7 +71,11 @@ export const requireAuth = (req: AuthenticatedRequest, res: Response, next: Next
     }
   }
 
-  // Fallback Keycloak OIDC (RS256 uniquement)
+  // Fallback Keycloak OIDC (RS256 uniquement) : DÉSACTIVÉ par défaut. Le site n'utilise que la
+  // session par cookie ; laisser ce chemin ouvert exposait une seconde porte d'entrée admin.
+  if (process.env.KEYCLOAK_ENABLED !== 'true') {
+    return unauthorized(res, 'Accès non autorisé : authentification requise.');
+  }
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return unauthorized(res, 'Accès non autorisé : authentification requise.');
@@ -95,7 +99,8 @@ export const requireAuth = (req: AuthenticatedRequest, res: Response, next: Next
     (err, decoded) => {
       if (err || !decoded || typeof decoded === 'string') return unauthorized(res);
       const claims = decoded as AuthenticatedUser & { azp?: string; aud?: string | string[] };
-      if (claims.azp && claims.azp !== expectedClient && claims.azp !== 'jumelles-frontend') {
+      // azp obligatoire : un jeton émis pour une autre application du realm est refusé
+      if (!claims.azp || (claims.azp !== expectedClient && claims.azp !== 'jumelles-frontend')) {
         return unauthorized(res);
       }
       req.user = claims;

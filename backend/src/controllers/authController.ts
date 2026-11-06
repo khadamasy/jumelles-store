@@ -16,15 +16,28 @@ import { AuthenticatedRequest } from '../middlewares/authMiddleware';
 export const SESSION_COOKIE_NAME = 'jumelles_session';
 const MAX_AGE_SECONDS = 8 * 60 * 60; // 8 heures
 
+/**
+ * Strict par défaut (site et API sur le même domaine, cas Docker/Nginx).
+ * COOKIE_SAME_SITE=None uniquement si l'API est hébergée sur un autre site que la boutique
+ * (ex : boutique sur Vercel, API sur Render) ; la protection CSRF X-Requested-With reste active.
+ */
+const COOKIE_SAME_SITE = ((): 'Strict' | 'Lax' | 'None' => {
+  const v = (process.env.COOKIE_SAME_SITE || '').trim().toLowerCase();
+  if (v === 'none') return 'None';
+  if (v === 'lax') return 'Lax';
+  return 'Strict';
+})();
+
 const buildCookieHeader = (value: string, maxAge: number): string => {
   const parts = [
     `${SESSION_COOKIE_NAME}=${encodeURIComponent(value)}`,
     'HttpOnly',
     'Path=/api',
     `Max-Age=${maxAge}`,
-    'SameSite=Strict',
+    `SameSite=${COOKIE_SAME_SITE}`,
   ];
-  if (process.env.NODE_ENV === 'production') {
+  // SameSite=None exige Secure (navigateurs modernes)
+  if (process.env.NODE_ENV === 'production' || COOKIE_SAME_SITE === 'None') {
     parts.push('Secure');
   }
   return parts.join('; ');
@@ -54,32 +67,28 @@ export const adminAuthStatus = (_req: Request, res: Response) => {
  * Le jeton de session est transmis EXCLUSIVEMENT dans un cookie HttpOnly (invisible au JavaScript
  * et absent de localStorage / sessionStorage / réponse JSON).
  */
-export const adminLogin = (req: Request, res: Response) => {
+export const adminLogin = async (req: Request, res: Response) => {
   const { email, password } = req.body || {};
 
-  let adminEmail = 'gerance@jumelles.sn';
-  let firstSetup = false;
-
-  if (typeof email === 'string' && email.trim().length > 0) {
-    const check = verifyAdminCredentials(email, password);
-    if (!check.valid) {
-      console.warn(`[SÉCURITÉ] Échec de connexion gérance (${email}) depuis ${req.ip} à ${new Date().toISOString()}`);
-      return res.status(401).json({
-        success: false,
-        message: check.message || 'Email ou mot de passe administrateur incorrect.',
-      });
-    }
-    adminEmail = check.email;
-    firstSetup = !!check.firstSetup;
-  } else {
-    // Rétrocompatibilité tests automatisés si seul password est envoyé
-    if (!verifyAdminPassword(password)) {
-      console.warn(`[SÉCURITÉ] Échec de connexion gérance depuis ${req.ip} à ${new Date().toISOString()}`);
-      return res.status(401).json({ success: false, message: 'Mot de passe incorrect.' });
-    }
-    const status = getAdminAuthStatus();
-    if (status.email) adminEmail = status.email;
+  // Email ET mot de passe obligatoires (l'ancien chemin « mot de passe seul » ignorait l'email
+  // choisi par l'administrateur et affaiblissait la connexion)
+  let check: Awaited<ReturnType<typeof verifyAdminCredentials>>;
+  try {
+    check = await verifyAdminCredentials(email, password);
+  } catch (err) {
+    console.error("[adminLogin]", err);
+    return res.status(500).json({ success: false, message: "Connexion momentanément impossible." });
   }
+  if (!check.valid) {
+    const shownEmail = typeof email === 'string' ? email.slice(0, 100) : '';
+    console.warn(`[SÉCURITÉ] Échec de connexion gérance (${shownEmail}) depuis ${req.ip} à ${new Date().toISOString()}`);
+    return res.status(401).json({
+      success: false,
+      message: check.message || 'Email ou mot de passe administrateur incorrect.',
+    });
+  }
+  const adminEmail = check.email;
+  const firstSetup = !!check.firstSetup;
 
   const user = {
     sub: 'admin-jumelles',
@@ -103,9 +112,9 @@ export const adminLogin = (req: Request, res: Response) => {
 };
 
 /** Permet à l'administrateur connecté de modifier son Email et son Mot de passe */
-export const updateAdminCredentials = (req: AuthenticatedRequest, res: Response) => {
+export const updateAdminCredentials = async (req: AuthenticatedRequest, res: Response) => {
   const { email, password, currentPassword } = req.body || {};
-  if (!verifyAdminPassword(currentPassword)) {
+  if (!(await verifyAdminPassword(currentPassword))) {
     console.warn(`[SÉCURITÉ] Changement d'identifiants refusé (mot de passe actuel incorrect) depuis ${req.ip}`);
     return res.status(403).json({
       success: false,
@@ -126,7 +135,12 @@ export const updateAdminCredentials = (req: AuthenticatedRequest, res: Response)
     });
   }
 
-  saveAdminCredentials(cleanEmail, password);
+  try {
+    await saveAdminCredentials(cleanEmail, password);
+  } catch (err) {
+    console.error("[updateAdminCredentials]", err);
+    return res.status(500).json({ success: false, message: "Enregistrement des identifiants impossible." });
+  }
 
   const user = {
     sub: 'admin-jumelles',

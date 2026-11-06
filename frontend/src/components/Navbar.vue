@@ -64,7 +64,6 @@
       <router-link to="/catalog?type=CHAUSSURE" @click="closeMenu">Chaussures</router-link>
       <router-link to="/orders" @click="closeMenu">Suivre ma commande</router-link>
       <router-link to="/faq-livraison" @click="closeMenu">Livraison et échanges</router-link>
-      <router-link to="/admin" @click="closeMenu">Espace Gérance (Admin)</router-link>
     </nav>
   </div>
 </template>

@@ -7,17 +7,17 @@ echo.
 echo 1/2 Demarrage du serveur Backend (API port 4000)...
 start "Jumelles Store - Backend API" cmd /k "cd /d %~dp0backend && npm run dev"
 
-echo 2/2 Demarrage du serveur Frontend (Vite port 3000)...
+echo 2/2 Demarrage du serveur Frontend (Vite port 3001)...
 start "Jumelles Store - Frontend Vue3" cmd /k "cd /d %~dp0frontend && npm run dev"
 
 echo.
 echo Lancement de la boutique dans votre navigateur...
 timeout /t 3 >nul
-start http://localhost:3000
+start http://localhost:3001
 
 echo.
 echo =======================================================
-echo  Site Client     : http://localhost:3000
-echo  Espace Gerance  : http://localhost:3000/admin
+echo  Site Client     : http://localhost:3001
+echo  Espace Gerance  : http://localhost:3001/admin
 echo =======================================================
 

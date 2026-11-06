@@ -42,14 +42,32 @@ if (adminPassword.length < 12) {
   console.warn(msg);
 }
 
-const ADMIN_AUTH_FILE = path.resolve(__dirname, '../../data/admin-auth.json');
+const ADMIN_AUTH_FILE = path.join(
+  process.env.JUMELLES_DATA_DIR || path.resolve(__dirname, '../../data'),
+  'admin-auth.json'
+);
 
 interface StoredAdminCredentials {
   email: string;
   salt: string;
   passwordHash: string;
   updatedAt: string;
+  /** Absent sur les anciens fichiers (100 000 itérations) */
+  iterations?: number;
 }
+
+/** Recommandation OWASP 2023+ pour PBKDF2-HMAC-SHA256 */
+const PBKDF2_ITERATIONS = 600_000;
+const LEGACY_PBKDF2_ITERATIONS = 100_000;
+
+/** Version asynchrone : le calcul (volontairement lent) ne bloque plus tout le serveur */
+const pbkdf2 = (password: string, salt: string, iterations: number): Promise<Buffer> =>
+  new Promise((resolve, reject) =>
+    crypto.pbkdf2(password, salt, iterations, 32, 'sha256', (err, key) => (err ? reject(err) : resolve(key)))
+  );
+
+/** Fichiers contenant des secrets ou des données clientes : lisibles par le seul propriétaire */
+export const PRIVATE_FILE_MODE = 0o600;
 
 const readStoredAdminCredentials = (): StoredAdminCredentials | null => {
   try {
@@ -70,21 +88,34 @@ const readStoredAdminCredentials = (): StoredAdminCredentials | null => {
   }
 };
 
-export const saveAdminCredentials = (email: string, password: string): void => {
+export const saveAdminCredentials = async (email: string, password: string): Promise<void> => {
   const cleanEmail = email.trim().toLowerCase();
   const salt = crypto.randomBytes(16).toString('hex');
-  const passwordHash = crypto.pbkdf2Sync(password, salt, 100000, 32, 'sha256').toString('hex');
+  const passwordHash = (await pbkdf2(password, salt, PBKDF2_ITERATIONS)).toString('hex');
   const dir = path.dirname(ADMIN_AUTH_FILE);
   if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+    fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
   }
   const data: StoredAdminCredentials = {
     email: cleanEmail,
     salt,
     passwordHash,
+    iterations: PBKDF2_ITERATIONS,
     updatedAt: new Date().toISOString(),
   };
-  fs.writeFileSync(ADMIN_AUTH_FILE, JSON.stringify(data, null, 2), 'utf8');
+  fs.writeFileSync(ADMIN_AUTH_FILE, JSON.stringify(data, null, 2), { encoding: 'utf8', mode: PRIVATE_FILE_MODE });
+  try {
+    fs.chmodSync(ADMIN_AUTH_FILE, PRIVATE_FILE_MODE); // fichier déjà existant : writeFile ne change pas ses droits
+  } catch {
+    // Windows : droits POSIX non applicables
+  }
+};
+
+/** Compare un mot de passe au hash enregistré, en temps constant */
+const matchesStoredPassword = async (candidate: string, stored: StoredAdminCredentials): Promise<boolean> => {
+  const derived = await pbkdf2(candidate, stored.salt, stored.iterations || LEGACY_PBKDF2_ITERATIONS);
+  const expected = Buffer.from(stored.passwordHash, 'hex');
+  return derived.length === expected.length && crypto.timingSafeEqual(derived, expected);
 };
 
 /** Longueur minimale des mots de passe administrateur */
@@ -109,15 +140,13 @@ export const getAdminAuthStatus = (): { configured: boolean; email: string } => 
 };
 
 /** Comparaison en temps constant (anti attaque temporelle) */
-export const verifyAdminPassword = (candidate: unknown): boolean => {
+export const verifyAdminPassword = async (candidate: unknown): Promise<boolean> => {
   if (typeof candidate !== 'string' || candidate.length === 0 || candidate.length > 200) return false;
 
   const stored = readStoredAdminCredentials();
   if (stored) {
-    const derived = crypto.pbkdf2Sync(candidate, stored.salt, 100000, 32, 'sha256');
-    const expected = Buffer.from(stored.passwordHash, 'hex');
     // Une fois des identifiants personnalisés enregistrés, ADMIN_PASSWORD (.env) n'est plus accepté
-    return derived.length === expected.length && crypto.timingSafeEqual(derived, expected);
+    return matchesStoredPassword(candidate, stored);
   }
 
   if (adminPassword.length < 12) return false;
@@ -131,10 +160,10 @@ export const verifyAdminPassword = (candidate: unknown): boolean => {
  * Tant qu'aucun identifiant personnalisé n'a été enregistré depuis l'Espace Gérance,
  * la connexion se fait avec ADMIN_PASSWORD (et ADMIN_EMAIL s'il est défini) du fichier .env.
  */
-export const verifyAdminCredentials = (
+export const verifyAdminCredentials = async (
   email: unknown,
   password: unknown
-): { valid: boolean; email: string; firstSetup?: boolean; message?: string } => {
+): Promise<{ valid: boolean; email: string; firstSetup?: boolean; message?: string }> => {
   if (typeof password !== 'string' || password.length < 4 || password.length > 200) {
     return { valid: false, email: '', message: 'Veuillez saisir un mot de passe valide (4 caractères minimum).' };
   }
@@ -149,11 +178,18 @@ export const verifyAdminCredentials = (
     const emailHashB = crypto.createHash('sha256').update(stored.email.toLowerCase()).digest();
     const emailMatches = crypto.timingSafeEqual(emailHashA, emailHashB);
 
-    const derived = crypto.pbkdf2Sync(password, stored.salt, 100000, 32, 'sha256');
-    const expected = Buffer.from(stored.passwordHash, 'hex');
-    const passwordMatches = derived.length === expected.length && crypto.timingSafeEqual(derived, expected);
+    // Hash calculé même si l'email est faux : temps de réponse identique (pas d'indice)
+    const passwordMatches = await matchesStoredPassword(password, stored);
 
     if (emailMatches && passwordMatches) {
+      // Ancien hash (100 000 itérations) : renforcé de façon transparente à la connexion
+      if ((stored.iterations || LEGACY_PBKDF2_ITERATIONS) < PBKDF2_ITERATIONS) {
+        try {
+          await saveAdminCredentials(stored.email, password);
+        } catch (err: any) {
+          console.warn(`[SÉCURITÉ] Mise à niveau du hash administrateur impossible : ${err.message}`);
+        }
+      }
       return { valid: true, email: stored.email };
     }
     return { valid: false, email: '', message: 'Email ou mot de passe administrateur incorrect.' };
@@ -170,7 +206,7 @@ export const verifyAdminCredentials = (
     }
   }
 
-  if (verifyAdminPassword(password)) {
+  if (await verifyAdminPassword(password)) {
     return { valid: true, email: cleanEmail };
   }
 
