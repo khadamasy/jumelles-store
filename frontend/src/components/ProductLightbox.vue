@@ -148,19 +148,19 @@ watch(
 }
 .lb-slide {
   flex: 0 0 100%;
+  height: 100%;
   margin: 0;
-  display: grid;
-  place-items: center;
+  display: block;
   padding: 64px 12px 12px;
   scroll-snap-align: center;
   scroll-snap-stop: always;
 }
-/* Photo entière, jamais recadrée */
+/* Photo entière, jamais recadrée : elle remplit la zone et garde ses proportions */
 .lb-slide img {
-  max-width: 100%;
-  max-height: 100%;
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-  border-radius: var(--r-sm);
   user-select: none;
   animation: lb-in var(--dur-4) var(--ease-out);
 }

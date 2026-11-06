@@ -274,7 +274,7 @@ onBeforeUnmount(deactivate);
   -webkit-backdrop-filter: none;
 }
 .v-full .ui-pn {
-  width: 100vw;
+  width: 100%;
   max-width: none;
   height: 100dvh;
   max-height: none;
