@@ -1,0 +1,186 @@
+/* =====================================================================
+   JUMELLES STORE — SYSTÈME DE DESIGN « MAISON JUMELLES »
+   Source unique des couleurs, textes, espacements, rayons, ombres,
+   superpositions et animations. Tailwind lit les mêmes valeurs
+   (voir tailwind.config.js) : ne jamais écrire une couleur en dur ailleurs.
+
+   Largeurs d'écran (non utilisables en variables dans @media) :
+     sm 480px · md 720px · lg 1024px · xl 1280px
+   ===================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* ---------- Palette brute (canaux RGB pour l'opacité Tailwind) ---------- */
+  /* Neutres chauds « sable » */
+  --c-sand-0: 255 255 255;
+  --c-sand-25: 253 251 248;
+  --c-sand-50: 250 247 242;
+  --c-sand-100: 243 237 228;
+  --c-sand-200: 233 224 212;
+  --c-sand-300: 217 204 187;
+  --c-sand-400: 181 165 147;
+  --c-sand-500: 140 125 110;
+  --c-sand-600: 107 94 82;
+  --c-sand-700: 77 67 58;
+  --c-sand-800: 52 44 38;
+  --c-sand-900: 34 28 24;
+  --c-sand-950: 21 16 13;
+
+  /* Or / laiton : accent rare, réservé à l'action principale et aux détails */
+  --c-gold-50: 251 246 236;
+  --c-gold-100: 245 233 208;
+  --c-gold-200: 235 211 163;
+  --c-gold-300: 221 184 115;
+  --c-gold-400: 207 160 79;
+  --c-gold-500: 184 137 58;
+  --c-gold-600: 154 111 43;
+  --c-gold-700: 124 88 34;
+  --c-gold-800: 94 67 28;
+  --c-gold-900: 70 50 22;
+
+  /* États */
+  --c-success-50: 230 244 236;
+  --c-success-200: 170 216 189;
+  --c-success-600: 35 121 74;
+  --c-success-800: 22 79 48;
+  --c-warning-50: 251 240 218;
+  --c-warning-200: 238 205 140;
+  --c-warning-600: 168 103 15;
+  --c-warning-800: 110 66 10;
+  --c-danger-50: 251 230 230;
+  --c-danger-200: 238 180 180;
+  --c-danger-600: 179 54 58;
+  --c-danger-800: 120 33 36;
+  --c-info-50: 228 237 249;
+  --c-info-200: 176 199 232;
+  --c-info-600: 44 93 155;
+  --c-info-800: 28 61 104;
+
+  /* WhatsApp : réservé aux actions WhatsApp (texte blanc lisible sur 600) */
+  --c-wa-50: 232 246 238;
+  --c-wa-500: 31 157 85;
+  --c-wa-600: 23 128 63;
+  --c-wa-700: 18 102 50;
+
+  /* ---------- Rôles (à utiliser dans les composants) ---------- */
+  --bg: rgb(var(--c-sand-50));
+  --bg-sunken: rgb(var(--c-sand-100));
+  --surface: rgb(var(--c-sand-0));
+  --surface-2: rgb(var(--c-sand-25));
+  --text: rgb(var(--c-sand-900));
+  --text-muted: rgb(var(--c-sand-600));
+  --text-faint: rgb(var(--c-sand-500));
+  --border: rgb(var(--c-sand-200));
+  --border-strong: rgb(var(--c-sand-300));
+  --ink: rgb(var(--c-sand-950));
+  --ink-2: rgb(var(--c-sand-800));
+  --on-ink: rgb(246 236 224);
+  --on-ink-muted: rgb(191 177 163);
+
+  --accent: rgb(var(--c-gold-500));
+  --accent-soft: rgb(var(--c-gold-50));
+  --accent-strong: rgb(var(--c-gold-400));
+  /* Or lisible sur fond clair (contraste ≥ 4,5:1) */
+  --accent-text: rgb(var(--c-gold-700));
+  /* Or lisible sur fond sombre */
+  --accent-on-ink: rgb(var(--c-gold-300));
+
+  --success: rgb(var(--c-success-600));
+  --success-soft: rgb(var(--c-success-50));
+  --warning: rgb(var(--c-warning-600));
+  --warning-soft: rgb(var(--c-warning-50));
+  --danger: rgb(var(--c-danger-600));
+  --danger-soft: rgb(var(--c-danger-50));
+  --info: rgb(var(--c-info-600));
+  --info-soft: rgb(var(--c-info-50));
+  --wa: rgb(var(--c-wa-600));
+  --wa-hover: rgb(var(--c-wa-700));
+  --wa-soft: rgb(var(--c-wa-50));
+
+  --focus-ring: 0 0 0 3px rgb(var(--c-gold-400) / 0.55);
+  --overlay: rgb(var(--c-sand-950) / 0.55);
+
+  /* ---------- Typographie ---------- */
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  --fs-2xs: 11px;
+  --fs-xs: 12px;
+  --fs-sm: 14px;
+  --fs-base: 16px;
+  --fs-md: 18px;
+  --fs-lg: 20px;
+  --fs-xl: 24px;
+  --fs-2xl: clamp(26px, 5.5vw, 32px);
+  --fs-3xl: clamp(30px, 7vw, 44px);
+  --fs-4xl: clamp(36px, 9vw, 60px);
+
+  --lh-tight: 1.1;
+  --lh-snug: 1.3;
+  --lh-normal: 1.55;
+
+  --tracking-caps: 0.16em;
+
+  /* ---------- Espacements (pas de 4 px) ---------- */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+  --gutter: 16px;
+  --container: 1120px;
+  --header-h: 60px;
+  --tap: 44px;
+
+  /* ---------- Rayons ---------- */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --r-full: 999px;
+
+  /* ---------- Élévations ---------- */
+  --sh-1: 0 1px 2px rgb(var(--c-sand-900) / 0.06), 0 1px 1px rgb(var(--c-sand-900) / 0.03);
+  --sh-2: 0 8px 24px -10px rgb(var(--c-sand-900) / 0.18), 0 2px 6px rgb(var(--c-sand-900) / 0.04);
+  --sh-3: 0 28px 64px -20px rgb(var(--c-sand-950) / 0.4), 0 4px 12px rgb(var(--c-sand-950) / 0.08);
+
+  /* ---------- Superpositions ---------- */
+  --z-header: 30;
+  --z-dock: 35;
+  --z-menu: 40;
+  --z-overlay: 50;
+  --z-toast: 60;
+
+  /* ---------- Mouvement ---------- */
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --dur-3: 320ms;
+  --dur-4: 480ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+@media (min-width: 720px) {
+  :root {
+    --gutter: 28px;
+    --header-h: 68px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 1ms;
+    --dur-2: 1ms;
+    --dur-3: 1ms;
+    --dur-4: 1ms;
+  }
+}

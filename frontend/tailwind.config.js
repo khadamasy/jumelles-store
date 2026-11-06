@@ -1,44 +1,57 @@
 /** @type {import('tailwindcss').Config} */
+
+// Les couleurs viennent toutes de src/styles/variables.css (une seule source de vérité)
+const scale = (name, steps) =>
+  Object.fromEntries(steps.map((s) => [s, `rgb(var(--c-${name}-${s}) / <alpha-value>)`]));
+
+const sandSteps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+const goldSteps = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
+const stateSteps = [50, 200, 600, 800];
+
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{vue,js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
+    screens: {
+      sm: '480px',
+      md: '720px',
+      lg: '1024px',
+      xl: '1280px',
+    },
     extend: {
       colors: {
-        gold: {
-          50: '#fbf9f1',
-          100: '#f6f2dd',
-          200: '#eee4bb',
-          300: '#e3d091',
-          400: '#d7b966',
-          500: '#cb9f40',
-          600: '#b48332',
-          700: '#946429',
-          800: '#794f26',
-          900: '#654224',
-        },
-        rosewood: {
-          50: '#fdf4f4',
-          100: '#fce8e8',
-          200: '#fad5d5',
-          300: '#f4b4b4',
-          400: '#ea8686',
-          500: '#dc5d5d',
-          600: '#c64040',
-          700: '#a63333',
-          800: '#892d2d',
-          900: '#732a2a',
-        }
+        // « stone » pointe sur les neutres chauds de la marque
+        stone: scale('sand', sandSteps),
+        sand: scale('sand', sandSteps),
+        gold: scale('gold', goldSteps),
+        success: scale('success', stateSteps),
+        warning: scale('warning', stateSteps),
+        danger: scale('danger', stateSteps),
+        info: scale('info', stateSteps),
+        rosewood: scale('danger', stateSteps),
+        wa: scale('wa', [50, 500, 600, 700]),
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-        // Même police de titre que l'accueil (Cinzel, tout en capitales, alourdissait les pages)
-        serif: ['Georgia', '"Times New Roman"', 'serif'],
-      }
+        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        serif: ['Fraunces', 'Georgia', '"Times New Roman"', 'serif'],
+        display: ['Fraunces', 'Georgia', 'serif'],
+      },
+      borderRadius: {
+        xs: 'var(--r-xs)',
+        sm: 'var(--r-sm)',
+        md: 'var(--r-md)',
+        lg: 'var(--r-lg)',
+        xl: 'var(--r-xl)',
+      },
+      boxShadow: {
+        1: 'var(--sh-1)',
+        2: 'var(--sh-2)',
+        3: 'var(--sh-3)',
+      },
+      transitionTimingFunction: {
+        out: 'var(--ease-out)',
+        spring: 'var(--ease-spring)',
+      },
     },
   },
   plugins: [],
-}
-
+};
