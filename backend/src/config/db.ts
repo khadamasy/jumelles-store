@@ -17,7 +17,8 @@ pool.on('error', (err) => {
 
 /** PostgreSQL n'est utilisé que si DATABASE_URL est défini */
 let pgEnabled = Boolean(process.env.DATABASE_URL);
-const DATA_DIR = path.resolve(__dirname, '../../data');
+// JUMELLES_DATA_DIR permet d'isoler les données (tests automatisés) ; par défaut backend/data
+const DATA_DIR = process.env.JUMELLES_DATA_DIR || path.resolve(__dirname, '../../data');
 const SNAPSHOT_FILE = path.join(DATA_DIR, 'store.json');
 /**
  * Marqueur « PostgreSQL en retard » : présent tant que des écritures du snapshot disque
@@ -124,7 +125,7 @@ export const memoryStore = {
       name: 'Sacs à Main & Cabas',
       slug: 'sacs-a-main',
       type: 'SAC' as const,
-      description: 'Sacs à main en cuir de luxe, sacs Birkin et cabas monogrammes pour sublimer vos tenues.'
+      description: 'Sacs à main en cuir de luxe, sacs à cadenas et grands cabas en toile imprimée pour sublimer vos tenues.'
     },
     {
       id: 'cat-sac-2',
@@ -150,27 +151,27 @@ export const memoryStore = {
   ] as Category[],
 
   products: [
-    // 1. SAC BIRKIN PRESTIGE
+    // 1. SAC À MAIN CUIR GRAINÉ À CADENAS
     {
       id: 'prod-sac-1',
       categoryId: 'cat-sac-1',
-      name: 'Sac à Main Prestige Cuir Epsom & Cadenas Métallique',
-      slug: 'sac-prestige-cuir-epsom-cadenas',
-      description: 'Confectionné en cuir Epsom texturé avec piqures sellier blanches et serrure métallique à cadenas tournant argenté. Format élégant porté main, finitions de haute maroquinerie.',
+      name: 'Sac à Main Cuir Grainé & Cadenas Métallique',
+      slug: 'sac-main-cuir-graine-cadenas',
+      description: 'Confectionné en cuir grainé texturé avec piqures sellier blanches et serrure métallique à cadenas tournant argenté. Format élégant porté main, finitions de haute maroquinerie.',
       basePrice: 15000,
       isActive: true,
       isFeatured: true,
       variants: [
         { id: 'var-birk-1', productId: 'prod-sac-1', sizeOrShoeSize: 'Format Médium (30cm)', color: 'Camel Caramel', sku: 'BIRK-CAMEL-30', stockQuantity: 8, priceAdjustment: 0 },
         { id: 'var-birk-2', productId: 'prod-sac-1', sizeOrShoeSize: 'Format Médium (30cm)', color: 'Chocolat Ébène', sku: 'BIRK-CHOC-30', stockQuantity: 6, priceAdjustment: 0 },
-        { id: 'var-birk-3', productId: 'prod-sac-1', sizeOrShoeSize: 'Format Médium (30cm)', color: 'Orange H', sku: 'BIRK-ORANGE-30', stockQuantity: 5, priceAdjustment: 0 },
+        { id: 'var-birk-3', productId: 'prod-sac-1', sizeOrShoeSize: 'Format Médium (30cm)', color: 'Orange Vif', sku: 'BIRK-ORANGE-30', stockQuantity: 5, priceAdjustment: 0 },
         { id: 'var-birk-4', productId: 'prod-sac-1', sizeOrShoeSize: 'Format Médium (30cm)', color: 'Rose Poudré', sku: 'BIRK-ROSE-30', stockQuantity: 7, priceAdjustment: 0 }
       ],
       images: [
-        { id: 'img-birk-1', productId: 'prod-sac-1', minioUrl: '/products/sac-birkin-camel.jpg', altText: 'Sac prestige camel Jumelles Store', isPrimary: true },
-        { id: 'img-birk-2', productId: 'prod-sac-1', minioUrl: '/products/sac-birkin-rose-poudre.jpg', altText: 'Sac prestige rose poudré', isPrimary: false },
-        { id: 'img-birk-3', productId: 'prod-sac-1', minioUrl: '/products/sac-birkin-chocolat.jpg', altText: 'Sac prestige chocolat', isPrimary: false },
-        { id: 'img-birk-4', productId: 'prod-sac-1', minioUrl: '/products/sac-birkin-orange.jpg', altText: 'Sac prestige orange', isPrimary: false }
+        { id: 'img-birk-1', productId: 'prod-sac-1', minioUrl: '/products/sac-cadenas-camel.jpg', altText: 'Sac prestige camel Jumelles Store', isPrimary: true },
+        { id: 'img-birk-2', productId: 'prod-sac-1', minioUrl: '/products/sac-cadenas-rose-poudre.jpg', altText: 'Sac prestige rose poudré', isPrimary: false },
+        { id: 'img-birk-3', productId: 'prod-sac-1', minioUrl: '/products/sac-cadenas-chocolat.jpg', altText: 'Sac prestige chocolat', isPrimary: false },
+        { id: 'img-birk-4', productId: 'prod-sac-1', minioUrl: '/products/sac-cadenas-orange.jpg', altText: 'Sac prestige orange', isPrimary: false }
       ]
     },
 
@@ -203,7 +204,7 @@ export const memoryStore = {
       categoryId: 'cat-sac-1',
       name: 'Sac Cabas Cuir Perforé Losanges & Chaîne Gourmette (34x27)',
       slug: 'sac-cabas-cuir-perfore-chaine-gourmette',
-      description: 'Grand sac seau/cabas en cuir souple finement perforé façon dentelle de cuir. Chaîne dorée d\'épaule, cordon de serrage avec médaillon siglé. Dimensions spacieuses : 34 x 27 cm.',
+      description: 'Grand sac seau/cabas en cuir souple finement perforé façon dentelle de cuir. Chaîne dorée d\'épaule, cordon de serrage avec médaillon doré. Dimensions spacieuses : 34 x 27 cm.',
       basePrice: 15000,
       isActive: true,
       isFeatured: true,
@@ -218,26 +219,26 @@ export const memoryStore = {
       ]
     },
 
-    // 4. SAC CABAS MONOGRAMME DE LUXE
+    // 4. SAC CABAS TOILE IMPRIMÉE
     {
       id: 'prod-sac-4',
       categoryId: 'cat-sac-1',
-      name: 'Sac Cabas Monogramme Prestige & Bandoulière Cuir',
-      slug: 'sac-cabas-monogramme-prestige-bandouliere',
-      description: 'Toile enduite monogrammée ultra-robuste avec garnitures en cuir naturel surpiqué, double anse rigide et bandoulière amovible. L\'incontournable de la garde-robe d\'affaires et de cérémonie.',
+      name: 'Sac Cabas Toile Imprimée & Bandoulière Cuir',
+      slug: 'sac-cabas-toile-imprimee-bandouliere',
+      description: 'Toile enduite imprimée ultra-robuste avec garnitures en cuir naturel surpiqué, double anse rigide et bandoulière amovible. L\'incontournable de la garde-robe d\'affaires et de cérémonie.',
       basePrice: 15000,
       isActive: true,
       isFeatured: false,
       variants: [
-        { id: 'var-mono-1', productId: 'prod-sac-4', sizeOrShoeSize: 'Grand Format Cabas', color: 'Monogramme Havane', sku: 'MONO-CAB-01', stockQuantity: 7, priceAdjustment: 0 },
-        { id: 'var-mono-2', productId: 'prod-sac-4', sizeOrShoeSize: 'Format Dôme Alma BB', color: 'Damier Ébène', sku: 'DAM-ALMA-02', stockQuantity: 5, priceAdjustment: 0 }
+        { id: 'var-mono-1', productId: 'prod-sac-4', sizeOrShoeSize: 'Grand Format Cabas', color: 'Toile Imprimée Havane', sku: 'MONO-CAB-01', stockQuantity: 7, priceAdjustment: 0 },
+        { id: 'var-mono-2', productId: 'prod-sac-4', sizeOrShoeSize: 'Format Dôme Alma BB', color: 'Carreaux Marron', sku: 'DAM-ALMA-02', stockQuantity: 5, priceAdjustment: 0 }
       ],
       images: [
-        { id: 'img-mono-1', productId: 'prod-sac-4', minioUrl: '/products/sac-cabas-monogramme-luxe.jpg', altText: 'Sac cabas monogramme luxe', isPrimary: true },
-        { id: 'img-mono-2', productId: 'prod-sac-4', minioUrl: '/products/sac-cabas-monogramme-portemodele.jpg', altText: 'Sac cabas porté épaule', isPrimary: false },
-        { id: 'img-mono-3', productId: 'prod-sac-4', minioUrl: '/products/sac-alma-damier-ebene.jpg', altText: 'Sac dôme damier ébène', isPrimary: false },
-        { id: 'img-mono-4', productId: 'prod-sac-4', minioUrl: '/products/sac-alma-damier-ebene-portemodele.jpg', altText: 'Sac dôme damier ébène porté mannequin', isPrimary: false },
-        { id: 'img-mono-5', productId: 'prod-sac-4', minioUrl: '/products/sac-alma-damier-ebene-lifestyle.jpg', altText: 'Sac dôme damier ébène style chic', isPrimary: false }
+        { id: 'img-mono-1', productId: 'prod-sac-4', minioUrl: '/products/sac-cabas-toile-imprimee.jpg', altText: 'Sac cabas toile imprimée', isPrimary: true },
+        { id: 'img-mono-2', productId: 'prod-sac-4', minioUrl: '/products/sac-cabas-toile-imprimee-portemodele.jpg', altText: 'Sac cabas porté épaule', isPrimary: false },
+        { id: 'img-mono-3', productId: 'prod-sac-4', minioUrl: '/products/sac-carreaux-marron.jpg', altText: 'Sac dôme à carreaux marron', isPrimary: false },
+        { id: 'img-mono-4', productId: 'prod-sac-4', minioUrl: '/products/sac-carreaux-marron-portemodele.jpg', altText: 'Sac dôme à carreaux marron porté mannequin', isPrimary: false },
+        { id: 'img-mono-5', productId: 'prod-sac-4', minioUrl: '/products/sac-carreaux-marron-lifestyle.jpg', altText: 'Sac dôme à carreaux marron style chic', isPrimary: false }
       ]
     },
 
@@ -304,7 +305,7 @@ export const memoryStore = {
       categoryId: 'cat-shoe-2',
       name: 'Sandales Plates Nu-Pieds en Cuir Verni Croisé',
       slug: 'sandales-plates-cuir-verni-croise',
-      description: 'Sandales estivales plates confectionnées en cuir verni premium avec empiècements à brides croisées sur le cou-de-pied. Semelle avec surpiqûre dorée et boîte griffée.',
+      description: 'Sandales estivales plates confectionnées en cuir verni premium avec empiècements à brides croisées sur le cou-de-pied. Semelle avec surpiqûre dorée, livrées en boîte cadeau.',
       basePrice: 12000,
       isActive: true,
       isFeatured: false,
@@ -321,7 +322,7 @@ export const memoryStore = {
         { id: 'var-pl-blk-38', productId: 'prod-shoe-3', sizeOrShoeSize: '38', color: 'Noir Intense', sku: 'PLAT-BLK-38', stockQuantity: 8, priceAdjustment: 0 }
       ],
       images: [
-        { id: 'img-pl-zara', productId: 'prod-shoe-3', minioUrl: '/products/sandales-plates-verni-zara-collection.jpg', altText: 'Collection sandales plates cuir verni croisé avec boîtes', isPrimary: true },
+        { id: 'img-pl-collection', productId: 'prod-shoe-3', minioUrl: '/products/sandales-plates-verni-collection.jpg', altText: 'Collection sandales plates cuir verni croisé avec boîtes', isPrimary: true },
         { id: 'img-pl-1', productId: 'prod-shoe-3', minioUrl: '/products/sandales-plates-croisees-collection.jpg', altText: 'Sandales plates croisées collection', isPrimary: false },
         { id: 'img-pl-2', productId: 'prod-shoe-3', minioUrl: '/products/sandales-plates-bordeaux-detail.jpg', altText: 'Détail sandales bordeaux', isPrimary: false }
       ]
@@ -331,8 +332,8 @@ export const memoryStore = {
     {
       id: 'prod-shoe-4',
       categoryId: 'cat-shoe-2',
-      name: 'Tongs Chics en Cuir & Médaillon Logo Doré',
-      slug: 'tongs-chics-cuir-medaillon-logo-dore',
+      name: 'Tongs Chics en Cuir & Médaillon Doré',
+      slug: 'tongs-chics-cuir-medaillon-dore',
       description: 'L\'élégance décontractée à son zénith. Entredoigt en cuir véritable souple orné d\'un médaillon bijou doré poli. Semelle gravée, livrée dans son coffret luxe avec ruban de soie.',
       basePrice: 12000,
       isActive: true,
@@ -355,23 +356,23 @@ export const memoryStore = {
       ]
     },
 
-    // 9. SAC BOWLER « PRESTIGE WEB & DOUBLE G »
+    // 9. SAC BOWLER BANDE TISSÉE BICOLORE
     {
       id: 'prod-sac-5',
       categoryId: 'cat-sac-1',
-      name: 'Sac Bowler « Prestige Web & Double G »',
-      slug: 'sac-bowler-prestige-web-double-g',
-      description: 'Sublime sac Boston / Bowler à double anse rigide et bandoulière en cuir amovible. Finitions exclusives avec bande web bicolore rouge et verte, médaillon double G doré et fermeture zippée double curseur.',
+      name: 'Sac Bowler Bande Tissée Bicolore',
+      slug: 'sac-bowler-bande-tissee-bicolore',
+      description: 'Sublime sac Boston / Bowler à double anse rigide et bandoulière en cuir amovible. Finitions exclusives avec bande tissée bicolore rouge et verte, médaillon doré et fermeture zippée double curseur.',
       basePrice: 15000,
       isActive: true,
       isFeatured: true,
       variants: [
-        { id: 'var-bwl-1', productId: 'prod-sac-5', sizeOrShoeSize: 'Format Médium (28cm)', color: 'Monogramme Suprême GG', sku: 'BWL-MONO-28', stockQuantity: 9, priceAdjustment: 0 },
-        { id: 'var-bwl-2', productId: 'prod-sac-5', sizeOrShoeSize: 'Format Médium (28cm)', color: 'Cuir Noir Embossé GG', sku: 'BWL-BLK-28', stockQuantity: 7, priceAdjustment: 0 }
+        { id: 'var-bwl-1', productId: 'prod-sac-5', sizeOrShoeSize: 'Format Médium (28cm)', color: 'Toile Imprimée Beige', sku: 'BWL-MONO-28', stockQuantity: 9, priceAdjustment: 0 },
+        { id: 'var-bwl-2', productId: 'prod-sac-5', sizeOrShoeSize: 'Format Médium (28cm)', color: 'Cuir Noir Embossé', sku: 'BWL-BLK-28', stockQuantity: 7, priceAdjustment: 0 }
       ],
       images: [
-        { id: 'img-bwl-1', productId: 'prod-sac-5', minioUrl: '/products/sac-bowler-monogramme-bande-web.jpg', altText: 'Sac bowler monogramme bande web avec boîte luxe', isPrimary: true },
-        { id: 'img-bwl-2', productId: 'prod-sac-5', minioUrl: '/products/sac-bowler-bande-web-noir.jpg', altText: 'Sac bowler cuir noir embossé bande web', isPrimary: false }
+        { id: 'img-bwl-1', productId: 'prod-sac-5', minioUrl: '/products/sac-bowler-imprime-bande-bicolore.jpg', altText: 'Sac bowler toile imprimée et bande bicolore avec sa boîte', isPrimary: true },
+        { id: 'img-bwl-2', productId: 'prod-sac-5', minioUrl: '/products/sac-bowler-bande-bicolore-noir.jpg', altText: 'Sac bowler cuir noir embossé bande bicolore', isPrimary: false }
       ]
     },
 
@@ -407,7 +408,7 @@ export const memoryStore = {
       categoryId: 'cat-sac-2',
       name: 'Mini Sac Rabat Chevron « Haute Couture » Poignée Rigide',
       slug: 'mini-sac-rabat-chevron-haute-couture-poignee-rigide',
-      description: 'L\'élégance miniature par excellence. Cuir d\'agneau matelassé en chevrons avec poignée rigide supérieure, fermoir tourniquet bijou doré et bandoulière chaîne entrelacée. Livré dans son coffret avec certificat.',
+      description: 'L\'élégance miniature par excellence. Cuir d\'agneau matelassé en chevrons avec poignée rigide supérieure, fermoir tourniquet bijou doré et bandoulière chaîne entrelacée. Livré dans son coffret cadeau.',
       basePrice: 15000,
       isActive: true,
       isFeatured: true,
@@ -444,13 +445,13 @@ export const memoryStore = {
       ]
     },
 
-    // 13. MULES NU-PIEDS H JACQUARD & SEMELLE CUIR COFFRET PRESTIGE
+    // 13. MULES NU-PIEDS JACQUARD & SEMELLE CUIR COFFRET
     {
       id: 'prod-shoe-5',
       categoryId: 'cat-shoe-2',
-      name: 'Mules Nu-Pieds H Jacquard Brodé & Semelle Cuir Coffret',
-      slug: 'mules-nu-pieds-h-jacquard-brode-coffret',
-      description: 'Mules plates d\'exception en découpe H signature habillées d\'un velours jacquard brodé de motifs floraux ton sur ton. Semelle cousue en cuir naturel, livrées dans leur coffret orange de luxe avec pochons et certificat. Déclinées en 5 coloris irrésistibles : Bordeaux, Rose Poudré, Blanc Craie, Bronze Caramel et Noir Ébène.',
+      name: 'Mules Nu-Pieds Jacquard Brodé & Semelle Cuir Coffret',
+      slug: 'mules-nu-pieds-jacquard-brode-coffret',
+      description: 'Mules plates d\'exception à large bride découpée, habillées d\'un velours jacquard brodé de motifs floraux ton sur ton. Semelle cousue en cuir naturel, livrées dans leur coffret cadeau avec pochons. Déclinées en 5 coloris irrésistibles : Bordeaux, Rose Poudré, Blanc Craie, Bronze Caramel et Noir Ébène.',
       basePrice: 12000,
       isActive: true,
       isFeatured: true,
@@ -492,11 +493,11 @@ export const memoryStore = {
         { id: 'var-oran-blk-42', productId: 'prod-shoe-5', sizeOrShoeSize: '42', color: 'Noir Ébène Jacquard', sku: 'ORAN-BLK-42', stockQuantity: 3, priceAdjustment: 0 }
       ],
       images: [
-        { id: 'img-oran-1', productId: 'prod-shoe-5', minioUrl: '/products/mules-h-jacquard-bordeaux-coffret.jpg', altText: 'Mules H jacquard bordeaux dans leur boîte prestige', isPrimary: true },
-        { id: 'img-oran-2', productId: 'prod-shoe-5', minioUrl: '/products/mules-h-jacquard-rose-coffret.jpg', altText: 'Mules H jacquard rose poudré dans leur boîte prestige', isPrimary: false },
-        { id: 'img-oran-3', productId: 'prod-shoe-5', minioUrl: '/products/mules-h-jacquard-blanc-coffret.jpg', altText: 'Mules H jacquard blanc craie dans leur boîte prestige', isPrimary: false },
-        { id: 'img-oran-4', productId: 'prod-shoe-5', minioUrl: '/products/mules-h-jacquard-bronze-coffret.jpg', altText: 'Mules H jacquard bronze caramel dans leur boîte prestige', isPrimary: false },
-        { id: 'img-oran-5', productId: 'prod-shoe-5', minioUrl: '/products/mules-h-jacquard-noir-coffret.jpg', altText: 'Mules H jacquard noir ébène dans leur boîte prestige', isPrimary: false }
+        { id: 'img-oran-1', productId: 'prod-shoe-5', minioUrl: '/products/mules-jacquard-bordeaux-coffret.jpg', altText: 'Mules jacquard bordeaux dans leur boîte prestige', isPrimary: true },
+        { id: 'img-oran-2', productId: 'prod-shoe-5', minioUrl: '/products/mules-jacquard-rose-coffret.jpg', altText: 'Mules jacquard rose poudré dans leur boîte prestige', isPrimary: false },
+        { id: 'img-oran-3', productId: 'prod-shoe-5', minioUrl: '/products/mules-jacquard-blanc-coffret.jpg', altText: 'Mules jacquard blanc craie dans leur boîte prestige', isPrimary: false },
+        { id: 'img-oran-4', productId: 'prod-shoe-5', minioUrl: '/products/mules-jacquard-bronze-coffret.jpg', altText: 'Mules jacquard bronze caramel dans leur boîte prestige', isPrimary: false },
+        { id: 'img-oran-5', productId: 'prod-shoe-5', minioUrl: '/products/mules-jacquard-noir-coffret.jpg', altText: 'Mules jacquard noir ébène dans leur boîte prestige', isPrimary: false }
       ]
     }
   ] as Product[],
@@ -525,7 +526,8 @@ const saveSnapshotToDisk = () => {
       2
     );
     const tmp = `${SNAPSHOT_FILE}.tmp`;
-    fs.writeFileSync(tmp, payload, 'utf8');
+    // Données clientes (noms, téléphones, adresses) : lisibles par le seul compte du serveur
+    fs.writeFileSync(tmp, payload, { encoding: 'utf8', mode: 0o600 });
     fs.renameSync(tmp, SNAPSHOT_FILE);
   } catch (err: any) {
     console.warn(`[Persistance Disque] Impossible d'écrire ${SNAPSHOT_FILE} : ${err.message}`);
@@ -638,158 +640,182 @@ const loadFromPostgres = async (): Promise<boolean> => {
   }
 };
 
-/** Synchronise l'état courant vers PostgreSQL dans une transaction atomique */
-const syncToPostgres = async (): Promise<boolean> => {
+/**
+ * Description des modifications à recopier dans PostgreSQL.
+ * Sans argument, persistStore() effectue une synchronisation complète (démarrage, rattrapage
+ * après panne). Les contrôleurs ne transmettent que ce qu'ils ont modifié : une commande ne
+ * déclenche ainsi que quelques requêtes, quelle que soit la taille du catalogue ou de l'historique.
+ */
+export interface PersistChanges {
+  /** Produits créés ou modifiés (fiche + variantes + images) */
+  products?: string[];
+  /** Produits supprimés du catalogue */
+  deletedProducts?: string[];
+  /** Variantes dont seul le stock a changé */
+  variants?: string[];
+  /** Commandes créées ou dont le statut a changé */
+  orders?: string[];
+  /** Demandes de rappel créées ou mises à jour */
+  callbacks?: string[];
+  /** Demandes de rappel purgées */
+  deletedCallbacks?: string[];
+}
+
+type Runner = { query: (sql: string, params?: any[]) => Promise<any> };
+
+const upsertCategory = (runner: Runner, c: Category) =>
+  runner.query(
+    `INSERT INTO categories (id, name, slug, type, description)
+     VALUES ($1, $2, $3, $4, $5)
+     ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, slug = EXCLUDED.slug, type = EXCLUDED.type, description = EXCLUDED.description`,
+    [c.id, c.name, c.slug, c.type, c.description]
+  );
+
+const upsertVariant = (runner: Runner, productId: string, v: ProductVariant) =>
+  runner.query(
+    `INSERT INTO product_variants (id, product_id, size_or_shoe_size, color, sku, stock_quantity, price_adjustment)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     ON CONFLICT (id) DO UPDATE SET
+       size_or_shoe_size = EXCLUDED.size_or_shoe_size,
+       color = EXCLUDED.color,
+       sku = EXCLUDED.sku,
+       stock_quantity = EXCLUDED.stock_quantity,
+       price_adjustment = EXCLUDED.price_adjustment`,
+    [v.id, productId, v.sizeOrShoeSize, v.color, v.sku, v.stockQuantity, v.priceAdjustment || 0]
+  );
+
+const upsertProduct = async (runner: Runner, p: Product) => {
+  await runner.query(
+    `INSERT INTO products (id, category_id, name, slug, description, base_price, original_price, is_active, is_featured, updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP)
+     ON CONFLICT (id) DO UPDATE SET
+       category_id = EXCLUDED.category_id,
+       name = EXCLUDED.name,
+       slug = EXCLUDED.slug,
+       description = EXCLUDED.description,
+       base_price = EXCLUDED.base_price,
+       original_price = EXCLUDED.original_price,
+       is_active = EXCLUDED.is_active,
+       is_featured = EXCLUDED.is_featured,
+       updated_at = CURRENT_TIMESTAMP`,
+    [p.id, p.categoryId, p.name, p.slug, p.description, p.basePrice, p.originalPrice ?? null, p.isActive, p.isFeatured]
+  );
+
+  for (const v of p.variants) await upsertVariant(runner, p.id, v);
+
+  await runner.query('DELETE FROM product_images WHERE product_id = $1', [p.id]);
+  for (const [idx, img] of p.images.entries()) {
+    await runner.query(
+      `INSERT INTO product_images (id, product_id, minio_url, alt_text, is_primary, display_order)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [img.id, p.id, img.minioUrl, img.altText || p.name, Boolean(img.isPrimary), idx]
+    );
+  }
+};
+
+const upsertOrder = async (runner: Runner, o: Order) => {
+  await runner.query(
+    `INSERT INTO orders (id, order_number, customer_name, customer_email, customer_phone, shipping_address, shipping_city, total_amount, status, created_at, updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP)
+     ON CONFLICT (id) DO UPDATE SET status = EXCLUDED.status, updated_at = CURRENT_TIMESTAMP`,
+    [o.id, o.orderNumber, o.customerName, o.customerEmail, o.customerPhone, o.shippingAddress, o.shippingCity, o.totalAmount, o.status, o.createdAt]
+  );
+  for (const item of o.items) {
+    await runner.query(
+      `INSERT INTO order_items (id, order_id, product_variant_id, product_name, variant_details, quantity, unit_price, total_price)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       ON CONFLICT (id) DO NOTHING`,
+      [item.id, o.id, item.productVariantId || null, item.productName, item.variantDetails, item.quantity, item.unitPrice, item.totalPrice]
+    );
+  }
+};
+
+const upsertCallback = (runner: Runner, call: PhoneCallbackRequest) =>
+  runner.query(
+    `INSERT INTO phone_callbacks (id, customer_name, customer_phone, product_interest, notes, status, created_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     ON CONFLICT (id) DO UPDATE SET status = EXCLUDED.status`,
+    [call.id, call.customerName, call.customerPhone, call.productInterest, call.notes, call.status, call.createdAt]
+  );
+
+/** Synchronisation complète de l'état mémoire (démarrage et rattrapage après panne) */
+const writeFullState = async (runner: Runner) => {
+  for (const c of memoryStore.categories) await upsertCategory(runner, c);
+
+  const productIds = memoryStore.products.map((p) => p.id);
+  if (productIds.length > 0) {
+    await runner.query('DELETE FROM products WHERE NOT (id = ANY($1::varchar[]))', [productIds]);
+  } else {
+    await runner.query('DELETE FROM products');
+  }
+  for (const p of memoryStore.products) await upsertProduct(runner, p);
+  for (const o of memoryStore.orders) await upsertOrder(runner, o);
+
+  const callbackIds = memoryStore.phoneCallbacks.map((c) => c.id);
+  if (callbackIds.length > 0) {
+    await runner.query('DELETE FROM phone_callbacks WHERE NOT (id = ANY($1::varchar[]))', [callbackIds]);
+  } else {
+    await runner.query('DELETE FROM phone_callbacks');
+  }
+  for (const call of memoryStore.phoneCallbacks) await upsertCallback(runner, call);
+};
+
+/** Écriture ciblée : uniquement les entités modifiées */
+const writeChanges = async (runner: Runner, changes: PersistChanges) => {
+  const unique = (ids?: string[]) => [...new Set(ids || [])];
+
+  const deletedProducts = unique(changes.deletedProducts);
+  if (deletedProducts.length > 0) {
+    await runner.query('DELETE FROM products WHERE id = ANY($1::varchar[])', [deletedProducts]);
+  }
+  for (const id of unique(changes.products)) {
+    const p = memoryStore.products.find((x) => x.id === id);
+    if (p) await upsertProduct(runner, p);
+  }
+  for (const id of unique(changes.variants)) {
+    for (const p of memoryStore.products) {
+      const v = p.variants.find((x) => x.id === id);
+      if (v) {
+        await runner.query('UPDATE product_variants SET stock_quantity = $2 WHERE id = $1', [v.id, v.stockQuantity]);
+        break;
+      }
+    }
+  }
+  for (const id of unique(changes.orders)) {
+    const o = memoryStore.orders.find((x) => x.id === id);
+    if (o) await upsertOrder(runner, o);
+  }
+  const deletedCallbacks = unique(changes.deletedCallbacks);
+  if (deletedCallbacks.length > 0) {
+    await runner.query('DELETE FROM phone_callbacks WHERE id = ANY($1::varchar[])', [deletedCallbacks]);
+  }
+  for (const id of unique(changes.callbacks)) {
+    const call = memoryStore.phoneCallbacks.find((x) => x.id === id);
+    if (call) await upsertCallback(runner, call);
+  }
+};
+
+/** Recopie l'état (complet ou ciblé) vers PostgreSQL dans une transaction atomique */
+const syncToPostgres = async (changes?: PersistChanges): Promise<boolean> => {
   if (!pgEnabled) return false;
   let client: any = null;
   try {
-    if (typeof pool.connect === 'function') {
-      client = await pool.connect();
-    }
-    const runner = client && typeof client.query === 'function' ? client : pool;
-    if (typeof runner.query !== 'function') return false;
-
-    await runner.query('BEGIN');
-
-    for (const c of memoryStore.categories) {
-      await runner.query(
-        `INSERT INTO categories (id, name, slug, type, description)
-         VALUES ($1, $2, $3, $4, $5)
-         ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, slug = EXCLUDED.slug, type = EXCLUDED.type, description = EXCLUDED.description`,
-        [c.id, c.name, c.slug, c.type, c.description]
-      );
-    }
-
-    // Supprimer les produits retirés du catalogue
-    const productIds = memoryStore.products.map((p) => p.id);
-    if (productIds.length > 0) {
-      await runner.query('DELETE FROM products WHERE NOT (id = ANY($1::varchar[]))', [productIds]);
-    } else {
-      await runner.query('DELETE FROM products');
-    }
-
-    for (const p of memoryStore.products) {
-      await runner.query(
-        `INSERT INTO products (id, category_id, name, slug, description, base_price, original_price, is_active, is_featured, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP)
-         ON CONFLICT (id) DO UPDATE SET
-           category_id = EXCLUDED.category_id,
-           name = EXCLUDED.name,
-           slug = EXCLUDED.slug,
-           description = EXCLUDED.description,
-           base_price = EXCLUDED.base_price,
-           original_price = EXCLUDED.original_price,
-           is_active = EXCLUDED.is_active,
-           is_featured = EXCLUDED.is_featured,
-           updated_at = CURRENT_TIMESTAMP`,
-        [
-          p.id,
-          p.categoryId,
-          p.name,
-          p.slug,
-          p.description,
-          p.basePrice,
-          p.originalPrice ?? null,
-          p.isActive,
-          p.isFeatured,
-        ]
-      );
-
-      for (const v of p.variants) {
-        // Verrouillage de ligne sur le stock avant mise à jour (anti-survente concurrente)
-        await runner.query('SELECT id, stock_quantity FROM product_variants WHERE id = $1 FOR UPDATE', [v.id]);
-        await runner.query(
-          `INSERT INTO product_variants (id, product_id, size_or_shoe_size, color, sku, stock_quantity, price_adjustment)
-           VALUES ($1, $2, $3, $4, $5, $6, $7)
-           ON CONFLICT (id) DO UPDATE SET
-             size_or_shoe_size = EXCLUDED.size_or_shoe_size,
-             color = EXCLUDED.color,
-             sku = EXCLUDED.sku,
-             stock_quantity = EXCLUDED.stock_quantity,
-             price_adjustment = EXCLUDED.price_adjustment`,
-          [v.id, p.id, v.sizeOrShoeSize, v.color, v.sku, v.stockQuantity, v.priceAdjustment || 0]
-        );
-      }
-
-      await runner.query('DELETE FROM product_images WHERE product_id = $1', [p.id]);
-      for (const [idx, img] of p.images.entries()) {
-        await runner.query(
-          `INSERT INTO product_images (id, product_id, minio_url, alt_text, is_primary, display_order)
-           VALUES ($1, $2, $3, $4, $5, $6)`,
-          [img.id, p.id, img.minioUrl, img.altText || p.name, Boolean(img.isPrimary), idx]
-        );
-      }
-    }
-
-    for (const o of memoryStore.orders) {
-      await runner.query(
-        `INSERT INTO orders (id, order_number, customer_name, customer_email, customer_phone, shipping_address, shipping_city, total_amount, status, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP)
-         ON CONFLICT (id) DO UPDATE SET status = EXCLUDED.status, updated_at = CURRENT_TIMESTAMP`,
-        [
-          o.id,
-          o.orderNumber,
-          o.customerName,
-          o.customerEmail,
-          o.customerPhone,
-          o.shippingAddress,
-          o.shippingCity,
-          o.totalAmount,
-          o.status,
-          o.createdAt,
-        ]
-      );
-
-      for (const item of o.items) {
-        await runner.query(
-          `INSERT INTO order_items (id, order_id, product_variant_id, product_name, variant_details, quantity, unit_price, total_price)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-           ON CONFLICT (id) DO NOTHING`,
-          [
-            item.id,
-            o.id,
-            item.productVariantId || null,
-            item.productName,
-            item.variantDetails,
-            item.quantity,
-            item.unitPrice,
-            item.totalPrice,
-          ]
-        );
-      }
-    }
-
-    for (const call of memoryStore.phoneCallbacks) {
-      await runner.query(
-        `INSERT INTO phone_callbacks (id, customer_name, customer_phone, product_interest, notes, status, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)
-         ON CONFLICT (id) DO UPDATE SET status = EXCLUDED.status`,
-        [
-          call.id,
-          call.customerName,
-          call.customerPhone,
-          call.productInterest,
-          call.notes,
-          call.status,
-          call.createdAt,
-        ]
-      );
-    }
-
-    await runner.query('COMMIT');
+    client = await pool.connect();
+    await client.query('BEGIN');
+    if (changes) await writeChanges(client, changes);
+    else await writeFullState(client);
+    await client.query('COMMIT');
     return true;
   } catch (err: any) {
     console.error(`[PostgreSQL] Échec de synchronisation (nouvel essai automatique) : ${err.message}`);
     try {
-      if (client && typeof client.query === 'function') await client.query('ROLLBACK');
+      if (client) await client.query('ROLLBACK');
     } catch {
-      // ignore rollback error when connection failed
+      // connexion déjà perdue
     }
     return false;
   } finally {
-    if (client && typeof client.release === 'function') {
-      client.release();
-    }
+    if (client) client.release();
   }
 };
 
@@ -835,12 +861,14 @@ let persistQueue: Promise<void> = Promise.resolve();
  * 2. Sur PostgreSQL dans une transaction ; en cas d'échec, le marqueur pg-pending est conservé
  *    et la synchronisation est relancée automatiquement jusqu'à réussite
  */
-export const persistStore = (): Promise<void> => {
+export const persistStore = (changes?: PersistChanges): Promise<void> => {
   const run = async () => {
     saveSnapshotToDisk();
     if (!pgEnabled) return;
+    // Si PostgreSQL est déjà en retard, seule une synchronisation complète garantit la cohérence
+    const pgWasBehind = fs.existsSync(PG_PENDING_FILE);
     markPgPending();
-    if (await syncToPostgres()) {
+    if (await syncToPostgres(pgWasBehind ? undefined : changes)) {
       clearPgPending();
     } else {
       schedulePgRetry();

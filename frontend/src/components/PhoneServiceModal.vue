@@ -1,158 +1,120 @@
 <template>
-  <div
-    v-if="phoneStore.isOpen"
-    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/70 backdrop-blur-sm transition-all"
-    @click.self="phoneStore.closeModal"
+  <UiModal
+    :open="phoneStore.isOpen"
+    variant="sheet"
+    label="Commander par téléphone ou WhatsApp"
+    flush
+    @close="phoneStore.closeModal"
   >
-    <div
-      class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border border-stone-200 transform transition-all animate-in fade-in zoom-in-95 duration-200"
-    >
-      <!-- Modal Header -->
-      <div class="bg-gradient-to-r from-stone-950 via-stone-900 to-stone-950 p-6 text-white relative">
-        <button
-          @click="phoneStore.closeModal"
-          class="absolute top-5 right-5 text-stone-400 hover:text-white w-8 h-8 rounded-full bg-white/10 flex items-center justify-center font-bold text-sm transition-colors"
-        >
-          ✕
-        </button>
-
-        <div class="flex items-center gap-2 text-gold-400 text-xs font-bold uppercase tracking-widest mb-1.5">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-          <span>Service Téléphonie & Commandes Express</span>
-        </div>
-
-        <h3 class="font-serif text-2xl font-extrabold text-white">
-          Maison Jumelles Store Dakar
-        </h3>
-        <p class="text-xs text-stone-300 mt-1 font-light">
-          Assistance clientèle, commandes directes et conseils pointures & maroquinerie 7j/7.
-        </p>
+    <div class="ps">
+      <!-- En-tête -->
+      <div class="ps-hd">
+        <span class="ps-live"><i aria-hidden="true"></i>Conseillères disponibles · 8 h – 22 h</span>
+        <h2>Parlons de votre commande</h2>
+        <p>Conseil pointure, disponibilité, commande directe : nous répondons 7j/7.</p>
       </div>
 
-      <!-- Modal Body -->
-      <div class="p-6 sm:p-8 space-y-6">
-        <!-- Numéro de Téléphone Principal en Grand -->
-        <div class="bg-stone-50 border-2 border-gold-400/50 rounded-2xl p-5 text-center space-y-2 relative shadow-inner">
-          <span class="text-[11px] uppercase tracking-wider text-stone-500 font-bold block">
-            Ligne Téléphonique Directe
-          </span>
-          <div class="font-serif text-3xl sm:text-4xl font-black text-stone-950 tracking-tight select-all">
-            +221 77 208 78 20
-          </div>
-          <div class="flex items-center justify-center gap-2 text-xs font-semibold text-emerald-700">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>Conseillères disponibles actuellement (08h00 - 22h00 GMT)</span>
-          </div>
-        </div>
-
-        <!-- Contexte Article si ouvert depuis une fiche ou le panier -->
-        <div v-if="phoneStore.productContext" class="bg-gold-50/70 border border-gold-200 rounded-xl p-3 text-xs flex items-center gap-3">
+      <div class="ps-bd">
+        <!-- Article concerné (ouvert depuis une fiche ou le panier) -->
+        <div v-if="phoneStore.productContext" class="ps-ctx">
+          <!-- Aperçu : copie locale de la photo (le lien public reste celui envoyé sur WhatsApp) -->
           <img
-            v-if="phoneStore.productImage"
-            :src="phoneStore.productImage"
-            alt="Aperçu article"
-            class="w-12 h-12 rounded-lg object-cover border border-gold-300 shrink-0"
+            v-if="phoneStore.productLocalImage || phoneStore.productImage"
+            :src="phoneStore.productLocalImage || phoneStore.productImage"
+            alt=""
+            class="ps-ctx-img"
           />
-          <ShoppingBag v-else class="w-4 h-4 text-gold-700 shrink-0" />
-          <div class="min-w-0 flex-1">
-            <span class="font-bold text-stone-900 block">Article sélectionné (lien photo inclus sur WhatsApp) :</span>
-            <span class="text-stone-700 whitespace-pre-line break-words">{{ phoneStore.productContext }}</span>
+          <span v-else class="ps-ctx-ic"><ShoppingBag aria-hidden="true" /></span>
+          <div>
+            <span class="ps-ctx-t">Article sélectionné · le lien photo sera joint sur WhatsApp</span>
+            <p>{{ phoneStore.productContext }}</p>
           </div>
         </div>
 
-        <!-- 3 Boutons d'Action Directe avec vrais icones -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <!-- Appeler Directement -->
-          <button
-            @click="phoneStore.callNow"
-            class="w-full py-3.5 px-4 bg-stone-950 hover:bg-stone-900 border border-[#d7b966] text-white font-bold text-xs rounded-full shadow-md transition-all flex items-center justify-center gap-2 group cursor-pointer active:scale-98"
-          >
-            <IconPhoneSolid className="w-4 h-4 text-[#e02f75] group-hover:scale-110 transition-transform" />
-            <span>Appeler le 77 208 78 20</span>
-          </button>
-
-          <!-- WhatsApp Direct -->
-          <button
-            @click="phoneStore.openWhatsApp()"
-            class="w-full py-3.5 px-4 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs rounded-full shadow-md transition-all flex items-center justify-center gap-2 group cursor-pointer active:scale-98"
-          >
-            <IconWhatsApp className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
-            <span>Discuter sur WhatsApp</span>
+        <!-- Numéro -->
+        <div class="ps-num">
+          <span>Ligne directe</span>
+          <strong class="tnum">+221 77 208 78 20</strong>
+          <button type="button" class="ps-copy" @click="phoneStore.copyPhoneNumber">
+            <component :is="phoneStore.copied ? Check : Copy" aria-hidden="true" />
+            <span v-if="phoneStore.copied">Numéro copié</span>
+            <span v-else-if="phoneStore.copyFailed">Copie impossible : notez le numéro</span>
+            <span v-else>Copier le numéro</span>
           </button>
         </div>
 
-        <!-- Bouton Copier le Numéro -->
-        <button
-          @click="phoneStore.copyPhoneNumber"
-          class="w-full py-2.5 px-3 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-xl border border-stone-200 transition-colors flex items-center justify-center gap-2 cursor-pointer"
-        >
-          <component :is="phoneStore.copied ? Check : Copy" class="w-3.5 h-3.5" />
-          <span v-if="phoneStore.copied" class="text-emerald-700 font-bold">Numéro copié dans le presse-papier !</span>
-          <span v-else>Copier le numéro (+221 77 208 78 20)</span>
-        </button>
-
-        <!-- Divider -->
-        <div class="relative flex py-1 items-center">
-          <div class="flex-grow border-t border-stone-200"></div>
-          <span class="flex-shrink mx-3 text-stone-400 text-xs uppercase tracking-wider font-semibold">Ou être rappelé(e)</span>
-          <div class="flex-grow border-t border-stone-200"></div>
+        <div class="ps-acts">
+          <button type="button" class="btn wa lg" @click="phoneStore.openWhatsApp()">
+            <IconWhatsApp className="w-5 h-5" />
+            Écrire sur WhatsApp
+          </button>
+          <button type="button" class="btn dark lg" @click="phoneStore.callNow">
+            <Phone aria-hidden="true" />
+            Appeler
+          </button>
         </div>
 
-        <!-- Formulaire de rappel rapide -->
-        <div v-if="!phoneStore.callbackSuccess" class="space-y-3">
-          <p class="text-xs text-stone-500 text-center">
-            Laissez votre numéro, une conseillère de vente vous rappelle dans les 5 minutes.
-          </p>
+        <p class="divider">Ou être rappelé(e)</p>
 
-          <form @submit.prevent="handleCallbackSubmit" class="space-y-2.5">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <input
-                v-model="form.name"
-                type="text"
-                placeholder="Votre prénom ou nom"
-                class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs outline-none focus:ring-2 focus:ring-gold-500/40"
-              />
-              <input
-                v-model="form.phone"
-                type="tel"
-                placeholder="Votre téléphone (ex: 77 123 45 67) *"
-                class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 text-xs outline-none focus:ring-2 focus:ring-gold-500/40 font-bold"
-                required
-              />
+        <!-- Demande de rappel -->
+        <Transition name="fade" mode="out-in">
+          <form v-if="!phoneStore.callbackSuccess" key="form" class="ps-form" @submit.prevent="handleCallbackSubmit">
+            <p class="hint">Laissez votre numéro : une conseillère vous rappelle au plus vite, de 8 h à 22 h.</p>
+            <div class="ps-fields">
+              <div class="field">
+                <label class="label" for="cb-name">Prénom <span class="opt-tag">(facultatif)</span></label>
+                <input id="cb-name" v-model="form.name" type="text" class="input" autocomplete="given-name" placeholder="Awa" />
+              </div>
+              <div class="field">
+                <label class="label" for="cb-phone">Téléphone</label>
+                <input
+                  id="cb-phone"
+                  v-model="form.phone"
+                  type="tel"
+                  inputmode="tel"
+                  autocomplete="tel"
+                  class="input"
+                  placeholder="77 123 45 67"
+                  required
+                />
+              </div>
+            </div>
+
+            <div v-if="phoneStore.callbackError" role="alert" class="note danger">
+              <AlertCircle aria-hidden="true" />
+              <p>{{ phoneStore.callbackError }}</p>
             </div>
 
             <button
               type="submit"
+              class="btn line block"
+              :class="{ loading: phoneStore.isSubmittingCallback }"
               :disabled="phoneStore.isSubmittingCallback"
-              class="w-full py-3 bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-stone-950 font-black text-xs rounded-xl shadow transition-all flex items-center justify-center gap-2"
             >
-              <span v-if="phoneStore.isSubmittingCallback">Envoi en cours...</span>
-              <span v-else>🔔 Me faire rappeler par Jumelles Store</span>
+              <BellRing aria-hidden="true" />
+              Me faire rappeler
             </button>
           </form>
-        </div>
 
-        <!-- Message de succès après demande de rappel -->
-        <div v-else class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-center space-y-1 text-xs">
-          <CheckCircle2 class="w-8 h-8 text-emerald-600 mx-auto" />
-          <p class="font-bold text-emerald-900">Demande de rappel enregistrée !</p>
-          <p class="text-emerald-700">Notre équipe prépare votre appel au <strong>{{ form.phone }}</strong>.</p>
-        </div>
+          <div v-else key="ok" class="note success ps-ok" role="status">
+            <CheckCircle2 aria-hidden="true" />
+            <div>
+              <p><strong>Demande de rappel enregistrée.</strong></p>
+              <p>Notre équipe vous appelle au <strong class="tnum">{{ form.phone }}</strong>.</p>
+            </div>
+          </div>
+        </Transition>
       </div>
 
-      <!-- Footer Info -->
-      <div class="bg-stone-50 border-t border-stone-100 px-6 py-3 text-[11px] text-stone-500 flex items-center justify-between">
-        <span>📍 Dakar, Sénégal • Livraison Express 24h</span>
-        <span class="font-bold text-stone-700">Commande Directe WhatsApp</span>
-      </div>
+      <p class="ps-ft"><MapPin aria-hidden="true" />Dakar, Sénégal · Livraison 24 h</p>
     </div>
-  </div>
+  </UiModal>
 </template>
 
 <script setup lang="ts">
 import { reactive } from 'vue';
-import { ShoppingBag, Copy, Check, CheckCircle2 } from 'lucide-vue-next';
-import IconPhoneSolid from './icons/IconPhoneSolid.vue';
+import { ShoppingBag, Copy, Check, CheckCircle2, Phone, BellRing, AlertCircle, MapPin } from 'lucide-vue-next';
+import UiModal from './ui/UiModal.vue';
 import IconWhatsApp from './icons/IconWhatsApp.vue';
 import { usePhoneStore } from '../stores/phone';
 
@@ -164,7 +126,7 @@ const form = reactive({
 });
 
 const handleCallbackSubmit = async () => {
-  if (!form.phone) return;
+  if (!form.phone || phoneStore.isSubmittingCallback) return;
   const success = await phoneStore.submitCallback(form.name, form.phone);
   if (success) {
     form.name = '';
@@ -172,3 +134,193 @@ const handleCallbackSubmit = async () => {
 };
 </script>
 
+<style scoped>
+.ps-hd {
+  padding: var(--s-6) var(--s-6) var(--s-5);
+  padding-right: 64px;
+  background:
+    radial-gradient(120% 140% at 100% 0%, rgb(var(--c-gold-500) / 0.22), transparent 55%),
+    var(--ink);
+  color: var(--on-ink);
+}
+.ps-live {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: rgb(var(--c-success-200));
+}
+.ps-live i {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgb(var(--c-wa-500));
+}
+.ps-live i::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: inherit;
+  animation: ping 1.8s var(--ease-out) infinite;
+}
+.ps-hd h2 {
+  margin: var(--s-2) 0 var(--s-1);
+  font-size: var(--fs-2xl);
+  color: var(--on-ink);
+  line-height: var(--lh-tight);
+}
+.ps-hd p {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--on-ink-muted);
+}
+
+.ps-bd {
+  display: grid;
+  gap: var(--s-5);
+  padding: var(--s-5) var(--s-6) var(--s-6);
+}
+
+.ps-ctx {
+  display: flex;
+  gap: var(--s-3);
+  align-items: flex-start;
+  padding: var(--s-3);
+  border-radius: var(--r-md);
+  background: var(--accent-soft);
+  border: 1px solid rgb(var(--c-gold-200));
+}
+.ps-ctx-img {
+  width: 52px;
+  height: 52px;
+  flex: none;
+  object-fit: cover;
+  border-radius: var(--r-sm);
+}
+.ps-ctx-ic {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  color: var(--accent-text);
+}
+.ps-ctx-ic svg {
+  width: 20px;
+  height: 20px;
+}
+.ps-ctx-t {
+  display: block;
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--accent-text);
+}
+.ps-ctx p {
+  margin: 2px 0 0;
+  font-size: var(--fs-xs);
+  color: var(--text);
+  white-space: pre-line;
+  word-break: break-word;
+  max-height: 7.5em;
+  overflow-y: auto;
+}
+
+.ps-num {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  text-align: center;
+}
+.ps-num > span {
+  font-size: var(--fs-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.ps-num strong {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 8vw, 36px);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  user-select: all;
+}
+.ps-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 var(--s-3);
+  border: 0;
+  border-radius: var(--r-full);
+  background: transparent;
+  color: var(--text-muted);
+  font: 600 var(--fs-xs) var(--font-sans);
+  cursor: pointer;
+  transition: background-color var(--dur-2), color var(--dur-2);
+}
+.ps-copy:hover {
+  background: var(--bg-sunken);
+  color: var(--text);
+}
+.ps-copy svg {
+  width: 14px;
+  height: 14px;
+}
+
+.ps-acts {
+  display: grid;
+  gap: var(--s-2);
+}
+
+.ps-form {
+  display: grid;
+  gap: var(--s-3);
+}
+.ps-form .hint {
+  text-align: center;
+}
+.ps-fields {
+  display: grid;
+  gap: var(--s-3);
+}
+.ps-ok strong {
+  font-weight: 700;
+}
+
+.ps-ft {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  padding: var(--s-3) var(--s-6);
+  border-top: 1px solid var(--border);
+  background: var(--surface-2);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+.ps-ft svg {
+  width: 14px;
+  height: 14px;
+}
+
+@keyframes ping {
+  75%,
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+@media (min-width: 480px) {
+  .ps-acts,
+  .ps-fields {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+</style>

@@ -2,12 +2,13 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛍️</text></svg>" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#faf7f2" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Jumelles Store Dakar — Maroquinerie de Luxe & Chaussures Femme</title>
     <meta name="description" content="Boutique de maroquinerie de luxe et chaussures élégantes pour femme à Dakar (Sénégal). Sacs à main prestige, mules et sandales, livraison rapide 24h à Dakar." />
     <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://jumelles-store.sn/" />
+    <link rel="canonical" href="%VITE_PUBLIC_SITE_URL%/" />
 
     <!-- Open Graph / Partage WhatsApp & Instagram -->
     <meta property="og:type" content="website" />
@@ -15,7 +16,8 @@
     <meta property="og:site_name" content="Jumelles Store Dakar" />
     <meta property="og:title" content="Jumelles Store — Sacs de Luxe & Chaussures Élégantes à Dakar" />
     <meta property="og:description" content="Découvrez nos collections exclusives de sacs à main et chaussures pour femme. Commande directe sur WhatsApp (+221 77 208 78 20) et livraison 24h à Dakar." />
-    <meta property="og:image" content="/products/sac-birkin-camel.jpg" />
+    <meta property="og:image" content="%VITE_PUBLIC_SITE_URL%/products/sac-cadenas-camel.jpg" />
+    <meta property="og:url" content="%VITE_PUBLIC_SITE_URL%/" />
 
     <!-- Données structurées JSON-LD (Boutique) -->
     <script type="application/ld+json">
@@ -37,9 +39,9 @@
     <!-- Polices Google Fonts (sans gestionnaire onload inline : bloqué par la CSP script-src 'self') -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   </head>
-  <body class="bg-stone-50 text-stone-800 antialiased font-sans">
+  <body>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>

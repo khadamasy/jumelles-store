@@ -1,0 +1,12 @@
+# Point d'entrée HTTPS du site (certificat Let's Encrypt obtenu et renouvelé automatiquement).
+# SITE_DOMAIN est défini dans .env (ex : jumelles-store.sn). Le domaine doit déjà pointer
+# vers l'adresse IP du serveur et les ports 80 et 443 doivent être ouverts.
+{$SITE_DOMAIN} {
+	encode gzip
+	reverse_proxy frontend:80
+}
+
+# Variante « www » redirigée vers le domaine principal
+www.{$SITE_DOMAIN} {
+	redir https://{$SITE_DOMAIN}{uri} permanent
+}

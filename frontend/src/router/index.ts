@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
 import { purgeSensitiveBrowserStorage } from '../stores/auth';
+import { setPageMeta } from '../utils/seo';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -67,16 +68,20 @@ const router = createRouter({
     },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
-  scrollBehavior() {
-    return { top: 0 };
+  // Bouton « Retour » : on retrouve sa position dans le catalogue au lieu de remonter en haut
+  scrollBehavior(_to, _from, savedPosition) {
+    return savedPosition || { top: 0 };
   },
 });
 
 router.beforeEach((to) => {
   purgeSensitiveBrowserStorage();
-  if (typeof document !== 'undefined') {
-    document.title = (to.meta?.title as string) || 'Jumelles Store Dakar';
-  }
+  // Valeurs par défaut ; la fiche produit les remplace ensuite par celles de l'article
+  setPageMeta({
+    title: (to.meta?.title as string) || 'Jumelles Store Dakar',
+    path: to.path,
+    noindex: Boolean(to.meta?.requiresAdmin),
+  });
   return true;
 });
 

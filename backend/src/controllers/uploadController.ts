@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import multer from 'multer';
-import { v4 as uuidv4 } from 'uuid';
-import { minioClient, BUCKET_PRODUCTS, isMinioConfigured } from '../config/minio';
+import { randomUUID as uuidv4 } from 'crypto';
+import { putProductImage, BUCKET_PRODUCTS, isMinioConfigured } from '../config/minio';
 
 const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp'];
 
@@ -57,11 +57,7 @@ export const uploadProductImage = async (req: Request, res: Response) => {
     }
 
     try {
-      await minioClient.putObject(BUCKET_PRODUCTS, filename, file.buffer, file.size, {
-        'Content-Type': detected.mime,
-        'Content-Disposition': 'inline',
-        'X-Content-Type-Options': 'nosniff',
-      });
+      await putProductImage(filename, file.buffer, detected.mime);
 
       // Par défaut : chemin relatif servi par Nginx / Vite sur le même domaine que le site.
       // MINIO_PUBLIC_URL permet de pointer vers un CDN ou un domaine dédié aux photos.

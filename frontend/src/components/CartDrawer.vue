@@ -1,133 +1,110 @@
 <template>
-  <div v-if="cartStore.isDrawerOpen" class="fixed inset-0 z-50 overflow-hidden">
-    <!-- Backdrop -->
-    <div
-      class="absolute inset-0 bg-stone-900/50 backdrop-blur-sm transition-opacity"
-      @click="cartStore.toggleDrawer(false)"
-    ></div>
-
-    <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
-      <div class="w-screen max-w-md bg-white shadow-2xl flex flex-col">
-        <!-- Drawer Header -->
-        <div class="p-6 border-b border-stone-200 flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="text-xl">🛍️</span>
-            <h2 class="font-serif text-lg font-bold text-stone-900">Mon Panier d'Achat</h2>
-            <span class="bg-stone-100 text-stone-700 text-xs px-2.5 py-0.5 rounded-full font-semibold">
-              {{ cartStore.totalItems }}
-            </span>
-          </div>
-          <button
-            @click="cartStore.toggleDrawer(false)"
-            class="text-stone-400 hover:text-stone-700 p-1 rounded-lg"
-          >
-            ✕
-          </button>
-        </div>
-
-        <!-- Drawer Content -->
-        <div class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
-          <div v-if="cartStore.items.length === 0" class="text-center py-12 text-stone-500 space-y-4">
-            <div class="text-5xl">👜</div>
-            <p class="font-medium text-stone-700">Votre panier est actuellement vide.</p>
-            <p class="text-xs text-stone-400">Découvrez nos sacs tendance et nos élégants escarpins !</p>
-            <router-link
-              to="/catalog"
-              @click="cartStore.toggleDrawer(false)"
-              class="inline-block px-5 py-2.5 bg-stone-900 text-white text-xs font-semibold rounded-xl hover:bg-gold-600 transition-colors"
-            >
-              Explorer la collection
-            </router-link>
-          </div>
-
-          <div
-            v-for="item in cartStore.items"
-            :key="item.variantId"
-            class="flex items-center gap-4 p-3 bg-stone-50 rounded-xl border border-stone-100"
-          >
-            <img
-              :src="item.imageUrl"
-              :alt="item.productName"
-              class="w-20 h-20 object-cover rounded-lg bg-stone-200 shrink-0"
-            />
-            <div class="flex-1 min-w-0">
-              <h4 class="text-sm font-semibold text-stone-900 truncate">
-                {{ item.productName }}
-              </h4>
-              <p class="text-xs text-stone-500">
-                Couleur : <span class="font-medium text-stone-700">{{ item.color }}</span>
-              </p>
-              <p class="text-xs text-stone-500">
-                Pointure/Taille : <span class="font-medium text-stone-700">{{ item.sizeOrShoeSize }}</span>
-              </p>
-              <p class="text-sm font-bold text-stone-900 mt-1">
-                {{ formatPrice(item.price) }}
-              </p>
-
-              <!-- Quantity Controls -->
-              <div class="flex items-center gap-2 mt-2">
-                <button
-                  @click="cartStore.updateQuantity(item.variantId, item.quantity - 1)"
-                  class="w-6 h-6 rounded bg-white border border-stone-300 flex items-center justify-center text-xs font-bold text-stone-700 hover:bg-stone-100"
-                >
-                  -
-                </button>
-                <span class="text-xs font-semibold w-6 text-center">{{ item.quantity }}</span>
-                <button
-                  @click="cartStore.updateQuantity(item.variantId, item.quantity + 1)"
-                  class="w-6 h-6 rounded bg-white border border-stone-300 flex items-center justify-center text-xs font-bold text-stone-700 hover:bg-stone-100"
-                >
-                  +
-                </button>
-
-                <button
-                  @click="cartStore.removeItem(item.variantId)"
-                  class="text-xs text-rosewood-600 hover:text-rosewood-800 ml-auto font-medium"
-                >
-                  Supprimer
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Drawer Footer -->
-        <div v-if="cartStore.items.length > 0" class="p-6 border-t border-stone-200 bg-stone-50 space-y-4">
-          <div class="flex justify-between items-baseline text-base font-semibold text-stone-900">
-            <span>Sous-total estimé :</span>
-            <div class="text-right">
-              <span class="font-serif text-xl font-black text-stone-950 block">
-                {{ currencyStore.isEur ? currencyStore.toEurOnly(cartStore.subtotal) : currencyStore.toXofOnly(cartStore.subtotal) }}
-              </span>
-              <span class="text-xs text-stone-500 font-bold block">
-                {{ currencyStore.isEur ? currencyStore.toXofOnly(cartStore.subtotal) : '≈ ' + currencyStore.toEurOnly(cartStore.subtotal) }}
-              </span>
-            </div>
-          </div>
-          <p class="text-xs text-stone-500">Validation rapide sur WhatsApp. Aucun paiement en ligne requis, règlement à la livraison.</p>
-
-          <router-link
-            to="/checkout"
-            @click="cartStore.toggleDrawer(false)"
-            class="w-full py-3.5 bg-stone-900 hover:bg-gold-600 text-white font-medium text-sm rounded-xl text-center block transition-all shadow-md hover:shadow-lg"
-          >
-            Valider et Commander
-          </router-link>
-
-          <button
-            @click="orderCartByPhone"
-            class="w-full py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer"
-          >
-            <span>📞</span>
-            <span>Commander ce panier par Téléphone / WhatsApp</span>
-          </button>
-        </div>
+  <UiModal
+    :open="cartStore.isDrawerOpen"
+    variant="drawer"
+    label="Mon panier"
+    close-label="Fermer le panier"
+    flush
+    @close="cartStore.toggleDrawer(false)"
+  >
+    <template #header>
+      <div class="cd-hd">
+        <h2>Mon panier</h2>
+        <span v-if="cartStore.totalItems > 0" class="pill plain tnum">
+          {{ cartStore.totalItems }} article{{ cartStore.totalItems > 1 ? 's' : '' }}
+        </span>
       </div>
-    </div>
-  </div>
+    </template>
+
+    <UiEmpty
+      v-if="cartStore.items.length === 0"
+      title="Votre panier est vide"
+      text="Découvrez nos sacs et nos chaussures : chaque pièce est disponible à Dakar."
+      heading-tag="p"
+    >
+      <template #icon><ShoppingBag /></template>
+      <router-link to="/catalog" class="btn dark" @click="cartStore.toggleDrawer(false)">
+        Explorer la collection
+      </router-link>
+    </UiEmpty>
+
+    <TransitionGroup v-else tag="ul" name="list" class="cd-list">
+      <li v-for="item in cartStore.items" :key="item.variantId" class="cd-item">
+        <img
+          :src="item.imageUrl"
+          :alt="item.productName"
+          loading="lazy"
+          decoding="async"
+          class="cd-img"
+        />
+        <div class="cd-info">
+          <div class="cd-top">
+            <h3>{{ item.productName }}</h3>
+            <button
+              type="button"
+              class="cd-rm"
+              :aria-label="`Retirer ${item.productName} du panier`"
+              @click="cartStore.removeItem(item.variantId)"
+            >
+              <X aria-hidden="true" />
+            </button>
+          </div>
+          <p class="cd-var">
+            {{ item.color }}<template v-if="item.sizeOrShoeSize"> · {{ item.sizeOrShoeSize }}</template>
+          </p>
+          <div class="cd-bot">
+            <UiQty
+              :model-value="item.quantity"
+              :max="item.maxStock"
+              size="sm"
+              allow-remove
+              :label="`Quantité de ${item.productName}`"
+              @update:model-value="(q) => cartStore.updateQuantity(item.variantId, q)"
+            />
+            <span class="cd-price tnum">{{ formatPrice(item.price * item.quantity) }}</span>
+          </div>
+        </div>
+      </li>
+    </TransitionGroup>
+
+    <template v-if="cartStore.items.length > 0" #footer>
+      <div class="cd-ft">
+        <div class="cd-total">
+          <span>Sous-total</span>
+          <div>
+            <strong class="tnum">
+              {{ currencyStore.isEur ? currencyStore.toEurOnly(cartStore.subtotal) : currencyStore.toXofOnly(cartStore.subtotal) }}
+            </strong>
+            <small class="tnum">
+              {{ currencyStore.isEur ? currencyStore.toXofOnly(cartStore.subtotal) : '≈ ' + currencyStore.toEurOnly(cartStore.subtotal) }}
+            </small>
+          </div>
+        </div>
+        <p class="cd-note">
+          <Truck aria-hidden="true" />
+          Livraison offerte à Dakar · paiement à la réception
+        </p>
+
+        <router-link to="/checkout" class="btn gold lg block" @click="cartStore.toggleDrawer(false)">
+          Commander
+          <ArrowRight aria-hidden="true" />
+        </router-link>
+
+        <button type="button" class="btn ghost block cd-wa" @click="orderCartByPhone">
+          <IconWhatsApp className="w-4 h-4" />
+          Commander par téléphone ou WhatsApp
+        </button>
+      </div>
+    </template>
+  </UiModal>
 </template>
 
 <script setup lang="ts">
+import { ShoppingBag, X, Truck, ArrowRight } from 'lucide-vue-next';
+import UiModal from './ui/UiModal.vue';
+import UiEmpty from './ui/UiEmpty.vue';
+import UiQty from './ui/UiQty.vue';
+import IconWhatsApp from './icons/IconWhatsApp.vue';
 import { useCartStore } from '../stores/cart';
 import { useCurrencyStore } from '../stores/currency';
 import { usePhoneStore } from '../stores/phone';
@@ -145,14 +122,153 @@ const orderCartByPhone = () => {
     .join('\n\n');
   const firstPhoto = cartStore.items[0]?.imageUrl || '';
   cartStore.toggleDrawer(false);
-  phoneStore.openModal(
-    `Panier Jumelles Store: ${summary} - Total: ${cartStore.formattedSubtotal}`,
-    firstPhoto
-  );
+  phoneStore.openModal(`Panier Jumelles Store: ${summary} - Total: ${cartStore.formattedSubtotal}`, firstPhoto);
 };
 
-const formatPrice = (price: number) => {
-  return currencyStore.formatPrice(price);
-};
+const formatPrice = (price: number) => currencyStore.formatPrice(price);
 </script>
 
+<style scoped>
+.cd-hd {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.cd-hd h2 {
+  margin: 0;
+  font-size: var(--fs-lg);
+}
+
+.cd-list {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: var(--s-2) var(--s-5);
+}
+.cd-item {
+  display: flex;
+  gap: var(--s-4);
+  padding: var(--s-4) 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.cd-item:last-child {
+  border-bottom: 0;
+}
+.cd-img {
+  width: 84px;
+  height: 105px;
+  flex: none;
+  object-fit: cover;
+  border-radius: var(--r-sm);
+  background: var(--bg-sunken);
+}
+.cd-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.cd-top {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s-2);
+}
+.cd-top h3 {
+  flex: 1;
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  line-height: var(--lh-snug);
+  letter-spacing: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cd-rm {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin: -6px -6px 0 0;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+  transition: background-color var(--dur-2), color var(--dur-2);
+}
+.cd-rm:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.cd-rm svg {
+  width: 16px;
+  height: 16px;
+}
+.cd-var {
+  margin: 2px 0 0;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+.cd-bot {
+  margin-top: auto;
+  padding-top: var(--s-2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+}
+.cd-price {
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  text-align: right;
+}
+
+.cd-ft {
+  display: grid;
+  gap: var(--s-3);
+}
+.cd-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.cd-total > span {
+  font-weight: 600;
+}
+.cd-total div {
+  text-align: right;
+}
+.cd-total strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: 500;
+}
+.cd-total small {
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+.cd-note {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+.cd-note svg {
+  width: 16px;
+  height: 16px;
+  color: var(--success);
+}
+.cd-wa {
+  color: var(--wa);
+  font-size: var(--fs-sm);
+}
+</style>

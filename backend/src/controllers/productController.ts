@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID as uuidv4 } from 'crypto';
 import { memoryStore, Product, ProductVariant, ProductImage, persistStore } from '../config/db';
 import { cleanText, isSafeImageUrl } from '../middlewares/security';
 
@@ -180,7 +180,7 @@ export const createProduct = async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'URL d\'image non autorisée.' });
     }
 
-    const productId = `prod-${uuidv4().substring(0, 8)}`;
+    const productId = `prod-${uuidv4()}`;
     const slug = name
       .toLowerCase()
       .normalize('NFD')
@@ -190,7 +190,7 @@ export const createProduct = async (req: Request, res: Response) => {
       .slice(0, 80);
 
     const newVariants: ProductVariant[] = variants.map((v: any, index: number) => ({
-      id: `var-${uuidv4().substring(0, 8)}`,
+      id: `var-${uuidv4()}`,
       productId,
       sizeOrShoeSize: cleanText(v?.sizeOrShoeSize, 30) || 'Standard',
       color: cleanText(v?.color, 50) || 'Unique',
@@ -200,7 +200,7 @@ export const createProduct = async (req: Request, res: Response) => {
     }));
 
     const newImages: ProductImage[] = images.map((img: any, index: number) => ({
-      id: `img-${uuidv4().substring(0, 8)}`,
+      id: `img-${uuidv4()}`,
       productId,
       minioUrl: img.minioUrl || img.url,
       altText: cleanText(img.altText, 150) || name,
@@ -224,7 +224,7 @@ export const createProduct = async (req: Request, res: Response) => {
     };
 
     memoryStore.products.unshift(newProduct);
-    await persistStore();
+    await persistStore({ products: [productId] });
 
     res.status(201).json({
       success: true,
@@ -279,6 +279,10 @@ export const updateProduct = async (req: Request, res: Response) => {
         updated.originalPrice = op;
       }
     }
+    // Un prix barré inférieur ou égal au prix de vente afficherait une fausse promotion
+    if (updated.originalPrice !== undefined && updated.originalPrice <= updated.basePrice) {
+      delete updated.originalPrice;
+    }
     if (body.isFeatured !== undefined) updated.isFeatured = !!body.isFeatured;
     if (body.isActive !== undefined) updated.isActive = !!body.isActive;
     if (body.images !== undefined) {
@@ -290,7 +294,7 @@ export const updateProduct = async (req: Request, res: Response) => {
         const url = img?.minioUrl || img?.url;
         if (!isSafeImageUrl(url)) return res.status(400).json({ success: false, message: 'URL d\'image non autorisée.' });
         images.push({
-          id: `img-${uuidv4().substring(0, 8)}`,
+          id: `img-${uuidv4()}`,
           productId: existing.id,
           minioUrl: url,
           altText: cleanText(img?.altText, 150) || updated.name,
@@ -301,7 +305,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     }
 
     memoryStore.products[index] = updated;
-    await persistStore();
+    await persistStore({ products: [updated.id] });
 
     res.json({
       success: true,
@@ -352,7 +356,7 @@ export const replenishStock = async (req: Request, res: Response) => {
       variant.stockQuantity = n;
     }
 
-    await persistStore();
+    await persistStore({ variants: [variant.id] });
 
     res.json({
       success: true,
@@ -388,7 +392,7 @@ export const addVariantToProduct = async (req: Request, res: Response) => {
 
     const size = cleanText(sizeOrShoeSize, 30) || 'Standard';
     const newVariant: ProductVariant = {
-      id: `var-${uuidv4().substring(0, 8)}`,
+      id: `var-${uuidv4()}`,
       productId,
       sizeOrShoeSize: size,
       color: cleanText(color, 50) || 'Noir',
@@ -398,7 +402,7 @@ export const addVariantToProduct = async (req: Request, res: Response) => {
     };
 
     product.variants.push(newVariant);
-    await persistStore();
+    await persistStore({ products: [product.id] });
 
     res.status(201).json({
       success: true,
@@ -420,8 +424,8 @@ export const deleteProduct = async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, message: 'Produit introuvable.' });
     }
 
-    memoryStore.products.splice(index, 1);
-    await persistStore();
+    const [removed] = memoryStore.products.splice(index, 1);
+    await persistStore({ deletedProducts: [removed.id] });
     res.json({ success: true, message: 'Article supprimé du catalogue.' });
   } catch (error: any) {
     console.error('[product]', error);

@@ -10,6 +10,7 @@ import uploadRoutes from './routes/uploadRoutes';
 import phoneRoutes from './routes/phoneRoutes';
 import authRoutes from './routes/authRoutes';
 import { securityHeaders, rateLimit } from './middlewares/security';
+import { memoryStore } from './config/db';
 
 const app: Application = express();
 const isProduction = process.env.NODE_ENV === 'production';
@@ -28,7 +29,7 @@ app.use(securityHeaders);
 // Configuration CORS stricte
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
-  : ['http://localhost:3000', 'http://127.0.0.1:3000'];
+  : ['http://localhost:3001', 'http://127.0.0.1:3001'];
 
 // En développement : autoriser uniquement le poste local et le réseau Wi-Fi privé (test mobile)
 const isPrivateNetworkOrigin = (origin: string) =>
@@ -68,6 +69,32 @@ app.use(
 // Route de santé (sans divulgation de l'infrastructure)
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'UP', timestamp: new Date().toISOString() });
+});
+
+// Plan du site pour Google (articles actifs), servi par Nginx sous /sitemap.xml
+const escapeXml = (v: string) =>
+  v.replace(/[<>&'"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' }[c] as string));
+
+app.get('/sitemap.xml', (req: Request, res: Response) => {
+  const base = (process.env.PUBLIC_SITE_URL || 'https://jumelles-store.sn').replace(/\/$/, '');
+  const staticPaths = ['/', '/catalog', '/faq-livraison', '/conditions-utilisation', '/politique-confidentialite'];
+  const urls = [
+    ...staticPaths.map((p) => `  <url><loc>${escapeXml(base + p)}</loc></url>`),
+    ...memoryStore.products
+      .filter((p) => p.isActive)
+      .map((p) => `  <url><loc>${escapeXml(`${base}/product/${encodeURIComponent(p.slug)}`)}</loc></url>`),
+  ];
+  res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`);
+});
+
+// robots.txt généré avec le vrai domaine (PUBLIC_SITE_URL), servi par Nginx sous /robots.txt
+app.get('/robots.txt', (req: Request, res: Response) => {
+  const base = (process.env.PUBLIC_SITE_URL || 'https://jumelles-store.sn').replace(/\/$/, '');
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.send(`User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/\n\nSitemap: ${base}/sitemap.xml\n`);
 });
 
 // Enregistrement des routes API

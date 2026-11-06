@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID as uuidv4 } from 'crypto';
 import { memoryStore, PhoneCallbackRequest, persistStore } from '../config/db';
 import { cleanText, isValidPhone } from '../middlewares/security';
 
@@ -41,10 +41,11 @@ export const requestCallback = async (req: Request, res: Response) => {
     const cleanPhone = cleanText(customerPhone, 25);
 
     // Plafond anti-saturation : ne jamais écraser une demande PENDING légitime
+    const purged: string[] = [];
     if (memoryStore.phoneCallbacks.length >= 2000) {
       const calledIdx = memoryStore.phoneCallbacks.findIndex((c) => c.status === 'CALLED');
       if (calledIdx !== -1) {
-        memoryStore.phoneCallbacks.splice(calledIdx, 1);
+        purged.push(...memoryStore.phoneCallbacks.splice(calledIdx, 1).map((c) => c.id));
       } else {
         return res.status(429).json({
           success: false,
@@ -64,7 +65,7 @@ export const requestCallback = async (req: Request, res: Response) => {
     };
 
     memoryStore.phoneCallbacks.unshift(newRequest);
-    await persistStore();
+    await persistStore({ callbacks: [newRequest.id], deletedCallbacks: purged });
 
     res.status(201).json({
       success: true,
@@ -92,23 +93,31 @@ export const getCallbacks = (req: Request, res: Response) => {
  * Mettre à jour le statut d'un appel (Admin)
  */
 export const updateCallbackStatus = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { status } = req.body;
+  try {
+    const { id } = req.params;
+    const { status } = req.body || {};
 
-  const found = memoryStore.phoneCallbacks.find((c) => c.id === id);
-  if (!found) {
-    return res.status(404).json({ success: false, message: 'Demande introuvable.' });
-  }
+    if (status !== 'PENDING' && status !== 'CALLED') {
+      return res.status(400).json({ success: false, message: 'Statut invalide.' });
+    }
 
-  if (status && ['PENDING', 'CALLED'].includes(status)) {
+    const found = memoryStore.phoneCallbacks.find((c) => c.id === id);
+    if (!found) {
+      return res.status(404).json({ success: false, message: 'Demande introuvable.' });
+    }
+
     found.status = status;
-    await persistStore();
-  }
+    await persistStore({ callbacks: [found.id] });
 
-  res.json({
-    success: true,
-    message: 'Statut de l\'appel mis à jour.',
-    data: found,
-  });
+    res.json({
+      success: true,
+      message: 'Statut de l\'appel mis à jour.',
+      data: found,
+    });
+  } catch (error) {
+    // Express 4 ne capture pas les rejets async : sans ce bloc, la requête resterait sans réponse
+    console.error('[updateCallbackStatus]', error);
+    res.status(500).json({ success: false, message: 'Erreur interne.' });
+  }
 };
 
