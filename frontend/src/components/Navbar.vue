@@ -3,7 +3,7 @@
   <div class="promo" role="note">
     <div class="wrap promo-in">
       <span><Truck aria-hidden="true" />Livraison 24 h à Dakar</span>
-      <span class="sep" aria-hidden="true"></span>
+      <span class="sep hide-xs" aria-hidden="true"></span>
       <span class="hide-xs"><Banknote aria-hidden="true" />Paiement à la livraison</span>
       <span class="sep hide-xs" aria-hidden="true"></span>
       <span class="hide-sm"><Repeat aria-hidden="true" />Échange de pointure 48 h</span>

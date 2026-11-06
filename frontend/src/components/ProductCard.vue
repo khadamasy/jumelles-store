@@ -23,12 +23,13 @@
     </div>
 
     <router-link :to="productUrl" class="pc-in">
-      <span class="pc-cat">{{ categoryLabel }}<template v-if="colorCount > 1"> · {{ colorCount }} coloris</template></span>
+      <span class="pc-cat">{{ categoryLabel }}</span>
       <h3>{{ product.name }}</h3>
       <div class="pc-price tnum">
         <span>{{ formatFcfa(product.basePrice) }}</span>
         <s v-if="discount > 0">{{ formatFcfa(product.originalPrice) }}</s>
       </div>
+      <span v-if="colorCount > 1" class="pc-meta">{{ colorCount }} coloris</span>
     </router-link>
   </article>
 </template>
@@ -237,6 +238,10 @@ const quickAdd = () => {
   font-weight: 700;
   font-size: var(--fs-sm);
   color: var(--text);
+}
+.pc-meta {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
 }
 .pc-price s {
   font-weight: 500;

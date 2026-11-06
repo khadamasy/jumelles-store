@@ -4,17 +4,6 @@
 
 /* Les valeurs (couleurs, tailles, durées…) sont dans styles/variables.css */
 
-/* Anciens noms conservés le temps de la migration : pointent sur les nouveaux rôles */
-:root {
-  --card: var(--surface);
-  --tx: var(--text);
-  --mut: var(--text-muted);
-  --bd: var(--border);
-  --gold: var(--accent);
-  --gold2: var(--accent-on-ink);
-  --shadow: var(--sh-2);
-}
-
 /* =========================== BASE =========================== */
 html {
   scroll-padding-top: calc(var(--header-h) + 8px);
@@ -551,9 +540,10 @@ img {
 
 /* ======================= MOUVEMENT ======================= */
 
-/* Apparition de chaque page */
+/* Apparition de chaque page : fondu seul. Un déplacement (transform) ferait perdre
+   leur position fixe aux éléments de la page (barre d'onglets de la gérance…) */
 .page-anim {
-  animation: page-in var(--dur-4) var(--ease-out) both;
+  animation: page-in var(--dur-3) var(--ease-out);
 }
 
 /* Apparition au défilement (classe .in ajoutée par l'observateur) */
@@ -636,7 +626,6 @@ img {
 @keyframes page-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
   }
 }
 @keyframes rise-in {

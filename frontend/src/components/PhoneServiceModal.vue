@@ -17,7 +17,13 @@
       <div class="ps-bd">
         <!-- Article concerné (ouvert depuis une fiche ou le panier) -->
         <div v-if="phoneStore.productContext" class="ps-ctx">
-          <img v-if="phoneStore.productImage" :src="phoneStore.productImage" alt="" class="ps-ctx-img" />
+          <!-- Aperçu : copie locale de la photo (le lien public reste celui envoyé sur WhatsApp) -->
+          <img
+            v-if="phoneStore.productLocalImage || phoneStore.productImage"
+            :src="phoneStore.productLocalImage || phoneStore.productImage"
+            alt=""
+            class="ps-ctx-img"
+          />
           <span v-else class="ps-ctx-ic"><ShoppingBag aria-hidden="true" /></span>
           <div>
             <span class="ps-ctx-t">Article sélectionné · le lien photo sera joint sur WhatsApp</span>

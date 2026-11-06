@@ -226,13 +226,18 @@ onBeforeUnmount(deactivate);
   border-radius: var(--r-xl) var(--r-xl) 0 0;
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+/* Poignée superposée : ne crée pas de bande vide au-dessus d'un en-tête sombre */
 .ui-grip {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  z-index: 3;
   width: 40px;
   height: 4px;
+  margin-left: -20px;
   border-radius: 4px;
   background: var(--border-strong);
-  margin: 10px auto -2px;
-  flex: none;
+  opacity: 0.9;
 }
 
 /* ----- Panneau à droite ----- */

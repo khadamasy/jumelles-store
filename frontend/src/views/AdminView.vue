@@ -134,9 +134,15 @@
             <RefreshCw :class="{ spin: isRefreshing }" aria-hidden="true" />
             <span class="hide-sm">{{ isRefreshing ? 'Actualisation…' : 'Actualiser' }}</span>
           </button>
-          <button v-if="activeView === 'v-stk'" type="button" class="btn dark sm" @click="isCreateModalOpen = true">
+          <button
+            v-if="activeView === 'v-stk'"
+            type="button"
+            class="btn dark sm"
+            aria-label="Nouvel article"
+            @click="isCreateModalOpen = true"
+          >
             <Plus aria-hidden="true" />
-            <span>Nouvel article</span>
+            <span class="hide-sm">Nouvel article</span>
           </button>
 
           <!-- Compte : identifiants + déconnexion -->
