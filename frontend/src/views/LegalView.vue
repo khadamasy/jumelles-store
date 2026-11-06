@@ -50,7 +50,7 @@
       <section class="space-y-3 border-t border-stone-100 pt-6">
         <h2 class="font-serif text-xl font-normal text-stone-950">2. Produits et Disponibilité</h2>
         <p>
-          Nos sacs à main, cabas, pochettes de gala et souliers (pointures 37 à 42) sont décrits avec la plus grande précision. Les stocks indiqués sur le site correspondent aux articles physiquement disponibles dans notre entrepôt logistique à Dakar. En cas de rupture simultanée, la cliente est immédiatement notifiée et remboursée sous 24h.
+          Nos sacs à main, cabas, pochettes de gala et souliers (pointures 37 à 42) sont décrits avec la plus grande précision. Les stocks indiqués sur le site correspondent aux articles disponibles à Dakar. Si un article venait à manquer, la cliente est prévenue immédiatement sur WhatsApp et la commande est annulée sans aucun frais (le règlement n'ayant lieu qu'à la livraison).
         </p>
       </section>
 
@@ -64,7 +64,7 @@
       <section class="space-y-3 border-t border-stone-100 pt-6">
         <h2 class="font-serif text-xl font-normal text-stone-950">4. Expédition et Livraison à Dakar</h2>
         <p>
-          Toute commande validée avant 14h00 est expédiée et livrée le jour même à Dakar. Les commandes postérieures sont livrées le lendemain matin en moins de 24 heures ouvrées. Les frais de livraison sont calculés en fonction de la commune de destination (Plateau, Almadies, Mermoz, Maristes, Banlieue, etc.).
+          Toute commande confirmée sur WhatsApp est livrée sous 24 heures à Dakar. La livraison est offerte à Dakar ; pour la banlieue et les régions, les frais dépendent de la destination et sont annoncés à la cliente sur WhatsApp avant l'expédition.
         </p>
       </section>
 

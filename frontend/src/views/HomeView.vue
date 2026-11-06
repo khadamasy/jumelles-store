@@ -6,7 +6,7 @@
           <span class="eyebrow"><i></i>Collection 2026 · Dakar</span>
           <h1>L’élégance du sac, la grâce du soulier.</h1>
           <p class="lead">
-            Maroquinerie en cuir sélectionné et chaussures pour toutes vos occasions. Commandez en 2 minutes, confirmez sur WhatsApp, recevez chez vous.
+            Maroquinerie sélectionnée et chaussures pour toutes vos occasions. Commandez en 2 minutes, confirmez sur WhatsApp, recevez chez vous.
           </p>
           <div class="cta">
             <router-link to="/catalog?type=SAC" class="btn gold">Découvrir les sacs</router-link>
@@ -25,7 +25,7 @@
               alt="Sac prestige cuir et cadenas"
               class="absolute inset-0 w-full h-full object-cover"
             />
-            <span><small>Best-seller</small>Sac prestige cuir et cadenas</span>
+            <span><small>Coup de cœur</small>Sac à main à cadenas</span>
           </router-link>
 
           <router-link

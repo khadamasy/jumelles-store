@@ -5,11 +5,16 @@
     @click.self="phoneStore.closeModal"
   >
     <div
-      class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border border-stone-200 transform transition-all animate-in fade-in zoom-in-95 duration-200"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Commander par téléphone ou WhatsApp"
+      class="bg-white rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden border border-stone-200 transform transition-all animate-in fade-in zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto"
     >
       <!-- Modal Header -->
       <div class="bg-gradient-to-r from-stone-950 via-stone-900 to-stone-950 p-6 text-white relative">
         <button
+          type="button"
+          aria-label="Fermer"
           @click="phoneStore.closeModal"
           class="absolute top-5 right-5 text-stone-400 hover:text-white w-8 h-8 rounded-full bg-white/10 flex items-center justify-center font-bold text-sm transition-colors"
         >
@@ -88,6 +93,7 @@
         >
           <component :is="phoneStore.copied ? Check : Copy" class="w-3.5 h-3.5" />
           <span v-if="phoneStore.copied" class="text-emerald-700 font-bold">Numéro copié dans le presse-papier !</span>
+          <span v-else-if="phoneStore.copyFailed" class="text-rosewood-700 font-bold">Copie impossible : notez +221 77 208 78 20</span>
           <span v-else>Copier le numéro (+221 77 208 78 20)</span>
         </button>
 
@@ -101,7 +107,7 @@
         <!-- Formulaire de rappel rapide -->
         <div v-if="!phoneStore.callbackSuccess" class="space-y-3">
           <p class="text-xs text-stone-500 text-center">
-            Laissez votre numéro, une conseillère de vente vous rappelle dans les 5 minutes.
+            Laissez votre numéro : une conseillère vous rappelle au plus vite, tous les jours de 8 h à 22 h.
           </p>
 
           <form @submit.prevent="handleCallbackSubmit" class="space-y-2.5">
@@ -120,6 +126,10 @@
                 required
               />
             </div>
+
+            <p v-if="phoneStore.callbackError" role="alert" class="text-xs font-semibold text-rosewood-700 bg-rosewood-50 border border-rosewood-200 rounded-xl px-3 py-2">
+              {{ phoneStore.callbackError }}
+            </p>
 
             <button
               type="submit"
@@ -150,7 +160,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
+import { reactive, onMounted, onUnmounted } from 'vue';
 import { ShoppingBag, Copy, Check, CheckCircle2 } from 'lucide-vue-next';
 import IconPhoneSolid from './icons/IconPhoneSolid.vue';
 import IconWhatsApp from './icons/IconWhatsApp.vue';
@@ -163,8 +173,15 @@ const form = reactive({
   phone: '',
 });
 
+// Touche Échap : ferme la fenêtre
+const onKey = (e: KeyboardEvent) => {
+  if (e.key === 'Escape' && phoneStore.isOpen) phoneStore.closeModal();
+};
+onMounted(() => window.addEventListener('keydown', onKey));
+onUnmounted(() => window.removeEventListener('keydown', onKey));
+
 const handleCallbackSubmit = async () => {
-  if (!form.phone) return;
+  if (!form.phone || phoneStore.isSubmittingCallback) return;
   const success = await phoneStore.submitCallback(form.name, form.phone);
   if (success) {
     form.name = '';

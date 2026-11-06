@@ -77,13 +77,16 @@ export const usePhoneStore = defineStore('phone', () => {
   const productLocalImage = ref<string>('');
   const isSubmittingCallback = ref(false);
   const callbackSuccess = ref(false);
+  const callbackError = ref('');
   const copied = ref(false);
+  const copyFailed = ref(false);
 
   const openModal = (context?: string, imageUrl?: string) => {
     productContext.value = context || '';
     productLocalImage.value = imageUrl || '';
     productImage.value = imageUrl ? toAbsolutePhotoUrl(imageUrl) : '';
     callbackSuccess.value = false;
+    callbackError.value = '';
     isOpen.value = true;
   };
 
@@ -91,19 +94,20 @@ export const usePhoneStore = defineStore('phone', () => {
     isOpen.value = false;
   };
 
+  /** « Copié » seulement si la copie a vraiment réussi (sinon le numéro reste affiché à recopier) */
   const copyPhoneNumber = async () => {
     try {
-      await navigator.clipboard.writeText('+221 77 208 78 20');
+      await navigator.clipboard.writeText(phoneNumber.value);
       copied.value = true;
-      setTimeout(() => {
-        copied.value = false;
-      }, 3000);
+      copyFailed.value = false;
     } catch {
-      copied.value = true;
-      setTimeout(() => {
-        copied.value = false;
-      }, 3000);
+      copied.value = false;
+      copyFailed.value = true;
     }
+    setTimeout(() => {
+      copied.value = false;
+      copyFailed.value = false;
+    }, 3000);
   };
 
   const callNow = () => {
@@ -130,6 +134,7 @@ export const usePhoneStore = defineStore('phone', () => {
 
   const submitCallback = async (customerName: string, customerPhone: string, notes?: string) => {
     isSubmittingCallback.value = true;
+    callbackError.value = '';
     try {
       const interestWithPhoto =
         productContext.value && productImage.value && !productContext.value.includes(productImage.value)
@@ -145,7 +150,10 @@ export const usePhoneStore = defineStore('phone', () => {
       callbackSuccess.value = true;
       return true;
     } catch (err: any) {
-      alert(err.response?.data?.message || "Erreur lors de l'envoi de la demande.");
+      // Message affiché dans la fenêtre (et non une alerte brute du navigateur)
+      callbackError.value =
+        err?.response?.data?.message ||
+        "Envoi impossible pour le moment. Écrivez-nous directement sur WhatsApp au +221 77 208 78 20.";
       return false;
     } finally {
       isSubmittingCallback.value = false;
@@ -161,7 +169,9 @@ export const usePhoneStore = defineStore('phone', () => {
     productLocalImage,
     isSubmittingCallback,
     callbackSuccess,
+    callbackError,
     copied,
+    copyFailed,
     toAbsolutePhotoUrl,
     copyPhotoToClipboard,
     buildWhatsAppSendUrl,

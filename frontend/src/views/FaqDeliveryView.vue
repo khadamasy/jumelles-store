@@ -136,25 +136,25 @@ const faqList = [
     icon: '⚡',
     question: 'En combien de temps ma commande est-elle livrée à Dakar ?',
     answer:
-      'Toutes les commandes passées avant 14h00 sont livrées le jour même à Dakar. Pour les commandes passées en fin de journée, la livraison s\'effectue le lendemain matin en moins de 24 heures.\n\nNos livreurs se déplacent dans tous les quartiers : Plateau, Almadies, Mermoz, Ouakam, Ngor, Fann, Point E, Sacré-Cœur, Maristes, Yoff, Grand-Dakar, etc.',
+      'Votre commande est livrée sous 24 heures à Dakar, une fois confirmée sur WhatsApp.\n\nNos livreurs se déplacent dans tous les quartiers : Plateau, Almadies, Mermoz, Ouakam, Ngor, Fann, Point E, Sacré-Cœur, Maristes, Yoff, Grand-Dakar, etc.',
   },
   {
     icon: '📍',
     question: 'Livrez-vous dans la banlieue et dans les régions du Sénégal ?',
     answer:
-      'Oui, absolument !\n• Banlieue de Dakar (Pikine, Guédiawaye, Keur Massar, Rufisque, Diamniadio) : livraison assurée sous 24h par nos coursiers moto.\n• Régions du Sénégal (Thiès, Mbour, Saly, Saint-Louis, Touba, Kaolack, Ziguinchor) : expédition sécurisée via transport express / La Poste / GP sous 24h à 48h maximum.',
+      'Oui, absolument !\n• Banlieue de Dakar (Pikine, Guédiawaye, Keur Massar, Rufisque, Diamniadio) : livraison sous 24h par coursier.\n• Régions du Sénégal (Thiès, Mbour, Saly, Saint-Louis, Touba, Kaolack, Ziguinchor…) : expédition sous 24h à 48h.\n\nLes frais pour la banlieue et les régions vous sont annoncés sur WhatsApp avant l\'expédition.',
   },
   {
     icon: '📞',
     question: 'Est-ce que le livreur m\'appelle avant d\'arriver ?',
     answer:
-      'Oui, obligatoirement. Notre coursier vous contacte par appel téléphonique environ 30 à 45 minutes avant son arrivée pour vérifier votre disponibilité et convenir du lieu exact de remise (domicile ou bureau).',
+      'Oui, obligatoirement. Notre coursier vous contacte par appel téléphonique avant son arrivée pour vérifier votre disponibilité et convenir du lieu exact de remise (domicile ou bureau).',
   },
   {
     icon: '💰',
     question: 'Combien coûtent les frais de livraison ?',
     answer:
-      'Actuellement, la livraison est 100% GRATUITE à Dakar dans le cadre de notre offre spéciale de lancement ! Profitez-en pour commander vos sacs et souliers sans aucuns frais additionnels.',
+      'La livraison est offerte à Dakar. Pour la banlieue et les régions, les frais dépendent de la destination : ils vous sont annoncés sur WhatsApp avant l\'expédition, sans surprise.',
   },
   {
     icon: '👠',
@@ -172,7 +172,7 @@ const faqList = [
     icon: '🎁',
     question: 'Mes articles sont-ils emballés pour offrir en cadeau ?',
     answer:
-      'Oui ! Chaque sac et chaque paire de chaussures Jumelles Store est emballé avec le plus grand soin dans son pochon protecteur de soie, accompagné d\'un ruban cadeau chic Maison Jumelles Store, prêt à être offert.',
+      'Oui ! Chaque sac et chaque paire de chaussures est emballé avec soin, prêt à être offert. Précisez sur WhatsApp s\'il s\'agit d\'un cadeau.',
   },
 ];
 </script>
