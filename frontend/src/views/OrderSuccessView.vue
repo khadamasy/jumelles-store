@@ -1,142 +1,104 @@
 <template>
-  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 text-center space-y-8">
-    <!-- Badge de Succès -->
-    <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-lg ring-8 ring-emerald-50">
-      <CheckCircle2 class="w-10 h-10 text-emerald-600" />
+  <div class="os wrap">
+    <!-- Coche animée -->
+    <div class="os-check" aria-hidden="true">
+      <svg viewBox="0 0 52 52">
+        <circle cx="26" cy="26" r="24" />
+        <path d="M15 27l7 7 15-15" />
+      </svg>
     </div>
 
-    <!-- Titres -->
-    <div class="space-y-3">
-      <span class="text-xs uppercase tracking-widest text-[#25D366] font-extrabold bg-emerald-50 px-3.5 py-1 rounded-full border border-emerald-200 inline-flex items-center gap-1.5">
-        <IconWhatsApp className="w-4 h-4 text-[#25D366]" />
-        <span>Commande Enregistrée & Transmise sur WhatsApp</span>
-      </span>
-      <h1 class="font-serif text-3xl sm:text-4xl font-normal text-stone-900">
-        Merci pour votre commande !
-      </h1>
-      <p class="text-stone-600 text-xs sm:text-sm">
-        Numéro de suivi officiel : <strong class="text-stone-950 font-mono font-black text-base">{{ displayOrderNumber }}</strong>
+    <header class="os-head">
+      <span class="eyebrow">Commande enregistrée</span>
+      <h1>Merci pour votre commande&nbsp;!</h1>
+      <p class="os-ref">
+        Numéro de suivi
+        <strong class="tnum">{{ displayOrderNumber }}</strong>
       </p>
-    </div>
+    </header>
 
-    <!-- Carte Principale WhatsApp & Récapitulatif -->
-    <div class="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-xl max-w-xl mx-auto space-y-6 text-left">
-      <!-- Gros Bouton d'Ouverture WhatsApp -->
-      <div class="space-y-3">
-        <a
-          :href="whatsappUrl"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="w-full py-4 px-5 bg-[#25D366] hover:bg-[#20ba59] active:scale-98 text-white font-black text-sm rounded-2xl shadow-xl transition-all flex items-center justify-center gap-3 cursor-pointer group"
-        >
-          <IconWhatsApp className="w-6 h-6 text-white shrink-0 group-hover:scale-110 transition-transform" />
-          <span>Ouvrir la discussion WhatsApp (+221 77 208 78 20)</span>
+    <section class="card os-card">
+      <!-- Étape suivante : WhatsApp -->
+      <div class="os-next">
+        <p class="os-next-t">
+          <span>Dernière étape</span>Envoyez le message WhatsApp pour que nous confirmions votre commande.
+        </p>
+        <a :href="whatsappUrl" target="_blank" rel="noopener noreferrer" class="btn wa lg block">
+          <IconWhatsApp className="w-5 h-5" />
+          Ouvrir WhatsApp
         </a>
-        <div
-          v-if="orderItems.length > 0 && orderItems[0]?.imageUrl"
-          class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between gap-3 text-xs text-emerald-900"
-        >
-          <span>
-            💡 <strong>Astuce :</strong> le lien de la photo est déjà dans le message. Sur ordinateur, vous pouvez aussi copier l'image puis faire <strong>Ctrl + V</strong> dans WhatsApp.
-          </span>
-          <button
-            type="button"
-            @click="handleCopyPhoto(orderItems[0].imageUrl)"
-            class="px-3 py-1.5 bg-white hover:bg-emerald-100 border border-emerald-300 rounded-lg font-bold text-[11px] shrink-0 cursor-pointer"
-          >
-            {{ photoCopied ? '✓ Photo copiée !' : photoCopyFailed ? 'Copie indisponible' : 'Copier la photo' }}
+        <p class="hint os-hint">
+          WhatsApp ne s’est pas ouvert tout seul ? Utilisez le bouton ci-dessus : le message est déjà prêt.
+        </p>
+
+        <div v-if="orderItems.length > 0 && orderItems[0]?.imageUrl" class="note info os-photo">
+          <ImageIcon aria-hidden="true" />
+          <p>
+            Le lien de la photo est déjà dans le message. Sur ordinateur, vous pouvez aussi copier l’image puis faire
+            <kbd>Ctrl</kbd> + <kbd>V</kbd> dans WhatsApp.
+          </p>
+          <button type="button" class="btn sm line" @click="handleCopyPhoto(orderItems[0].imageUrl)">
+            <component :is="photoCopied ? Check : Copy" aria-hidden="true" />
+            {{ photoCopied ? 'Photo copiée' : photoCopyFailed ? 'Copie indisponible' : 'Copier la photo' }}
           </button>
         </div>
-        <p class="text-[11px] text-stone-500 text-center font-light">
-          Si votre application WhatsApp ne s'est pas ouverte automatiquement, cliquez sur le bouton vert ci-dessus pour envoyer votre commande.
+      </div>
+
+      <!-- Articles -->
+      <div v-if="orderItems.length > 0" class="os-items">
+        <div class="os-items-h">
+          <h2>Articles commandés</h2>
+          <span v-if="displayAmount > 0" class="tnum">{{ formatPrice(displayAmount) }}</span>
+        </div>
+        <ul>
+          <li v-for="(item, idx) in orderItems" :key="idx">
+            <img v-if="item.imageUrl" :src="item.imageUrl" :alt="item.productName" loading="lazy" decoding="async" />
+            <div>
+              <p>{{ item.productName }}</p>
+              <span>
+                {{ item.color }}<template v-if="item.sizeOrShoeSize"> · {{ item.sizeOrShoeSize }}</template> ·
+                ×{{ item.quantity }}
+              </span>
+            </div>
+            <b class="tnum">{{ formatPrice(item.price * item.quantity) }}</b>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Coordonnées enregistrées -->
+      <div v-if="customerDetails.name" class="os-cust">
+        <p><strong>Livraison</strong></p>
+        <p>{{ customerDetails.name }} · <span class="tnum">{{ customerDetails.phone }}</span></p>
+        <p>{{ customerDetails.address }} ({{ customerDetails.city }})</p>
+      </div>
+
+      <div class="note os-pay">
+        <Truck aria-hidden="true" />
+        <p>
+          <strong>Règlement à la réception du colis.</strong> Vous payez directement le livreur. Une question : WhatsApp
+          au <span class="tnum">+221 77 208 78 20</span>.
         </p>
       </div>
+    </section>
 
-      <!-- Informations de Commande & Articles -->
-      <div class="border-t border-stone-100 pt-5 space-y-4">
-        <div class="flex items-center justify-between">
-          <span class="text-xs uppercase font-bold tracking-wider text-stone-400">Articles Commandés</span>
-          <span v-if="displayAmount > 0" class="font-serif font-black text-stone-950 text-base text-gold-700">
-            Total : {{ formatPrice(displayAmount) }}
-          </span>
-        </div>
-
-        <!-- Liste des articles si disponibles dans la session -->
-        <div v-if="orderItems.length > 0" class="space-y-3 divide-y divide-stone-100">
-          <div
-            v-for="(item, idx) in orderItems"
-            :key="idx"
-            class="flex items-center gap-3 text-xs pt-3 first:pt-0"
-          >
-            <img loading="lazy" decoding="async"
-              v-if="item.imageUrl"
-              :src="item.imageUrl"
-              :alt="item.productName"
-              class="w-12 h-12 object-cover rounded-xl bg-stone-100 border border-stone-200 shrink-0"
-            />
-            <div class="flex-1 min-w-0">
-              <p class="font-bold text-stone-900 truncate">{{ item.productName }}</p>
-              <p class="text-stone-500 text-[11px]">
-                {{ item.color }}
-                <span v-if="item.sizeOrShoeSize">• Pointure/Taille : {{ item.sizeOrShoeSize }}</span>
-                <span>(x{{ item.quantity }})</span>
-              </p>
-            </div>
-            <span class="font-bold text-stone-950 text-xs">
-              {{ formatPrice(item.price * item.quantity) }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Coordonnées Cliente enregistrées -->
-        <div v-if="customerDetails.name" class="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-1.5 text-xs">
-          <p class="font-bold text-stone-900">Coordonnées de livraison :</p>
-          <p class="text-stone-600">Cliente : <strong>{{ customerDetails.name }}</strong></p>
-          <p class="text-stone-600">Téléphone : <strong class="font-mono">{{ customerDetails.phone }}</strong></p>
-          <p class="text-stone-600">Adresse : {{ customerDetails.address }} ({{ customerDetails.city }})</p>
-        </div>
-
-        <!-- Note Règlement à la Livraison -->
-        <div class="p-4 bg-amber-50/80 border border-amber-200/90 rounded-2xl flex items-start gap-3 text-xs">
-          <Truck class="w-5 h-5 text-amber-800 shrink-0 mt-0.5" />
-          <div class="space-y-0.5">
-            <p class="font-bold text-amber-950">Règlement à la réception du colis :</p>
-            <p class="text-stone-700 text-[11px] leading-relaxed">
-              Vous réglerez directement auprès du livreur à Dakar lors de la remise de votre paquet. Pour toute question, contactez-nous sur WhatsApp au <strong>+221 77 208 78 20</strong>.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Navigation Secondaire -->
-    <div class="flex flex-wrap items-center justify-center gap-4 pt-2">
-      <router-link
-        :to="{ path: '/orders', query: { orderNumber: displayOrderNumber } }"
-        class="px-6 py-3 bg-white hover:bg-stone-50 border border-stone-300 text-stone-900 text-xs font-bold rounded-xl transition-all"
-      >
+    <nav class="os-acts" aria-label="Et maintenant">
+      <router-link :to="{ path: '/orders', query: { orderNumber: displayOrderNumber } }" class="btn line">
+        <Package aria-hidden="true" />
         Suivre ma commande
       </router-link>
-      <router-link
-        to="/catalog"
-        class="px-6 py-3 bg-stone-900 hover:bg-gold-600 text-white text-xs font-bold rounded-xl transition-all shadow"
-      >
+      <router-link to="/catalog" class="btn dark">
         Continuer mes achats
+        <ArrowRight aria-hidden="true" />
       </router-link>
-      <router-link
-        to="/"
-        class="px-6 py-3 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold rounded-xl transition-all"
-      >
-        Retour à l'accueil
-      </router-link>
-    </div>
+      <router-link to="/" class="btn ghost">Retour à l’accueil</router-link>
+    </nav>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { CheckCircle2, Truck } from 'lucide-vue-next';
+import { Truck, Image as ImageIcon, Check, Package, ArrowRight, Copy } from 'lucide-vue-next';
 import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
 import { useCurrencyStore } from '../stores/currency';
 import { copyPhotoToClipboard, buildWhatsAppSendUrl } from '../stores/phone';
@@ -197,3 +159,222 @@ onMounted(() => {
   }
 });
 </script>
+<style scoped>
+.os {
+  max-width: 640px;
+  padding-top: var(--s-10);
+  padding-bottom: var(--s-12);
+  text-align: center;
+}
+
+/* ----- Coche animée ----- */
+.os-check {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto var(--s-5);
+  border-radius: 50%;
+  background: var(--success-soft);
+  box-shadow: 0 0 0 10px rgb(var(--c-success-50) / 0.5);
+  animation: pop-in 0.5s var(--ease-spring) both;
+}
+.os-check svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--success);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.os-check circle {
+  stroke-width: 2;
+  stroke-dasharray: 151;
+  stroke-dashoffset: 151;
+  opacity: 0.35;
+  animation: draw 0.6s var(--ease-out) 0.15s forwards;
+}
+.os-check path {
+  stroke-dasharray: 36;
+  stroke-dashoffset: 36;
+  animation: draw 0.4s var(--ease-out) 0.55s forwards;
+}
+
+.os-head h1 {
+  margin: var(--s-2) 0 var(--s-3);
+  font-size: var(--fs-3xl);
+  line-height: var(--lh-tight);
+  font-weight: 400;
+}
+.os-ref {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+.os-ref strong {
+  padding: 4px 10px;
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--text);
+  user-select: all;
+}
+
+/* ----- Carte ----- */
+.os-card {
+  display: grid;
+  gap: var(--s-5);
+  margin-top: var(--s-8);
+  padding: var(--s-5);
+  text-align: left;
+  animation: rise-in var(--dur-4) var(--ease-out) 0.2s both;
+}
+.os-next {
+  display: grid;
+  gap: var(--s-3);
+}
+.os-next-t {
+  margin: 0;
+  font-weight: 600;
+}
+.os-next-t span {
+  display: block;
+  margin-bottom: 2px;
+  font: 700 var(--fs-2xs) / 1.4 var(--font-sans);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--wa);
+}
+.os-hint {
+  text-align: center;
+}
+.os-photo {
+  flex-wrap: wrap;
+}
+.os-photo p {
+  flex: 1;
+  min-width: 200px;
+}
+.os-photo .btn {
+  flex: none;
+}
+kbd {
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid currentColor;
+  font: 600 11px var(--font-mono);
+}
+
+.os-items {
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--border);
+}
+.os-items-h {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--s-3);
+}
+.os-items-h h2 {
+  margin: 0;
+  font: 700 var(--fs-2xs) / 1 var(--font-sans);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.os-items-h span {
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  font-weight: 500;
+}
+.os-items ul {
+  display: grid;
+  gap: var(--s-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.os-items li {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+.os-items img {
+  width: 48px;
+  height: 60px;
+  flex: none;
+  object-fit: cover;
+  border-radius: var(--r-sm);
+  background: var(--bg-sunken);
+}
+.os-items li div {
+  flex: 1;
+  min-width: 0;
+}
+.os-items li p {
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.os-items li span {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+.os-items li b {
+  font-size: var(--fs-sm);
+}
+
+.os-cust {
+  padding: var(--s-4);
+  border-radius: var(--r-md);
+  background: var(--bg-sunken);
+  font-size: var(--fs-sm);
+}
+.os-cust p {
+  margin: 0;
+}
+.os-pay svg {
+  color: var(--accent-text);
+}
+
+.os-acts {
+  display: grid;
+  gap: var(--s-2);
+  margin-top: var(--s-6);
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes pop-in {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+}
+
+@media (min-width: 720px) {
+  .os {
+    padding-top: var(--s-16);
+  }
+  .os-card {
+    padding: var(--s-8);
+  }
+  .os-acts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+</style>

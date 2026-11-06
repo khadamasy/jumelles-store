@@ -1,30 +1,19 @@
 <template>
-  <div class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-8">
+  <div class="trk wrap">
     <!-- En-tête -->
-    <header class="space-y-3 text-center">
-      <span
-        class="text-[11px] uppercase tracking-widest text-gold-700 font-extrabold bg-gold-50 px-3.5 py-1 rounded-full border border-gold-200 inline-flex items-center gap-1.5"
-      >
-        <Package class="w-3.5 h-3.5 text-gold-600" aria-hidden="true" />
-        <span>Suivi en temps réel</span>
-      </span>
-      <h1 class="font-serif text-3xl sm:text-4xl font-normal text-stone-900">Suivi de vos commandes</h1>
-      <p class="text-sm text-stone-500 max-w-xl mx-auto">
-        Saisissez votre numéro de commande et le téléphone utilisé lors de l'achat pour voir où en est votre colis.
+    <header class="trk-head">
+      <span class="eyebrow"><i></i>Suivi en temps réel</span>
+      <h1>Où en est ma commande ?</h1>
+      <p class="lead">
+        Saisissez votre numéro de commande et le téléphone utilisé lors de l’achat pour voir où en est votre colis.
       </p>
     </header>
 
-    <!-- Formulaire de recherche (numéro + téléphone : personne d'autre ne peut consulter vos commandes) -->
-    <form
-      novalidate
-      @submit.prevent="loadOrders"
-      class="bg-white p-5 sm:p-7 rounded-3xl border border-stone-200 shadow-sm space-y-4"
-    >
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label for="track-order-number" class="block text-xs font-bold text-stone-700 mb-1">
-            Numéro de commande
-          </label>
+    <!-- Recherche (numéro + téléphone : personne d'autre ne peut consulter vos commandes) -->
+    <form novalidate class="card trk-form" @submit.prevent="loadOrders">
+      <div class="trk-fields">
+        <div class="field">
+          <label for="track-order-number" class="label">Numéro de commande</label>
           <input
             id="track-order-number"
             v-model="orderNumberInput"
@@ -34,15 +23,12 @@
             autocapitalize="characters"
             spellcheck="false"
             placeholder="JUM-2026-7KQ9X2MD"
+            class="input trk-mono"
             :aria-invalid="fieldError === 'order'"
-            class="w-full px-4 py-3 rounded-xl border text-sm uppercase font-mono outline-none focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500"
-            :class="fieldError === 'order' ? 'border-rosewood-400 bg-rosewood-50' : 'border-stone-300'"
           />
         </div>
-        <div>
-          <label for="track-phone" class="block text-xs font-bold text-stone-700 mb-1">
-            Téléphone utilisé pour la commande
-          </label>
+        <div class="field">
+          <label for="track-phone" class="label">Téléphone de la commande</label>
           <input
             id="track-phone"
             v-model="phoneInput"
@@ -51,194 +37,154 @@
             maxlength="25"
             autocomplete="tel"
             placeholder="77 123 45 67"
+            class="input"
             :aria-invalid="fieldError === 'phone'"
-            class="w-full px-4 py-3 rounded-xl border text-sm outline-none focus:ring-2 focus:ring-gold-500/40 focus:border-gold-500"
-            :class="fieldError === 'phone' ? 'border-rosewood-400 bg-rosewood-50' : 'border-stone-300'"
           />
         </div>
       </div>
 
-      <p v-if="errorMessage" role="alert" class="text-xs font-semibold text-rosewood-700 bg-rosewood-50 border border-rosewood-200 rounded-xl px-3.5 py-2.5">
-        {{ errorMessage }}
-      </p>
+      <Transition name="slide-down">
+        <div v-if="errorMessage" role="alert" class="note danger">
+          <AlertCircle aria-hidden="true" />
+          <p>{{ errorMessage }}</p>
+        </div>
+      </Transition>
 
-      <button
-        type="submit"
-        :disabled="loading"
-        class="w-full py-3.5 bg-stone-900 hover:bg-gold-600 disabled:bg-stone-400 disabled:cursor-wait text-white font-bold text-sm rounded-xl transition-all shadow flex items-center justify-center gap-2"
-      >
-        <Loader2 v-if="loading" class="w-4 h-4 animate-spin" aria-hidden="true" />
-        <Search v-else class="w-4 h-4" aria-hidden="true" />
-        <span>{{ loading ? 'Recherche en cours…' : 'Suivre ma commande' }}</span>
+      <button type="submit" class="btn dark lg block" :class="{ loading }" :disabled="loading">
+        <Search aria-hidden="true" />
+        Suivre ma commande
       </button>
 
-      <details class="text-xs text-stone-500 group">
-        <summary class="cursor-pointer font-semibold text-stone-600 hover:text-gold-700 select-none">
-          Où trouver mon numéro de commande ?
-        </summary>
-        <p class="mt-2 leading-relaxed">
-          Il commence par <strong class="font-mono text-stone-700">JUM-</strong> et figure en haut du message
-          WhatsApp envoyé lors de votre commande (« RÉFÉRENCE COMMANDE »), ainsi que sur la page de confirmation.
-          Vous ne le retrouvez pas ? Écrivez-nous sur WhatsApp avec votre nom : nous le retrouvons pour vous.
+      <details class="trk-help">
+        <summary>Où trouver mon numéro de commande ?<ChevronDown aria-hidden="true" /></summary>
+        <p>
+          Il commence par <strong class="trk-mono">JUM-</strong> et figure en haut du message WhatsApp envoyé lors de
+          votre commande (« RÉFÉRENCE COMMANDE »), ainsi que sur la page de confirmation. Vous ne le retrouvez pas ?
+          Écrivez-nous sur WhatsApp avec votre nom : nous le retrouvons pour vous.
         </p>
       </details>
     </form>
 
     <!-- Chargement -->
-    <div v-if="loading" class="space-y-4" aria-hidden="true">
-      <div v-for="n in 2" :key="n" class="h-40 bg-stone-200/70 animate-pulse rounded-3xl"></div>
+    <div v-if="loading" class="trk-list" aria-hidden="true">
+      <div v-for="n in 2" :key="n" class="skel trk-sk"></div>
     </div>
 
     <!-- Aucune commande correspondante -->
-    <div
+    <UiEmpty
       v-else-if="searched && orders.length === 0"
-      class="bg-white rounded-3xl border border-stone-200 p-8 sm:p-10 text-center space-y-4"
+      class="card"
+      title="Aucune commande trouvée"
+      text="Le numéro de commande et le téléphone doivent correspondre exactement à ceux de l’achat. Vérifiez-les, ou contactez-nous : nous vous répondons rapidement."
     >
-      <div class="w-14 h-14 rounded-2xl bg-stone-100 flex items-center justify-center mx-auto">
-        <PackageSearch class="w-7 h-7 text-stone-500" aria-hidden="true" />
-      </div>
-      <h2 class="font-serif text-xl font-normal text-stone-900">Aucune commande trouvée</h2>
-      <p class="text-sm text-stone-500 max-w-md mx-auto">
-        Le numéro de commande et le téléphone doivent correspondre exactement à ceux de l'achat.
-        Vérifiez-les, ou contactez-nous : nous vous répondons rapidement.
-      </p>
-      <a
-        :href="helpWhatsAppUrl(orderNumberInput)"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="inline-flex items-center gap-2 px-5 py-3 bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-bold rounded-xl transition-colors"
-      >
-        <IconWhatsApp className="w-4 h-4 text-white" />
-        <span>Demander de l'aide sur WhatsApp</span>
+      <template #icon><PackageSearch /></template>
+      <a :href="helpWhatsAppUrl(orderNumberInput)" target="_blank" rel="noopener noreferrer" class="btn wa">
+        <IconWhatsApp className="w-4 h-4" />
+        Demander de l’aide sur WhatsApp
       </a>
-    </div>
+    </UiEmpty>
 
     <!-- Résultats -->
-    <section v-else-if="orders.length > 0" class="space-y-5" aria-live="polite">
-      <p v-if="orders.length > 1" class="text-xs text-stone-500 text-center">
+    <section v-else-if="orders.length > 0" class="trk-list stagger" aria-live="polite">
+      <p v-if="orders.length > 1" class="trk-count">
         {{ orders.length }} commandes associées à ce numéro de téléphone.
       </p>
 
       <article
         v-for="order in sortedOrders"
         :key="order.orderNumber"
-        class="bg-white rounded-3xl border shadow-sm overflow-hidden"
-        :class="order.orderNumber === searchedNumber ? 'border-gold-300 ring-1 ring-gold-200' : 'border-stone-200'"
+        class="card trk-order"
+        :class="{ hl: order.orderNumber === searchedNumber }"
       >
         <!-- En-tête de la commande -->
-        <div class="p-5 sm:p-6 bg-stone-50 border-b border-stone-100 flex flex-wrap items-start justify-between gap-3">
-          <div class="space-y-0.5">
-            <p class="text-[11px] uppercase tracking-wider text-stone-400 font-bold">Commande</p>
-            <p class="font-mono font-black text-stone-900 text-base">{{ order.orderNumber }}</p>
-            <p class="text-xs text-stone-500">Passée le {{ formatDate(order.createdAt) }}</p>
+        <header class="trk-oh">
+          <div>
+            <span class="trk-k">Commande</span>
+            <p class="trk-num trk-mono">{{ order.orderNumber }}</p>
+            <p class="trk-date">Passée le {{ formatDate(order.createdAt) }}</p>
           </div>
-          <span
-            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold"
-            :class="statusInfo(order.status).badge"
-          >
-            <component :is="statusInfo(order.status).icon" class="w-3.5 h-3.5" aria-hidden="true" />
-            {{ statusInfo(order.status).label }}
-          </span>
-        </div>
+          <span class="pill" :class="statusInfo(order.status).tone">{{ statusInfo(order.status).label }}</span>
+        </header>
 
-        <div class="p-5 sm:p-6 space-y-6">
+        <div class="trk-ob">
           <!-- Progression -->
           <div v-if="order.status !== 'CANCELLED'">
-            <p class="text-sm text-stone-700 mb-4">{{ statusInfo(order.status).message }}</p>
-            <ol class="grid grid-cols-4 gap-1" :aria-label="`Avancement : ${statusInfo(order.status).label}`">
-              <li v-for="(step, idx) in STEPS" :key="step.label" class="flex flex-col items-center text-center gap-1.5">
-                <div class="flex items-center w-full">
-                  <span class="flex-1 h-0.5" :class="idx === 0 ? 'bg-transparent' : idx <= stepIndex(order.status) ? 'bg-gold-500' : 'bg-stone-200'"></span>
-                  <span
-                    class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 border-2 transition-colors"
-                    :class="
-                      idx < stepIndex(order.status)
-                        ? 'bg-gold-500 border-gold-500 text-white'
-                        : idx === stepIndex(order.status)
-                        ? 'bg-white border-gold-500 text-gold-700 ring-4 ring-gold-100'
-                        : 'bg-white border-stone-200 text-stone-300'
-                    "
-                  >
-                    <Check v-if="idx < stepIndex(order.status)" class="w-4 h-4" aria-hidden="true" />
-                    <component :is="step.icon" v-else class="w-4 h-4" aria-hidden="true" />
-                  </span>
-                  <span class="flex-1 h-0.5" :class="idx === STEPS.length - 1 ? 'bg-transparent' : idx < stepIndex(order.status) ? 'bg-gold-500' : 'bg-stone-200'"></span>
-                </div>
-                <span
-                  class="text-[10px] sm:text-[11px] leading-tight font-semibold"
-                  :class="idx <= stepIndex(order.status) ? 'text-stone-800' : 'text-stone-400'"
-                >
-                  {{ step.label }}
+            <p class="trk-msg">{{ statusInfo(order.status).message }}</p>
+            <ol
+              class="trk-steps"
+              :style="{ '--p': Math.max(0, stepIndex(order.status)) / (STEPS.length - 1) }"
+              :aria-label="`Avancement : ${statusInfo(order.status).label}`"
+            >
+              <li
+                v-for="(step, idx) in STEPS"
+                :key="step.label"
+                :class="{ done: idx < stepIndex(order.status), cur: idx === stepIndex(order.status) }"
+                :aria-current="idx === stepIndex(order.status) ? 'step' : undefined"
+              >
+                <span class="trk-dot">
+                  <Check v-if="idx < stepIndex(order.status)" aria-hidden="true" />
+                  <component :is="step.icon" v-else aria-hidden="true" />
                 </span>
+                <span class="trk-sl">{{ step.label }}</span>
               </li>
             </ol>
           </div>
 
           <!-- Commande annulée -->
-          <div v-else class="p-4 rounded-2xl bg-rosewood-50 border border-rosewood-200 text-xs text-rosewood-900 leading-relaxed">
-            Cette commande a été annulée (annulation de votre part, ou commande non confirmée sur WhatsApp dans les
-            48 heures). Les articles ont été remis en vente. Pour la relancer, contactez-nous sur WhatsApp.
+          <div v-else class="note danger">
+            <XCircle aria-hidden="true" />
+            <p>
+              Cette commande a été annulée (annulation de votre part, ou commande non confirmée sur WhatsApp dans les 48
+              heures). Les articles ont été remis en vente. Pour la relancer, contactez-nous sur WhatsApp.
+            </p>
           </div>
 
           <!-- Articles -->
           <div>
-            <h3 class="text-[11px] uppercase tracking-wider text-stone-400 font-bold mb-2">Articles</h3>
-            <ul class="divide-y divide-stone-100">
-              <li
-                v-for="(item, idx) in order.items"
-                :key="item.id || idx"
-                class="py-3 flex items-start justify-between gap-3 text-sm"
-              >
-                <div class="min-w-0">
-                  <p class="font-bold text-stone-900">{{ item.productName }}</p>
-                  <p class="text-xs text-stone-500">{{ item.variantDetails }} · Quantité : {{ item.quantity }}</p>
+            <h3 class="trk-k">Articles</h3>
+            <ul class="trk-items">
+              <li v-for="(item, idx) in order.items" :key="item.id || idx">
+                <div>
+                  <p>{{ item.productName }}</p>
+                  <span>{{ item.variantDetails }} · Quantité : {{ item.quantity }}</span>
                 </div>
-                <span class="font-semibold text-stone-800 shrink-0">{{ formatPrice(item.totalPrice) }}</span>
+                <b class="tnum">{{ formatPrice(item.totalPrice) }}</b>
               </li>
             </ul>
           </div>
 
-          <!-- Total, livraison, aide -->
-          <div class="pt-4 border-t border-stone-100 flex flex-wrap items-end justify-between gap-4">
-            <div class="text-xs text-stone-500 space-y-1">
-              <p class="flex items-center gap-1.5">
-                <MapPin class="w-3.5 h-3.5 text-stone-400" aria-hidden="true" />
-                Livraison : <strong class="text-stone-700">{{ order.shippingCity }}</strong>
-              </p>
-              <p class="flex items-center gap-1.5">
-                <Banknote class="w-3.5 h-3.5 text-stone-400" aria-hidden="true" />
-                Règlement à la livraison
-              </p>
+          <!-- Total, livraison -->
+          <footer class="trk-of">
+            <div class="trk-meta">
+              <p><MapPin aria-hidden="true" />Livraison : <strong>{{ order.shippingCity }}</strong></p>
+              <p><Banknote aria-hidden="true" />Règlement à la livraison</p>
             </div>
-            <div class="text-right">
-              <p class="text-[11px] uppercase tracking-wider text-stone-400 font-bold">Total articles</p>
-              <p class="font-serif text-xl font-black text-stone-950">{{ formatPrice(order.totalAmount) }}</p>
+            <div class="trk-total">
+              <span class="trk-k">Total articles</span>
+              <strong class="tnum">{{ formatPrice(order.totalAmount) }}</strong>
             </div>
-          </div>
+          </footer>
 
           <a
             :href="helpWhatsAppUrl(order.orderNumber)"
             target="_blank"
             rel="noopener noreferrer"
-            class="w-full py-3 px-4 rounded-xl text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 transition-colors flex items-center justify-center gap-2"
+            class="btn ghost block trk-wa"
           >
-            <IconWhatsApp className="w-4 h-4 text-[#25D366]" />
-            <span>Une question sur cette commande ? Écrivez-nous</span>
+            <IconWhatsApp className="w-4 h-4" />
+            Une question sur cette commande ? Écrivez-nous
           </a>
         </div>
       </article>
     </section>
 
     <!-- Avant la première recherche : rappel des étapes -->
-    <section v-else class="grid grid-cols-2 sm:grid-cols-4 gap-3" aria-label="Étapes d'une commande">
-      <div
-        v-for="step in STEPS"
-        :key="step.label"
-        class="bg-white rounded-2xl border border-stone-200 p-4 text-center space-y-2"
-      >
-        <component :is="step.icon" class="w-5 h-5 text-gold-600 mx-auto" aria-hidden="true" />
-        <p class="text-xs font-bold text-stone-800">{{ step.label }}</p>
-        <p class="text-[11px] text-stone-500 leading-snug">{{ step.hint }}</p>
+    <section v-else class="trk-intro" aria-label="Étapes d'une commande">
+      <div v-for="(step, idx) in STEPS" :key="step.label" class="trk-ic">
+        <span class="trk-ic-n tnum">{{ idx + 1 }}</span>
+        <component :is="step.icon" aria-hidden="true" />
+        <p>{{ step.label }}</p>
+        <span>{{ step.hint }}</span>
       </div>
     </section>
   </div>
@@ -251,7 +197,6 @@ import {
   Package,
   PackageSearch,
   Search,
-  Loader2,
   Check,
   ClipboardCheck,
   Truck,
@@ -260,8 +205,11 @@ import {
   XCircle,
   MapPin,
   Banknote,
+  AlertCircle,
+  ChevronDown,
 } from 'lucide-vue-next';
 import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
+import UiEmpty from '../components/ui/UiEmpty.vue';
 import { OrderService } from '../services/api';
 import { buildWhatsAppSendUrl } from '../stores/phone';
 
@@ -275,46 +223,46 @@ const STEPS = [
   { label: 'Livrée', icon: Home, hint: 'Réglée à la réception du colis' },
 ];
 
-const STATUS: Record<string, { label: string; message: string; badge: string; icon: any; step: number }> = {
+const STATUS: Record<string, { label: string; message: string; tone: string; icon: any; step: number }> = {
   PENDING: {
     label: 'En attente de confirmation',
     message: 'Commande reçue. Envoyez le message WhatsApp (si ce n\'est pas déjà fait) pour que nous la confirmions.',
-    badge: 'bg-amber-50 text-amber-800 border border-amber-300',
+    tone: 'warning',
     icon: Clock,
     step: 0,
   },
   PAID: {
     label: 'Confirmée',
     message: 'Commande confirmée par la boutique. Nous la préparons pour l\'expédition.',
-    badge: 'bg-emerald-50 text-emerald-800 border border-emerald-300',
+    tone: 'success',
     icon: ClipboardCheck,
     step: 1,
   },
   PREPARING: {
     label: 'En préparation',
     message: 'Votre colis est en cours de préparation.',
-    badge: 'bg-emerald-50 text-emerald-800 border border-emerald-300',
+    tone: 'success',
     icon: Package,
     step: 1,
   },
   SHIPPED: {
     label: 'En cours de livraison',
     message: 'Votre colis est en route : le livreur vous appelle avant de passer.',
-    badge: 'bg-blue-50 text-blue-800 border border-blue-300',
+    tone: 'info',
     icon: Truck,
     step: 2,
   },
   DELIVERED: {
     label: 'Livrée',
     message: 'Colis livré. Merci pour votre confiance !',
-    badge: 'bg-stone-100 text-stone-800 border border-stone-300',
+    tone: '',
     icon: Home,
     step: 3,
   },
   CANCELLED: {
     label: 'Annulée',
     message: '',
-    badge: 'bg-rosewood-50 text-rosewood-800 border border-rosewood-300',
+    tone: 'danger',
     icon: XCircle,
     step: -1,
   },
@@ -414,3 +362,364 @@ const formatDate = (dateStr: string) =>
 const formatPrice = (price: number) =>
   new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF', maximumFractionDigits: 0 }).format(price || 0);
 </script>
+<style scoped>
+.trk {
+  max-width: 760px;
+  padding-top: var(--s-8);
+  padding-bottom: var(--s-12);
+}
+.trk-mono {
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+.trk-head {
+  text-align: center;
+}
+.trk-head h1 {
+  margin: var(--s-3) 0 var(--s-2);
+  font-size: var(--fs-3xl);
+  line-height: var(--lh-tight);
+  font-weight: 400;
+}
+.trk-head .lead {
+  margin: 0 auto;
+  max-width: 34em;
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+/* ----- Formulaire ----- */
+.trk-form {
+  display: grid;
+  gap: var(--s-4);
+  margin-top: var(--s-8);
+  padding: var(--s-5);
+}
+.trk-fields {
+  display: grid;
+  gap: var(--s-4);
+}
+.trk-fields .trk-mono {
+  text-transform: uppercase;
+}
+.trk-help summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  list-style: none;
+}
+.trk-help summary::-webkit-details-marker {
+  display: none;
+}
+.trk-help summary:hover {
+  color: var(--text);
+}
+.trk-help summary svg {
+  width: 16px;
+  height: 16px;
+  transition: transform var(--dur-3) var(--ease-out);
+}
+.trk-help[open] summary svg {
+  transform: rotate(180deg);
+}
+.trk-help p {
+  margin: var(--s-2) 0 0;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  line-height: 1.6;
+  animation: rise-in var(--dur-3) var(--ease-out);
+}
+
+/* ----- Liste ----- */
+.trk-list {
+  display: grid;
+  gap: var(--s-5);
+  margin-top: var(--s-6);
+}
+.trk-sk {
+  height: 220px;
+  border-radius: var(--r-lg);
+}
+.trk-count {
+  margin: 0;
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+.trk-list > .card,
+.trk-list ~ .card {
+  margin-top: 0;
+}
+:deep(.empty.card) {
+  margin-top: var(--s-6);
+}
+
+.trk-order {
+  overflow: hidden;
+}
+.trk-order.hl {
+  border-color: rgb(var(--c-gold-300));
+  box-shadow: 0 0 0 3px rgb(var(--c-gold-100)), var(--sh-1);
+}
+.trk-oh {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: var(--s-5);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+.trk-k {
+  display: block;
+  margin: 0 0 4px;
+  font: 700 var(--fs-2xs) / 1.2 var(--font-sans);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.trk-num {
+  margin: 0;
+  font-size: var(--fs-md);
+  font-weight: 700;
+}
+.trk-date {
+  margin: 2px 0 0;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+.trk-ob {
+  display: grid;
+  gap: var(--s-6);
+  padding: var(--s-5);
+}
+.trk-msg {
+  margin: 0 0 var(--s-5);
+  font-size: var(--fs-sm);
+}
+
+/* Frise d'avancement */
+.trk-steps {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.trk-steps::before,
+.trk-steps::after {
+  content: '';
+  position: absolute;
+  top: 17px;
+  left: 12.5%;
+  right: 12.5%;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--border);
+}
+.trk-steps::after {
+  background: var(--accent);
+  transform-origin: left;
+  transform: scaleX(var(--p));
+  animation: grow 0.9s var(--ease-out) 0.2s both;
+}
+.trk-steps li {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+  text-align: center;
+}
+.trk-dot {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  color: var(--text-faint);
+  transition: background-color var(--dur-3), border-color var(--dur-3);
+}
+.trk-dot svg {
+  width: 16px;
+  height: 16px;
+}
+.trk-steps li.done .trk-dot {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--ink);
+}
+.trk-steps li.cur .trk-dot {
+  border-color: var(--accent);
+  color: var(--accent-text);
+  box-shadow: 0 0 0 5px rgb(var(--c-gold-100));
+}
+.trk-sl {
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--text-faint);
+}
+.trk-steps li.done .trk-sl,
+.trk-steps li.cur .trk-sl {
+  color: var(--text);
+}
+
+.trk-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.trk-items li {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--fs-sm);
+}
+.trk-items li:last-child {
+  border-bottom: 0;
+}
+.trk-items p {
+  margin: 0;
+  font-weight: 600;
+}
+.trk-items span {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+.trk-items b {
+  flex: none;
+}
+
+.trk-of {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--border);
+}
+.trk-meta p {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 4px;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+.trk-meta strong {
+  color: var(--text);
+}
+.trk-meta svg {
+  width: 14px;
+  height: 14px;
+}
+.trk-total {
+  text-align: right;
+}
+.trk-total strong {
+  font-family: var(--font-display);
+  font-size: var(--fs-xl);
+  font-weight: 500;
+}
+.trk-wa {
+  color: var(--wa);
+  font-size: var(--fs-sm);
+  background: var(--wa-soft);
+}
+.trk-wa:hover {
+  --btn-bg: rgb(var(--c-wa-50));
+  filter: brightness(0.97);
+}
+
+/* ----- Avant recherche ----- */
+.trk-intro {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-3);
+  margin-top: var(--s-6);
+}
+.trk-ic {
+  position: relative;
+  padding: var(--s-4);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  animation: rise-in var(--dur-4) var(--ease-out) both;
+}
+.trk-ic:nth-child(2) {
+  animation-delay: 60ms;
+}
+.trk-ic:nth-child(3) {
+  animation-delay: 120ms;
+}
+.trk-ic:nth-child(4) {
+  animation-delay: 180ms;
+}
+.trk-ic-n {
+  position: absolute;
+  top: var(--s-3);
+  right: var(--s-4);
+  font-family: var(--font-display);
+  font-size: var(--fs-lg);
+  color: var(--border-strong);
+}
+.trk-ic > svg {
+  width: 22px;
+  height: 22px;
+  color: var(--accent-text);
+}
+.trk-ic p {
+  margin: var(--s-2) 0 2px;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+}
+.trk-ic > span:last-child {
+  font-size: var(--fs-xs);
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+@keyframes grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@media (min-width: 720px) {
+  .trk {
+    padding-top: var(--s-12);
+  }
+  .trk-form {
+    padding: var(--s-8);
+  }
+  .trk-fields {
+    grid-template-columns: 1fr 1fr;
+  }
+  .trk-oh,
+  .trk-ob {
+    padding: var(--s-6) var(--s-8);
+  }
+  .trk-sl {
+    font-size: var(--fs-xs);
+  }
+  .trk-intro {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+</style>
