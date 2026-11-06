@@ -128,17 +128,16 @@
               <ShoppingBag aria-hidden="true" />
               {{ selectedVariant && selectedVariant.stockQuantity > 0 ? 'Ajouter au panier' : 'Épuisé' }}
             </button>
+            <button
+              type="button"
+              class="btn line lg wa-link"
+              :disabled="!selectedVariant || selectedVariant.stockQuantity <= 0"
+              @click="orderProductByPhone"
+            >
+              <IconWhatsApp className="w-5 h-5" />
+              Commander sur WhatsApp
+            </button>
           </div>
-
-          <button
-            type="button"
-            class="btn line block wa-link"
-            :disabled="!selectedVariant || selectedVariant.stockQuantity <= 0"
-            @click="orderProductByPhone"
-          >
-            <IconWhatsApp className="w-4 h-4" />
-            Une question ? Commander sur WhatsApp
-          </button>
 
           <!-- Réassurance -->
           <ul class="perks">
@@ -711,18 +710,22 @@ watch(() => route.params.slug, () => void loadProduct(), { immediate: true });
   text-decoration: none;
 }
 
+/* Quantité + panier sur une ligne, WhatsApp dessous (téléphone) ou à côté (écran large) */
 .buy {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr;
   gap: var(--s-2);
   margin-top: var(--s-6);
 }
-.buy .add {
-  flex: 1;
-}
 .wa-link {
-  margin-top: var(--s-2);
+  grid-column: 1 / -1;
   color: var(--wa);
+  border-color: rgb(var(--c-wa-500) / 0.35);
   font-size: var(--fs-sm);
+}
+.wa-link:hover:not(:disabled) {
+  --btn-bg: var(--wa-soft);
+  --btn-bd: var(--wa);
 }
 
 .perks {
@@ -812,6 +815,15 @@ watch(() => route.params.slug, () => void loadProduct(), { immediate: true });
   gap: var(--s-4) var(--s-3);
 }
 
+@media (min-width: 560px) {
+  .buy {
+    grid-template-columns: auto 1fr 1fr;
+  }
+  .wa-link {
+    grid-column: auto;
+  }
+}
+
 @keyframes blink {
   50% {
     opacity: 0.35;
@@ -875,6 +887,8 @@ watch(() => route.params.slug, () => void loadProduct(), { immediate: true });
   }
   .info {
     padding-top: var(--s-4);
+    /* Colonne lisible : les boutons ne s'étirent plus sur toute la largeur de l'écran */
+    max-width: 640px;
   }
 }
 </style>
