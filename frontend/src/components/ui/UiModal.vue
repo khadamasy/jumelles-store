@@ -5,7 +5,7 @@
         <div
           ref="panelRef"
           class="ui-pn"
-          :class="[`s-${size}`, panelClass]"
+          :class="[`s-${size}`, `t-${tone}`, panelClass]"
           role="dialog"
           aria-modal="true"
           :aria-label="labelledby ? undefined : label"
@@ -63,8 +63,9 @@ import { lockScroll, unlockScroll } from '../../composables/useScrollLock';
 const props = withDefaults(
   defineProps<{
     open: boolean;
-    /** center : au milieu · sheet : monte du bas sur téléphone, centrée sur ordinateur · drawer : panneau à droite */
-    variant?: 'center' | 'sheet' | 'drawer';
+    /** center : au milieu · sheet : monte du bas sur téléphone, centrée sur ordinateur · drawer : panneau à droite · side : panneau à gauche (menu) */
+    variant?: 'center' | 'sheet' | 'drawer' | 'side';
+    tone?: 'light' | 'dark';
     size?: 'sm' | 'md' | 'lg';
     title?: string;
     subtitle?: string;
@@ -80,6 +81,7 @@ const props = withDefaults(
   }>(),
   {
     variant: 'center',
+    tone: 'light',
     size: 'md',
     closable: true,
     closeLabel: 'Fermer',
@@ -245,6 +247,41 @@ onBeforeUnmount(deactivate);
   border-radius: 0;
 }
 
+/* ----- Panneau à gauche (menu) ----- */
+.v-side {
+  justify-content: flex-start;
+  padding: 0;
+}
+.v-side .ui-pn {
+  height: 100dvh;
+  max-height: none;
+  max-width: 420px;
+  border-radius: 0;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ----- Version sombre ----- */
+.t-dark {
+  background: var(--ink);
+  color: var(--on-ink);
+}
+.t-dark .ui-hd,
+.t-dark .ui-ft {
+  border-color: rgb(255 255 255 / 0.1);
+  background: transparent;
+}
+.t-dark .ui-title {
+  color: var(--on-ink);
+}
+.t-dark .ui-x {
+  color: var(--on-ink-muted);
+}
+.t-dark .ui-x:hover {
+  background: rgb(255 255 255 / 0.08);
+  color: var(--on-ink);
+}
+
 /* ----- En-tête, contenu, pied ----- */
 .ui-hd {
   display: flex;
@@ -272,12 +309,29 @@ onBeforeUnmount(deactivate);
   margin: -8px -8px 0 0;
   color: var(--text-muted);
 }
+/* Bouton flottant : lisible sur un en-tête sombre ou une photo */
 .ui-x-float {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 12px;
+  right: 12px;
   margin: 0;
   z-index: 2;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r-full);
+  background: rgb(255 255 255 / 0.92);
+  color: var(--ink);
+  box-shadow: var(--sh-1);
+}
+.ui-x-float:hover {
+  background: #fff;
+}
+.ui-x-float svg {
+  width: 18px;
+  height: 18px;
+}
+.v-sheet .ui-x-float {
+  top: 18px;
 }
 .ui-bd {
   flex: 1;
@@ -329,7 +383,8 @@ onBeforeUnmount(deactivate);
   .ui-ft {
     padding: var(--s-4) var(--s-6);
   }
-  .v-drawer {
+  .v-drawer,
+  .v-side {
     padding: 0;
   }
 }
@@ -337,12 +392,14 @@ onBeforeUnmount(deactivate);
 /* ----- Animations ----- */
 .ui-center-enter-active,
 .ui-sheet-enter-active,
-.ui-drawer-enter-active {
+.ui-drawer-enter-active,
+.ui-side-enter-active {
   transition: opacity var(--dur-3) var(--ease-out);
 }
 .ui-center-leave-active,
 .ui-sheet-leave-active,
-.ui-drawer-leave-active {
+.ui-drawer-leave-active,
+.ui-side-leave-active {
   transition: opacity var(--dur-2) var(--ease-out);
 }
 .ui-center-enter-from,
@@ -350,7 +407,9 @@ onBeforeUnmount(deactivate);
 .ui-sheet-enter-from,
 .ui-sheet-leave-to,
 .ui-drawer-enter-from,
-.ui-drawer-leave-to {
+.ui-drawer-leave-to,
+.ui-side-enter-from,
+.ui-side-leave-to {
   opacity: 0;
 }
 
@@ -385,6 +444,17 @@ onBeforeUnmount(deactivate);
 .ui-drawer-enter-from .ui-pn,
 .ui-drawer-leave-to .ui-pn {
   transform: translateX(100%);
+}
+
+.ui-side-enter-active .ui-pn {
+  transition: transform var(--dur-3) var(--ease-out);
+}
+.ui-side-leave-active .ui-pn {
+  transition: transform var(--dur-2) var(--ease-in-out);
+}
+.ui-side-enter-from .ui-pn,
+.ui-side-leave-to .ui-pn {
+  transform: translateX(-100%);
 }
 
 @media (min-width: 720px) {
