@@ -30,6 +30,9 @@
               <img :key="activeImage" :src="activeImage" :alt="activeImageAlt" />
             </Transition>
             <span v-if="discount > 0" class="gal-tag tnum">-{{ discount }}%</span>
+            <button type="button" class="gal-zoom" aria-label="Voir la photo en grand" @click="openLightbox">
+              <span class="gal-zoom-ic"><Maximize2 aria-hidden="true" /></span>
+            </button>
           </div>
           <div v-if="product.images && product.images.length > 1" class="gal-thumbs">
             <button
@@ -189,6 +192,14 @@
         <router-link to="/catalog" class="btn dark">Voir toute la collection</router-link>
       </UiEmpty>
 
+      <!-- Visionneuse plein écran -->
+      <ProductLightbox
+        :open="lightboxOpen"
+        :images="lightboxImages"
+        :start-index="lightboxStart"
+        @close="lightboxOpen = false"
+      />
+
       <!-- Vous aimerez aussi -->
       <section v-if="related.length > 0" class="related" aria-labelledby="rel-title">
         <h2 id="rel-title">Vous aimerez aussi</h2>
@@ -212,6 +223,7 @@ import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
 import ProductCard from '../components/ProductCard.vue';
 import UiQty from '../components/ui/UiQty.vue';
 import UiEmpty from '../components/ui/UiEmpty.vue';
+import ProductLightbox from '../components/ProductLightbox.vue';
 import {
   ChevronRight,
   ChevronDown,
@@ -223,6 +235,7 @@ import {
   WifiOff,
   PackageX,
   RotateCw,
+  Maximize2,
 } from 'lucide-vue-next';
 
 const route = useRoute();
@@ -237,6 +250,20 @@ const activeImage = ref('');
 const selectedVariant = ref<any>(null);
 const quantity = ref(1);
 const related = ref<any[]>([]);
+
+/** Visionneuse plein écran : toutes les photos, ouverte sur celle affichée */
+const lightboxOpen = ref(false);
+const lightboxStart = ref(0);
+const lightboxImages = computed<Array<{ src: string; alt: string }>>(() => {
+  const imgs = product.value?.images || [];
+  if (imgs.length === 0) return activeImage.value ? [{ src: activeImage.value, alt: product.value?.name || '' }] : [];
+  return imgs.map((i: any) => ({ src: i.minioUrl, alt: i.altText || product.value?.name || '' }));
+});
+const openLightbox = () => {
+  const i = lightboxImages.value.findIndex((img) => img.src === activeImage.value);
+  lightboxStart.value = Math.max(0, i);
+  lightboxOpen.value = true;
+};
 
 /** Change de variante en gardant une quantité compatible avec son stock */
 const selectVariant = (v: any) => {
@@ -469,6 +496,40 @@ watch(() => route.params.slug, () => void loadProduct(), { immediate: true });
   color: #fff;
   font: 700 var(--fs-xs) / 1 var(--font-sans);
 }
+/* Toute la photo est cliquable : ouvre la visionneuse */
+.gal-zoom {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: var(--s-3);
+  border: 0;
+  background: transparent;
+  cursor: zoom-in;
+}
+.gal-zoom-ic {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.9);
+  color: var(--ink);
+  box-shadow: var(--sh-2);
+  transition: transform var(--dur-2) var(--ease-spring);
+}
+.gal-zoom:hover .gal-zoom-ic {
+  transform: scale(1.1);
+}
+.gal-zoom-ic svg {
+  width: 18px;
+  height: 18px;
+}
+.gal-zoom:focus-visible {
+  outline-offset: -4px;
+}
+
 .gal-thumbs {
   display: flex;
   gap: var(--s-2);
