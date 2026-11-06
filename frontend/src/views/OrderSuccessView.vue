@@ -11,7 +11,7 @@
         <IconWhatsApp className="w-4 h-4 text-[#25D366]" />
         <span>Commande Enregistrée & Transmise sur WhatsApp</span>
       </span>
-      <h1 class="font-serif text-3xl sm:text-4xl font-extrabold text-stone-900">
+      <h1 class="font-serif text-3xl sm:text-4xl font-normal text-stone-900">
         Merci pour votre commande !
       </h1>
       <p class="text-stone-600 text-xs sm:text-sm">

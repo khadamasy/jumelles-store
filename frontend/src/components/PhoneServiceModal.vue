@@ -21,7 +21,7 @@
           <span>Service Téléphonie & Commandes Express</span>
         </div>
 
-        <h3 class="font-serif text-2xl font-extrabold text-white">
+        <h3 class="font-serif text-2xl font-normal text-white">
           Maison Jumelles Store Dakar
         </h3>
         <p class="text-xs text-stone-300 mt-1 font-light">

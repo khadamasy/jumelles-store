@@ -164,7 +164,7 @@ export const memoryStore = {
       variants: [
         { id: 'var-birk-1', productId: 'prod-sac-1', sizeOrShoeSize: 'Format Médium (30cm)', color: 'Camel Caramel', sku: 'BIRK-CAMEL-30', stockQuantity: 8, priceAdjustment: 0 },
         { id: 'var-birk-2', productId: 'prod-sac-1', sizeOrShoeSize: 'Format Médium (30cm)', color: 'Chocolat Ébène', sku: 'BIRK-CHOC-30', stockQuantity: 6, priceAdjustment: 0 },
-        { id: 'var-birk-3', productId: 'prod-sac-1', sizeOrShoeSize: 'Format Médium (30cm)', color: 'Orange H', sku: 'BIRK-ORANGE-30', stockQuantity: 5, priceAdjustment: 0 },
+        { id: 'var-birk-3', productId: 'prod-sac-1', sizeOrShoeSize: 'Format Médium (30cm)', color: 'Orange Vif', sku: 'BIRK-ORANGE-30', stockQuantity: 5, priceAdjustment: 0 },
         { id: 'var-birk-4', productId: 'prod-sac-1', sizeOrShoeSize: 'Format Médium (30cm)', color: 'Rose Poudré', sku: 'BIRK-ROSE-30', stockQuantity: 7, priceAdjustment: 0 }
       ],
       images: [

@@ -1,297 +1,197 @@
 <template>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <!-- Breadcrumb Navigation -->
-    <nav class="text-xs text-stone-400 mb-8 flex items-center gap-2">
-      <router-link to="/" class="hover:text-stone-700 transition-colors">Accueil</router-link>
-      <span>/</span>
-      <router-link to="/catalog" class="hover:text-stone-700 transition-colors">Catalogue</router-link>
-      <span>/</span>
-      <span class="text-stone-900 font-bold truncate max-w-xs">{{ product?.name || 'Article' }}</span>
-    </nav>
+  <div class="pd-page">
+    <div class="wrap">
+      <nav class="crumb" aria-label="Fil d'Ariane">
+        <router-link to="/">Accueil</router-link>
+        <span aria-hidden="true">/</span>
+        <router-link :to="categoryLink">{{ isShoe ? 'Chaussures' : 'Sacs' }}</router-link>
+        <span aria-hidden="true">/</span>
+        <span class="cur">{{ product?.name || 'Article' }}</span>
+      </nav>
 
-    <!-- Loading State -->
-    <div v-if="loading" class="grid grid-cols-1 md:grid-cols-2 gap-12 animate-pulse">
-      <div class="aspect-square bg-stone-200 rounded-3xl"></div>
-      <div class="space-y-4">
-        <div class="h-8 bg-stone-200 rounded w-3/4"></div>
-        <div class="h-6 bg-stone-200 rounded w-1/4"></div>
-        <div class="h-24 bg-stone-200 rounded w-full"></div>
-      </div>
-    </div>
-
-    <!-- Product Layout -->
-    <div v-else-if="product" class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-start">
-      <!-- Media Gallery (MinIO Images) -->
-      <div class="space-y-4 relative lg:sticky lg:top-28">
-        <!-- Main Image -->
-        <div class="aspect-[4/5] bg-stone-100 rounded-3xl overflow-hidden border border-stone-200 shadow-xl relative group">
-          <img
-            :src="activeImage"
-            :alt="product.name"
-            class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
-          />
-          <div class="absolute bottom-4 right-4 bg-stone-950/80 backdrop-blur-md text-gold-400 text-[10px] font-bold px-3 py-1.5 rounded-full border border-gold-400/30 shadow-md">
-            ✨ Maison Jumelles • Dakar
-          </div>
-        </div>
-
-        <!-- Thumbnails Gallery -->
-        <div v-if="product.images && product.images.length > 1" class="flex gap-2.5 overflow-x-auto pb-2 pt-1 custom-scrollbar">
-          <button
-            v-for="img in product.images"
-            :key="img.id"
-            @click="activeImage = img.minioUrl"
-            class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden border-2 transition-all shrink-0 shadow-sm"
-            :class="activeImage === img.minioUrl ? 'border-gold-600 ring-2 ring-gold-400/50' : 'border-stone-200 opacity-60 hover:opacity-100'"
-          >
-            <img loading="lazy" decoding="async" :src="img.minioUrl" :alt="img.altText" class="w-full h-full object-cover" />
-          </button>
+      <!-- Chargement -->
+      <div v-if="loading" class="pd-grid" aria-hidden="true">
+        <div class="skel img"></div>
+        <div class="skel-col">
+          <div class="skel l1"></div>
+          <div class="skel l2"></div>
+          <div class="skel l3"></div>
         </div>
       </div>
 
-      <!-- Info & Variant Configuration -->
-      <div class="space-y-7">
-        <div>
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-xs uppercase tracking-widest text-gold-700 font-black bg-gold-50 px-3 py-0.5 rounded-full border border-gold-200">
-              {{ product.category?.name || 'Maroquinerie & Souliers' }}
-            </span>
-            <span
-              v-if="totalStock > 0"
-              class="text-xs text-emerald-700 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200"
-            >
-              ✓ En Stock à Dakar
-            </span>
-            <span
-              v-else
-              class="text-xs text-rosewood-700 font-bold bg-rosewood-50 px-2.5 py-0.5 rounded-full border border-rosewood-200"
-            >
-              Bientôt de retour
-            </span>
+      <!-- Fiche article -->
+      <div v-else-if="product" class="pd-grid">
+        <!-- Galerie -->
+        <section class="gal" aria-label="Photos de l'article">
+          <div class="gal-main">
+            <img :src="activeImage" :alt="activeImageAlt" />
+            <span v-if="discount > 0" class="tag promo">-{{ discount }}%</span>
           </div>
-
-          <h1 class="font-serif text-3xl sm:text-4xl font-extrabold text-stone-950 leading-tight">
-            {{ product.name }}
-          </h1>
-
-          <!-- Bloc Prix Épuré & Prestigieux -->
-          <div class="mt-4 p-4 rounded-2xl bg-stone-50 border border-stone-200/90 flex flex-wrap items-baseline justify-between gap-3 shadow-xs">
-            <div class="flex items-baseline gap-3">
-              <span class="font-serif text-3xl sm:text-4xl font-black text-stone-950">
-                {{ currencyStore.isEur ? currencyStore.toEurOnly(currentPrice) : currencyStore.toXofOnly(currentPrice) }}
-              </span>
-              <span
-                v-if="product.originalPrice && product.originalPrice > product.basePrice"
-                class="text-base text-stone-400 line-through font-bold"
-              >
-                {{ currencyStore.isEur ? currencyStore.toEurOnly(product.originalPrice) : currencyStore.toXofOnly(product.originalPrice) }}
-              </span>
-              <span
-                v-if="product.originalPrice && product.originalPrice > product.basePrice"
-                class="text-xs bg-rosewood-600 text-white font-extrabold px-2.5 py-0.5 rounded-full shadow"
-              >
-                -{{ Math.round((1 - product.basePrice / product.originalPrice) * 100) }}%
-              </span>
-            </div>
-
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-extrabold text-gold-800 bg-gold-100/60 border border-gold-300 px-3 py-1 rounded-xl shadow-2xs">
-                {{ currencyStore.isEur ? currencyStore.toXofOnly(currentPrice) : '≈ ' + currencyStore.toEurOnly(currentPrice) }}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <p class="text-stone-600 text-sm leading-relaxed border-t border-stone-100 pt-4 font-light">
-          {{ product.description }}
-        </p>
-
-        <!-- Variants Selection: Color -->
-        <div class="space-y-3 pt-2">
-          <label class="text-xs font-bold uppercase tracking-wider text-stone-600 block">
-            Coloris sélectionné : <span class="text-stone-950 font-black">{{ selectedVariant?.color }}</span>
-          </label>
-          <div class="flex flex-wrap gap-2.5">
+          <div v-if="product.images && product.images.length > 1" class="gal-thumbs">
             <button
-              v-for="v in uniqueColors"
-              :key="v"
-              @click="selectColor(v)"
-              class="px-4 py-2.5 rounded-xl text-xs font-bold border transition-all"
-              :class="selectedVariant?.color === v ? 'bg-stone-900 text-white border-stone-900 shadow-md' : 'bg-white border-stone-300 text-stone-700 hover:border-stone-400'"
+              v-for="img in product.images"
+              :key="img.id"
+              type="button"
+              :aria-label="`Voir : ${img.altText || product.name}`"
+              :aria-pressed="activeImage === img.minioUrl"
+              @click="activeImage = img.minioUrl"
             >
-              {{ v }}
+              <img loading="lazy" decoding="async" :src="img.minioUrl" :alt="''" />
             </button>
           </div>
-        </div>
+        </section>
 
-        <!-- Variants Selection: Shoe Size or Bag Format -->
-        <div class="space-y-3 pt-2">
-          <div class="flex items-center justify-between">
-            <label class="text-xs font-bold uppercase tracking-wider text-stone-600 block">
-              {{ isShoe ? 'Pointure disponible (37-42) :' : 'Taille / Format :' }}
-              <span class="text-stone-950 font-black ml-1">{{ selectedVariant?.sizeOrShoeSize }}</span>
-            </label>
-            <router-link v-if="isShoe" to="/faq-livraison" class="text-xs text-gold-700 font-bold hover:underline">
-              📏 Pointures & échanges
-            </router-link>
+        <!-- Informations et achat -->
+        <section class="info">
+          <span class="eyebrow">{{ product.category?.name || (isShoe ? 'Chaussures' : 'Maroquinerie') }}</span>
+          <h1>{{ product.name }}</h1>
+
+          <div class="price-row">
+            <span class="price">{{ formatMain(currentPrice) }}</span>
+            <s v-if="discount > 0">{{ formatMain(product.originalPrice) }}</s>
+            <span class="price-alt">{{ formatAlt(currentPrice) }}</span>
           </div>
 
-          <div class="flex flex-wrap gap-2.5">
-            <button
-              v-for="v in availableSizesForColor"
-              :key="v.id"
-              @click="selectVariant(v)"
-              :disabled="v.stockQuantity <= 0"
-              class="px-4 py-2.5 rounded-xl text-xs font-bold border transition-all flex items-center justify-center min-w-[55px]"
-              :class="[
-                selectedVariant?.id === v.id
-                  ? 'bg-gold-600 text-white border-gold-600 shadow-lg'
-                  : v.stockQuantity > 0
-                  ? 'bg-white border-stone-300 text-stone-900 hover:border-gold-500 hover:bg-gold-50/30'
-                  : 'bg-stone-100 border-stone-200 text-stone-400 line-through cursor-not-allowed'
-              ]"
-            >
-              {{ v.sizeOrShoeSize }}
-            </button>
-          </div>
-        </div>
+          <p class="stock" :class="stockClass">
+            <i aria-hidden="true"></i>
+            <span v-if="!selectedVariant || selectedVariant.stockQuantity <= 0">Cette taille est épuisée pour le moment</span>
+            <span v-else-if="selectedVariant.stockQuantity <= 3">Plus que {{ selectedVariant.stockQuantity }} pièce{{ selectedVariant.stockQuantity > 1 ? 's' : '' }} à Dakar</span>
+            <span v-else>En stock à Dakar · livraison en 24 h</span>
+          </p>
 
-        <!-- Stock Indicator -->
-        <div class="pt-2 flex items-center gap-2 text-xs font-semibold">
-          <span
-            class="w-2.5 h-2.5 rounded-full"
-            :class="selectedVariant && selectedVariant.stockQuantity > 0 ? 'bg-emerald-500' : 'bg-rosewood-500'"
-          ></span>
-          <span v-if="selectedVariant && selectedVariant.stockQuantity > 0" class="text-emerald-800">
-            En stock dans notre boutique de Dakar ({{ selectedVariant.stockQuantity }} disponible(s))
-          </span>
-          <span v-else class="text-rosewood-600 font-bold">
-            Rupture temporaire de stock sur cette variante
-          </span>
-        </div>
-
-        <!-- Quantity & Add to Cart & Buy Now -->
-        <div class="pt-4 border-t border-stone-100 space-y-4">
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-            <!-- Stepper -->
-            <div class="flex items-center border border-stone-300 rounded-2xl bg-white w-fit shadow-xs">
+          <!-- Coloris -->
+          <div v-if="uniqueColors.length > 1 || uniqueColors[0] !== 'Unique'" class="pick">
+            <div class="pick-h">
+              <span>Coloris</span>
+              <b>{{ selectedVariant?.color }}</b>
+            </div>
+            <div class="opts">
               <button
-                @click="quantity > 1 ? quantity-- : null"
-                class="px-4 py-3 text-stone-600 hover:text-stone-900 font-bold text-sm flex items-center justify-center cursor-pointer"
-                aria-label="Diminuer la quantité"
+                v-for="c in uniqueColors"
+                :key="c"
+                type="button"
+                class="opt"
+                :class="{ off: !colorInStock(c) }"
+                :aria-pressed="selectedVariant?.color === c"
+                @click="selectColor(c)"
               >
-                <Minus class="w-3.5 h-3.5" />
+                {{ c }}
               </button>
-              <span class="px-3 text-sm font-black text-stone-900">{{ quantity }}</span>
+            </div>
+          </div>
+
+          <!-- Pointure / format -->
+          <div class="pick">
+            <div class="pick-h">
+              <span>{{ isShoe ? 'Pointure' : 'Format' }}</span>
+              <b>{{ selectedVariant?.sizeOrShoeSize }}</b>
+              <router-link v-if="isShoe" to="/faq-livraison" class="pick-link">Échange sous 48 h</router-link>
+            </div>
+            <div class="opts">
               <button
-                @click="quantity < (selectedVariant?.stockQuantity || 1) ? quantity++ : null"
-                class="px-4 py-3 text-stone-600 hover:text-stone-900 font-bold text-sm flex items-center justify-center cursor-pointer"
+                v-for="v in availableSizesForColor"
+                :key="v.id"
+                type="button"
+                class="opt"
+                :class="{ sq: isShoe }"
+                :disabled="v.stockQuantity <= 0"
+                :aria-pressed="selectedVariant?.id === v.id"
+                @click="selectVariant(v)"
+              >
+                {{ v.sizeOrShoeSize }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Achat -->
+          <div class="buy">
+            <div class="qty" role="group" aria-label="Quantité">
+              <button type="button" aria-label="Diminuer la quantité" :disabled="quantity <= 1" @click="quantity--">−</button>
+              <span aria-live="polite">{{ quantity }}</span>
+              <button
+                type="button"
                 aria-label="Augmenter la quantité"
+                :disabled="quantity >= (selectedVariant?.stockQuantity || 1)"
+                @click="quantity++"
               >
-                <Plus class="w-3.5 h-3.5" />
+                +
               </button>
             </div>
-
-            <!-- Add to Bag -->
             <button
+              type="button"
+              class="btn gold add"
+              :disabled="!selectedVariant || selectedVariant.stockQuantity <= 0"
               @click="addToCart"
-              :disabled="!selectedVariant || selectedVariant.stockQuantity <= 0"
-              class="flex-1 py-4 px-6 rounded-2xl text-xs font-black uppercase tracking-wider text-white transition-all shadow-md flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
-              :class="
-                selectedVariant && selectedVariant.stockQuantity > 0
-                  ? 'bg-stone-950 hover:bg-gold-600 hover:shadow-xl'
-                  : 'bg-stone-400 cursor-not-allowed'
-              "
             >
-              <ShoppingBag class="w-4 h-4 text-gold-400" />
-              <span>Ajouter au Panier</span>
-            </button>
-
-            <!-- Buy Now -->
-            <button
-              @click="buyNow"
-              :disabled="!selectedVariant || selectedVariant.stockQuantity <= 0"
-              class="py-4 px-6 rounded-2xl text-xs font-black uppercase tracking-wider bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-stone-950 transition-all shadow-lg active:scale-98 cursor-pointer"
-            >
-              Acheter Immédiatement
+              {{ selectedVariant && selectedVariant.stockQuantity > 0 ? 'Ajouter au panier' : 'Épuisé' }}
             </button>
           </div>
 
-          <!-- Commander par Téléphone / WhatsApp avec lien photo -->
           <button
             type="button"
-            @click="orderProductByPhone"
+            class="wa-link"
             :disabled="!selectedVariant || selectedVariant.stockQuantity <= 0"
-            class="w-full py-3.5 px-5 rounded-2xl text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            @click="orderProductByPhone"
           >
-            <IconWhatsApp className="w-4 h-4 text-[#25D366]" />
-            <span>Commander cet article sur WhatsApp (avec photo)</span>
+            <IconWhatsApp className="w-4 h-4" />
+            Une question ? Commander sur WhatsApp
           </button>
 
-          <p class="text-center text-[11px] text-stone-500 pt-1">
-            Livraison express sous 24h à Dakar • Confirmation directe sur WhatsApp
-          </p>
-        </div>
+          <!-- Réassurance -->
+          <ul class="perks">
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7" /><circle cx="7" cy="17.5" r="1.7" /><circle cx="17" cy="17.5" r="1.7" /></svg>
+              Livraison 24 h à Dakar
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z" /><path d="M9 12l2 2 4-4" /></svg>
+              Paiement à la livraison
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 14-5l2 2M20 12a8 8 0 0 1-14 5l-2-2M20 4v5h-5M4 20v-5h5" /></svg>
+              {{ isShoe ? 'Échange de pointure 48 h' : 'Emballage cadeau soigné' }}
+            </li>
+          </ul>
 
-        <!-- Reassurance & Contact Card -->
-        <div class="bg-gradient-to-br from-stone-50 to-stone-100/70 border border-stone-200 rounded-3xl p-5 space-y-4 shadow-sm">
-          <div class="flex items-center justify-between font-bold text-stone-900 pb-3 border-b border-stone-200">
-            <div class="flex items-center gap-2">
-              <ShoppingBag class="w-4 h-4 text-gold-600" />
-              <span class="text-xs uppercase tracking-wider text-stone-700 font-bold">Garanties Maison Jumelles</span>
-            </div>
-            <span class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-              Stock Vérifié à Dakar
-            </span>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-stone-700">
-            <div class="flex items-center gap-2">
-              <Truck class="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>Livraison express à Dakar sous 24h</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <IconWhatsApp className="w-4 h-4 text-[#25D366] shrink-0" />
-              <span>Confirmation directe WhatsApp</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <Gift class="w-4 h-4 text-gold-600 shrink-0" />
-              <span>Emballage soigné & Ruban cadeau</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <RefreshCw class="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>Échange de pointure sous 48h</span>
-            </div>
-          </div>
-          <div class="pt-1 text-center">
-            <router-link to="/faq-livraison" class="text-[11px] text-stone-500 hover:text-gold-700 font-bold underline">
-              Consulter la FAQ & les conditions complètes de livraison →
-            </router-link>
-          </div>
+          <!-- Détails repliables -->
+          <details class="acc" open>
+            <summary>Description</summary>
+            <p>{{ product.description }}</p>
+          </details>
+          <details class="acc">
+            <summary>Livraison & paiement</summary>
+            <p>
+              Livraison sous 24 h à Dakar, offerte. Banlieue et régions : expédition sous 24 à 48 h, frais confirmés
+              sur WhatsApp. Vous payez à la réception du colis, en espèces ou par mobile money.
+            </p>
+          </details>
+          <details v-if="isShoe" class="acc">
+            <summary>Pointures & échanges</summary>
+            <p>
+              Nos modèles chaussent normalement. La pointure ne convient pas ? Nous l'échangeons sous 48 h, article non porté
+              et dans sa boîte. <router-link to="/faq-livraison">Voir toutes les conditions</router-link>
+            </p>
+          </details>
+        </section>
+      </div>
+
+      <!-- Article introuvable ou retiré du catalogue -->
+      <div v-else class="empty">
+        <h1>{{ loadError ? 'Impossible de charger cet article.' : 'Cet article n\'est plus disponible.' }}</h1>
+        <p>{{ loadError ? 'Vérifiez votre connexion puis réessayez.' : 'Il a peut-être été vendu ou retiré de la collection.' }}</p>
+        <div class="empty-acts">
+          <button v-if="loadError" type="button" class="btn line" @click="loadProduct">Réessayer</button>
+          <router-link to="/catalog" class="btn gold">Voir toute la collection</router-link>
         </div>
       </div>
-    </div>
 
-    <!-- Article introuvable ou retiré du catalogue -->
-    <div v-else class="bg-white rounded-3xl border border-stone-200 p-12 text-center space-y-4 shadow-sm">
-      <h1 class="font-serif text-2xl font-bold text-stone-900">
-        {{ loadError ? 'Impossible de charger cet article.' : 'Cet article n\'est plus disponible.' }}
-      </h1>
-      <p class="text-sm text-stone-500">
-        {{ loadError ? 'Vérifiez votre connexion puis réessayez.' : 'Il a peut-être été vendu ou retiré de la collection.' }}
-      </p>
-      <div class="flex flex-wrap justify-center gap-3">
-        <button
-          v-if="loadError"
-          type="button"
-          @click="loadProduct"
-          class="px-6 py-3 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-semibold rounded-xl"
-        >
-          Réessayer
-        </button>
-        <router-link to="/catalog" class="px-6 py-3 bg-stone-900 text-white text-xs font-semibold rounded-xl hover:bg-gold-600 transition-colors shadow">
-          Voir toute la collection
-        </router-link>
-      </div>
+      <!-- Vous aimerez aussi -->
+      <section v-if="related.length > 0" class="related" aria-label="Articles similaires">
+        <h2>Vous aimerez aussi</h2>
+        <div class="rel-grid">
+          <ProductCard v-for="p in related" :key="p.id" :product="p" />
+        </div>
+      </section>
     </div>
   </div>
 </template>
@@ -299,16 +199,15 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import { setPageMeta } from '../utils/seo';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { ProductService } from '../services/api';
 import { useCartStore } from '../stores/cart';
 import { useCurrencyStore } from '../stores/currency';
 import { usePhoneStore } from '../stores/phone';
-import { ShoppingBag, Truck, RefreshCw, Gift, Minus, Plus } from 'lucide-vue-next';
 import IconWhatsApp from '../components/icons/IconWhatsApp.vue';
+import ProductCard from '../components/ProductCard.vue';
 
 const route = useRoute();
-const router = useRouter();
 const cartStore = useCartStore();
 const currencyStore = useCurrencyStore();
 const phoneStore = usePhoneStore();
@@ -319,10 +218,7 @@ const loadError = ref(false);
 const activeImage = ref('');
 const selectedVariant = ref<any>(null);
 const quantity = ref(1);
-
-const totalStock = computed(() =>
-  (product.value?.variants || []).reduce((sum: number, v: any) => sum + (v.stockQuantity || 0), 0)
-);
+const related = ref<any[]>([]);
 
 /** Change de variante en gardant une quantité compatible avec son stock */
 const selectVariant = (v: any) => {
@@ -331,23 +227,43 @@ const selectVariant = (v: any) => {
   if (quantity.value > max) quantity.value = max;
 };
 
-const isShoe = computed(() => {
-  return product.value?.category?.type === 'CHAUSSURE' || product.value?.categoryId?.includes('shoe');
-});
+const isShoe = computed(
+  () => product.value?.category?.type === 'CHAUSSURE' || String(product.value?.categoryId || '').includes('shoe')
+);
+
+const categoryLink = computed(() => (isShoe.value ? '/catalog?type=CHAUSSURE' : '/catalog?type=SAC'));
 
 const currentPrice = computed(() => {
   if (!product.value) return 0;
-  const base = product.value.basePrice || 0;
-  const adj = selectedVariant.value?.priceAdjustment || 0;
-  return base + adj;
+  return (product.value.basePrice || 0) + (selectedVariant.value?.priceAdjustment || 0);
 });
 
-const uniqueColors = computed(() => {
-  if (!product.value?.variants) return [];
-  const set = new Set<string>();
-  product.value.variants.forEach((v: any) => set.add(v.color));
-  return Array.from(set);
+const discount = computed(() => {
+  const op = Number(product.value?.originalPrice);
+  const bp = Number(product.value?.basePrice);
+  return op > bp && bp > 0 ? Math.round((1 - bp / op) * 100) : 0;
 });
+
+/** Prix principal dans la devise choisie, prix secondaire dans l'autre */
+const formatMain = (n: number) => (currencyStore.isEur ? currencyStore.toEurOnly(n) : currencyStore.toXofOnly(n));
+const formatAlt = (n: number) => (currencyStore.isEur ? currencyStore.toXofOnly(n) : `≈ ${currencyStore.toEurOnly(n)}`);
+
+const activeImageAlt = computed(() => {
+  const img = product.value?.images?.find((i: any) => i.minioUrl === activeImage.value);
+  return img?.altText || product.value?.name || '';
+});
+
+const stockClass = computed(() => {
+  const s = selectedVariant.value?.stockQuantity || 0;
+  return s <= 0 ? 'out' : s <= 3 ? 'low' : 'ok';
+});
+
+const uniqueColors = computed<string[]>(() =>
+  Array.from(new Set((product.value?.variants || []).map((v: any) => v.color as string)))
+);
+
+const colorInStock = (color: string) =>
+  (product.value?.variants || []).some((v: any) => v.color === color && v.stockQuantity > 0);
 
 const availableSizesForColor = computed(() => {
   if (!product.value?.variants || !selectedVariant.value) return [];
@@ -386,12 +302,20 @@ const addToCart = () => {
   });
 };
 
-const buyNow = () => {
-  if (!selectedVariant.value || selectedVariant.value.stockQuantity <= 0) return;
-  addToCart();
-  // Le tiroir panier s'ouvre à l'ajout : inutile au-dessus de la page de commande
-  cartStore.toggleDrawer(false);
-  router.push('/checkout');
+/** 4 articles de la même catégorie (ou du même univers) pour prolonger la visite */
+const loadRelated = async (p: any) => {
+  try {
+    const res = await ProductService.getAll();
+    const all: any[] = Array.isArray(res.data?.data) ? res.data.data : [];
+    const others = all.filter((x) => x.id !== p.id);
+    const sameCat = others.filter((x) => x.categoryId === p.categoryId);
+    const sameUniverse = others.filter(
+      (x) => x.categoryId !== p.categoryId && String(x.categoryId).includes('shoe') === String(p.categoryId).includes('shoe')
+    );
+    related.value = [...sameCat, ...sameUniverse].slice(0, 4);
+  } catch {
+    related.value = [];
+  }
 };
 
 const loadProduct = async () => {
@@ -403,6 +327,7 @@ const loadProduct = async () => {
   selectedVariant.value = null;
   activeImage.value = '';
   quantity.value = 1;
+  related.value = [];
   try {
     const res = await ProductService.getByIdOrSlug(slug);
     product.value = res.data.data;
@@ -421,6 +346,7 @@ const loadProduct = async () => {
       image: product.value.images?.[0]?.minioUrl,
       path: `/product/${product.value.slug}`,
     });
+    void loadRelated(product.value);
   } catch (err: any) {
     // 404 : article retiré ; autre erreur : problème réseau, on propose de réessayer
     loadError.value = err?.response?.status !== 404;
@@ -433,3 +359,430 @@ const loadProduct = async () => {
 // Rechargé aussi quand on passe d'un article à l'autre (le composant est réutilisé par le routeur)
 watch(() => route.params.slug, () => void loadProduct(), { immediate: true });
 </script>
+
+<style scoped>
+.pd-page {
+  padding: 14px 0 40px;
+}
+
+.crumb {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--mut);
+  margin-bottom: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.crumb a:hover {
+  color: var(--gold);
+}
+.crumb .cur {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--tx);
+}
+
+.pd-grid {
+  display: grid;
+  gap: 22px;
+}
+
+/* ---------- Galerie ---------- */
+.gal-main {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #efe7dc;
+  box-shadow: var(--shadow);
+}
+.gal-main img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.tag.promo {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #a63333;
+  color: #fff;
+  font: 700 11px/1 system-ui, sans-serif;
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+.gal-thumbs {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.gal-thumbs::-webkit-scrollbar {
+  display: none;
+}
+.gal-thumbs button {
+  flex: none;
+  width: 64px;
+  height: 80px;
+  padding: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  background: #efe7dc;
+  opacity: 0.65;
+  cursor: pointer;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+.gal-thumbs button[aria-pressed='true'] {
+  opacity: 1;
+  border-color: var(--gold);
+}
+.gal-thumbs img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---------- Informations ---------- */
+.info h1 {
+  font-size: clamp(26px, 6.5vw, 36px);
+  font-weight: 400;
+  line-height: 1.15;
+  margin: 8px 0 12px;
+}
+.price-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+}
+.price {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--tx);
+}
+.price-row s {
+  color: var(--mut);
+  font-size: 15px;
+}
+.price-alt {
+  font-size: 13px;
+  color: var(--mut);
+}
+
+.stock {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 4px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.stock i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+.stock.ok {
+  color: #1f7a4a;
+}
+.stock.ok i {
+  background: #1f9d55;
+}
+.stock.low {
+  color: #8a5a12;
+}
+.stock.low i {
+  background: var(--gold);
+}
+.stock.out {
+  color: #a63333;
+}
+.stock.out i {
+  background: #a63333;
+}
+
+.pick {
+  margin-top: 18px;
+}
+.pick-h {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 13.5px;
+}
+.pick-h span {
+  color: var(--mut);
+}
+.pick-link {
+  margin-left: auto;
+  font-size: 12.5px;
+  color: var(--gold);
+  font-weight: 600;
+  text-decoration: underline;
+}
+.opts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.opt {
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid var(--bd);
+  background: var(--card);
+  color: var(--tx);
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.opt:hover:not(:disabled) {
+  border-color: var(--gold);
+}
+.opt.sq {
+  min-width: 48px;
+  padding: 0 10px;
+}
+.opt.off {
+  color: var(--mut);
+}
+.opt:disabled {
+  color: #b9aea4;
+  background: transparent;
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+.opt[aria-pressed='true'] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--on-ink);
+  text-decoration: none;
+}
+
+.buy {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+}
+.qty {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--bd);
+  border-radius: 16px;
+  background: var(--card);
+}
+.qty button {
+  width: 42px;
+  height: 50px;
+  border: 0;
+  background: transparent;
+  font-size: 20px;
+  color: var(--tx);
+  cursor: pointer;
+}
+.qty button:disabled {
+  color: #cdc3b8;
+  cursor: not-allowed;
+}
+.qty span {
+  min-width: 22px;
+  text-align: center;
+  font-weight: 700;
+}
+.add {
+  flex: 1;
+}
+.add:disabled {
+  background: #ddd3c7;
+  color: var(--mut);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.wa-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 10px;
+  min-height: 46px;
+  border-radius: 14px;
+  border: 1px solid #cfe9da;
+  background: #f1faf4;
+  color: #17643a;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+.wa-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.perks {
+  list-style: none;
+  padding: 0;
+  margin: 22px 0 8px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.perks li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 12px 6px;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1px solid var(--bd);
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.perks svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.acc {
+  border-bottom: 1px solid var(--bd);
+}
+.acc summary {
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+}
+.acc summary::-webkit-details-marker {
+  display: none;
+}
+.acc summary::after {
+  content: '+';
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--gold);
+}
+.acc[open] summary::after {
+  content: '−';
+}
+.acc p {
+  margin: 0 0 16px;
+  color: var(--mut);
+  font-size: 14.5px;
+}
+.acc a {
+  color: var(--gold);
+  text-decoration: underline;
+}
+
+/* ---------- Similaires ---------- */
+.related {
+  margin-top: 40px;
+}
+.related h2 {
+  font-weight: 400;
+  font-size: 26px;
+  margin: 0 0 14px;
+}
+.rel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+/* ---------- États ---------- */
+.empty {
+  text-align: center;
+  padding: 56px 16px;
+  background: var(--card);
+  border: 1px solid var(--bd);
+  border-radius: 22px;
+}
+.empty h1 {
+  font-weight: 400;
+  font-size: 26px;
+  margin: 0 0 8px;
+}
+.empty p {
+  color: var(--mut);
+  margin: 0 0 20px;
+}
+.empty-acts {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.empty-acts .btn {
+  width: auto;
+}
+
+.skel {
+  border-radius: 14px;
+  background: linear-gradient(100deg, #efe7dc 40%, #f7f1e9 50%, #efe7dc 60%) 0 0 / 200% 100%;
+  animation: shimmer 1.3s linear infinite;
+}
+.skel.img {
+  aspect-ratio: 4 / 5;
+  border-radius: 22px;
+}
+.skel-col {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+.skel.l1 {
+  height: 34px;
+  width: 80%;
+}
+.skel.l2 {
+  height: 26px;
+  width: 40%;
+}
+.skel.l3 {
+  height: 120px;
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (min-width: 900px) {
+  .pd-page {
+    padding-top: 22px;
+  }
+  .pd-grid {
+    grid-template-columns: 1.1fr 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+  .gal {
+    position: sticky;
+    top: 76px;
+  }
+  .rel-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+  }
+}
+</style>

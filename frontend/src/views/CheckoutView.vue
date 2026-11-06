@@ -6,7 +6,7 @@
         <Sparkles class="w-3.5 h-3.5 text-gold-600" />
         <span>Commande Express Sans Paiement en Ligne</span>
       </span>
-      <h1 class="font-serif text-3xl sm:text-4xl font-extrabold text-stone-900">
+      <h1 class="font-serif text-3xl sm:text-4xl font-normal text-stone-900">
         Finalisation de Votre Commande
       </h1>
       <p class="text-xs sm:text-sm text-stone-500 max-w-2xl">
@@ -19,7 +19,7 @@
       <div class="w-16 h-16 rounded-3xl bg-stone-100 flex items-center justify-center mx-auto text-stone-500">
         <ShoppingBag class="w-8 h-8 text-gold-600" />
       </div>
-      <h3 class="font-serif text-xl font-bold text-stone-900">Votre panier est vide.</h3>
+      <h3 class="font-serif text-xl font-normal text-stone-900">Votre panier est vide.</h3>
       <p class="text-sm text-stone-500">Ajoutez des sacs ou des souliers avant de procéder à la commande.</p>
       <router-link to="/catalog" class="inline-block px-6 py-3 bg-stone-900 text-white text-xs font-semibold rounded-xl hover:bg-gold-600 transition-colors shadow">
         Découvrir la boutique
@@ -35,7 +35,7 @@
           <div class="flex items-center gap-3 border-b border-stone-100 pb-4">
             <span class="w-8 h-8 rounded-full bg-stone-900 text-gold-400 font-bold flex items-center justify-center text-sm">1</span>
             <div>
-              <h2 class="font-serif text-lg font-bold text-stone-900">Coordonnées de Livraison</h2>
+              <h2 class="font-serif text-lg font-normal text-stone-900">Coordonnées de Livraison</h2>
               <p class="text-xs text-stone-500">Indiquez vos informations exactes pour la réception du colis</p>
             </div>
           </div>
@@ -104,7 +104,7 @@
             </div>
             <div>
               <span class="text-[10px] uppercase font-bold tracking-widest text-[#25D366] block">Étape 2 • Confirmation Immédiate</span>
-              <h2 class="font-serif text-lg font-bold text-white">Validation Directe sur WhatsApp</h2>
+              <h2 class="font-serif text-lg font-normal text-white">Validation Directe sur WhatsApp</h2>
             </div>
           </div>
 
@@ -136,7 +136,7 @@
       <div class="lg:col-span-5">
         <div class="bg-white p-6 sm:p-8 rounded-3xl border border-stone-200 shadow-2xs relative lg:sticky lg:top-28 space-y-6">
           <div class="flex items-center justify-between border-b border-stone-100 pb-4">
-            <h3 class="font-serif text-lg font-bold text-stone-900">
+            <h3 class="font-serif text-lg font-normal text-stone-900">
               Articles Commandés
             </h3>
             <span class="text-xs font-bold bg-stone-100 text-stone-700 px-2.5 py-0.5 rounded-full">
@@ -157,7 +157,7 @@
                 class="w-14 h-14 object-cover rounded-xl bg-stone-100 border border-stone-200 shrink-0"
               />
               <div class="flex-1 min-w-0 space-y-0.5">
-                <p class="font-serif font-bold text-stone-900 truncate text-xs sm:text-sm">{{ item.productName }}</p>
+                <p class="font-serif text-stone-900 line-clamp-2 text-sm leading-snug">{{ item.productName }}</p>
                 <p class="text-[11px] text-stone-500">
                   <span class="font-medium text-stone-800">{{ item.color }}</span>
                   <span v-if="item.sizeOrShoeSize"> • Pointure / Taille : <strong>{{ item.sizeOrShoeSize }}</strong></span>
@@ -166,10 +166,10 @@
               </div>
               <div class="text-right shrink-0">
                 <span class="font-serif font-black text-stone-950 text-sm block">
-                  {{ formatPrice(item.price * item.quantity) }}
+                  {{ currencyStore.toXofOnly(item.price * item.quantity) }}
                 </span>
                 <span v-if="item.quantity > 1" class="text-[10px] text-stone-400 block">
-                  ({{ formatPrice(item.price) }}/u)
+                  ({{ currencyStore.toXofOnly(item.price) }}/u)
                 </span>
               </div>
             </div>

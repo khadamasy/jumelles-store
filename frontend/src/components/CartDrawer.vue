@@ -12,7 +12,7 @@
         <div class="p-6 border-b border-stone-200 flex items-center justify-between">
           <div class="flex items-center gap-2">
             <span class="text-xl">🛍️</span>
-            <h2 class="font-serif text-lg font-bold text-stone-900">Mon Panier d'Achat</h2>
+            <h2 class="font-serif text-lg font-normal text-stone-900">Mon Panier d'Achat</h2>
             <span class="bg-stone-100 text-stone-700 text-xs px-2.5 py-0.5 rounded-full font-semibold">
               {{ cartStore.totalItems }}
             </span>

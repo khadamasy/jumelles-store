@@ -34,7 +34,8 @@ export default {
       },
       fontFamily: {
         sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-        serif: ['Cinzel', 'serif'],
+        // Même police de titre que l'accueil (Cinzel, tout en capitales, alourdissait les pages)
+        serif: ['Georgia', '"Times New Roman"', 'serif'],
       }
     },
   },

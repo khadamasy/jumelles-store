@@ -6,7 +6,7 @@
         <ShieldCheck class="w-4 h-4 text-sky-600" />
         <span>Informations Légales & Transparence</span>
       </div>
-      <h1 class="font-serif text-3xl sm:text-4xl font-extrabold text-stone-900">
+      <h1 class="font-serif text-3xl sm:text-4xl font-normal text-stone-900">
         {{ activeTab === 'terms' ? "Conditions Générales d'Utilisation" : "Politique de Confidentialité" }}
       </h1>
       <p class="text-stone-500 text-xs sm:text-sm max-w-xl mx-auto">
@@ -38,7 +38,7 @@
     <!-- Contenu : Conditions d'Utilisation -->
     <div v-if="activeTab === 'terms'" class="bg-white rounded-3xl p-6 sm:p-10 border border-stone-200 shadow-sm space-y-8 text-stone-700 leading-relaxed text-sm">
       <section class="space-y-3">
-        <h2 class="font-serif text-xl font-bold text-stone-950 flex items-center gap-2">
+        <h2 class="font-serif text-xl font-normal text-stone-950 flex items-center gap-2">
           <FileText class="w-5 h-5 text-sky-600" />
           <span>1. Préambule et Présentation de la Maison</span>
         </h2>
@@ -48,28 +48,28 @@
       </section>
 
       <section class="space-y-3 border-t border-stone-100 pt-6">
-        <h2 class="font-serif text-xl font-bold text-stone-950">2. Produits et Disponibilité</h2>
+        <h2 class="font-serif text-xl font-normal text-stone-950">2. Produits et Disponibilité</h2>
         <p>
           Nos sacs à main, cabas, pochettes de gala et souliers (pointures 37 à 42) sont décrits avec la plus grande précision. Les stocks indiqués sur le site correspondent aux articles physiquement disponibles dans notre entrepôt logistique à Dakar. En cas de rupture simultanée, la cliente est immédiatement notifiée et remboursée sous 24h.
         </p>
       </section>
 
       <section class="space-y-3 border-t border-stone-100 pt-6">
-        <h2 class="font-serif text-xl font-bold text-stone-950">3. Tarifs et Modalités de Commande</h2>
+        <h2 class="font-serif text-xl font-normal text-stone-950">3. Tarifs et Modalités de Commande</h2>
         <p>
           Les prix sont affichés en Francs CFA (XOF) toutes taxes comprises, avec possibilité d'affichage indicatif en Euros (EUR). La validation de la commande s'effectue directement via notre canal WhatsApp officiel (+221 77 208 78 20) et le règlement s'effectue à la réception du colis.
         </p>
       </section>
 
       <section class="space-y-3 border-t border-stone-100 pt-6">
-        <h2 class="font-serif text-xl font-bold text-stone-950">4. Expédition et Livraison à Dakar</h2>
+        <h2 class="font-serif text-xl font-normal text-stone-950">4. Expédition et Livraison à Dakar</h2>
         <p>
           Toute commande validée avant 14h00 est expédiée et livrée le jour même à Dakar. Les commandes postérieures sont livrées le lendemain matin en moins de 24 heures ouvrées. Les frais de livraison sont calculés en fonction de la commune de destination (Plateau, Almadies, Mermoz, Maristes, Banlieue, etc.).
         </p>
       </section>
 
       <section class="space-y-3 border-t border-stone-100 pt-6">
-        <h2 class="font-serif text-xl font-bold text-stone-950">5. Droit d'Échange de Pointure Garanti 48h</h2>
+        <h2 class="font-serif text-xl font-normal text-stone-950">5. Droit d'Échange de Pointure Garanti 48h</h2>
         <p>
           Conscients de l'importance d'un chaussant parfait, nous accordons un délai de <strong>48 heures après réception</strong> pour demander un échange gratuit de taille pour les souliers (pointures 37 à 42), sous réserve que l'article soit retourné dans son emballage d'origine, neuf et jamais porté en extérieur.
         </p>
@@ -79,7 +79,7 @@
     <!-- Contenu : Politique de Confidentialité -->
     <div v-else class="bg-white rounded-3xl p-6 sm:p-10 border border-stone-200 shadow-sm space-y-8 text-stone-700 leading-relaxed text-sm">
       <section class="space-y-3">
-        <h2 class="font-serif text-xl font-bold text-stone-950 flex items-center gap-2">
+        <h2 class="font-serif text-xl font-normal text-stone-950 flex items-center gap-2">
           <Lock class="w-5 h-5 text-sky-600" />
           <span>1. Collecte et Respect de vos Données Personnelles</span>
         </h2>
@@ -95,21 +95,21 @@
       </section>
 
       <section class="space-y-3 border-t border-stone-100 pt-6">
-        <h2 class="font-serif text-xl font-bold text-stone-950">2. Non-Divulgation à des Tiers</h2>
+        <h2 class="font-serif text-xl font-normal text-stone-950">2. Non-Divulgation à des Tiers</h2>
         <p>
           Vos coordonnées ne sont <strong>jamais vendues, louées ou cédées</strong> à des fins publicitaires. Elles sont uniquement transmises à notre service de livraison interne pour vous remettre vos colis en main propre.
         </p>
       </section>
 
       <section class="space-y-3 border-t border-stone-100 pt-6">
-        <h2 class="font-serif text-xl font-bold text-stone-950">3. Sécurité des Commandes</h2>
+        <h2 class="font-serif text-xl font-normal text-stone-950">3. Sécurité des Commandes</h2>
         <p>
           Notre plateforme ne stocke aucune coordonnée bancaire sensible. Toutes les commandes sont vérifiées côté serveur et confirmées directement via WhatsApp.
         </p>
       </section>
 
       <section class="space-y-3 border-t border-stone-100 pt-6">
-        <h2 class="font-serif text-xl font-bold text-stone-950">4. Vos Droits d'Accès et de Rectification</h2>
+        <h2 class="font-serif text-xl font-normal text-stone-950">4. Vos Droits d'Accès et de Rectification</h2>
         <p>
           Conformément aux normes en vigueur, vous pouvez à tout moment solliciter la modification ou la suppression définitive de vos données personnelles en contactant notre service clientèle.
         </p>

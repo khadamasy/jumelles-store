@@ -12,7 +12,7 @@
       <span class="text-xs font-bold text-gold-700 uppercase tracking-widest bg-gold-50 px-4 py-1.5 rounded-full border border-gold-200 shadow-2xs">
         Service Client & Logistique Dakar
       </span>
-      <h1 class="font-serif text-3xl sm:text-5xl font-extrabold text-stone-950">
+      <h1 class="font-serif text-3xl sm:text-5xl font-normal text-stone-950">
         Foire Aux Questions & Livraison
       </h1>
       <p class="text-stone-600 text-sm sm:text-base max-w-xl mx-auto font-light leading-relaxed">
@@ -88,7 +88,7 @@
         <IconWhatsApp className="w-8 h-8 text-[#25D366]" />
       </div>
       <div class="space-y-2">
-        <h3 class="font-serif text-2xl sm:text-3xl font-extrabold text-white">
+        <h3 class="font-serif text-2xl sm:text-3xl font-normal text-white">
           Vous avez une question particulière ?
         </h3>
         <p class="text-xs sm:text-sm text-stone-300 max-w-md mx-auto font-light">

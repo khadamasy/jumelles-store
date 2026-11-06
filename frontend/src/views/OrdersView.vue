@@ -8,7 +8,7 @@
         <Package class="w-3.5 h-3.5 text-gold-600" aria-hidden="true" />
         <span>Suivi en temps réel</span>
       </span>
-      <h1 class="font-serif text-3xl sm:text-4xl font-extrabold text-stone-900">Suivi de vos commandes</h1>
+      <h1 class="font-serif text-3xl sm:text-4xl font-normal text-stone-900">Suivi de vos commandes</h1>
       <p class="text-sm text-stone-500 max-w-xl mx-auto">
         Saisissez votre numéro de commande et le téléphone utilisé lors de l'achat pour voir où en est votre colis.
       </p>
@@ -97,7 +97,7 @@
       <div class="w-14 h-14 rounded-2xl bg-stone-100 flex items-center justify-center mx-auto">
         <PackageSearch class="w-7 h-7 text-stone-500" aria-hidden="true" />
       </div>
-      <h2 class="font-serif text-xl font-bold text-stone-900">Aucune commande trouvée</h2>
+      <h2 class="font-serif text-xl font-normal text-stone-900">Aucune commande trouvée</h2>
       <p class="text-sm text-stone-500 max-w-md mx-auto">
         Le numéro de commande et le téléphone doivent correspondre exactement à ceux de l'achat.
         Vérifiez-les, ou contactez-nous : nous vous répondons rapidement.
