@@ -161,7 +161,7 @@ onMounted(() => {
 </script>
 <style scoped>
 .os {
-  max-width: 640px;
+  max-width: 760px;
   padding-top: var(--s-10);
   padding-bottom: var(--s-12);
   text-align: center;

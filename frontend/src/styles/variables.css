@@ -135,7 +135,7 @@
   --s-12: 48px;
   --s-16: 64px;
   --gutter: 16px;
-  --container: 1120px;
+  --container: 1600px;
   --header-h: 60px;
   --tap: 44px;
 
@@ -173,6 +173,12 @@
   :root {
     --gutter: 28px;
     --header-h: 68px;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --gutter: 48px;
   }
 }
 

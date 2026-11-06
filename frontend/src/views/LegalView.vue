@@ -169,7 +169,7 @@ onMounted(() => {
 
 <style scoped>
 .lg {
-  max-width: 820px;
+  max-width: 1040px;
   padding-top: var(--s-8);
   padding-bottom: var(--s-12);
 }

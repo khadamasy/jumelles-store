@@ -24,7 +24,7 @@
       <!-- Fiche article -->
       <div v-else-if="product" class="pd-grid">
         <!-- Galerie -->
-        <section class="gal" aria-label="Photos de l'article">
+        <section class="gal" :class="{ multi: product.images && product.images.length > 1 }" aria-label="Photos de l'article">
           <div class="gal-main">
             <Transition name="img-fade">
               <img :key="activeImage" :src="activeImage" :alt="activeImageAlt" />
@@ -437,6 +437,9 @@ watch(() => route.params.slug, () => void loadProduct(), { immediate: true });
   position: relative;
   display: grid;
   aspect-ratio: 4 / 5;
+  /* Téléphone : la photo laisse voir le prix et les choix sans défiler */
+  max-height: 60svh;
+  width: 100%;
   border-radius: var(--r-xl);
   overflow: hidden;
   background: var(--bg-sunken);
@@ -762,15 +765,48 @@ watch(() => route.params.slug, () => void loadProduct(), { immediate: true });
   }
 }
 
+@media (min-width: 720px) {
+  .gal-main {
+    max-height: 70vh;
+  }
+}
+
 @media (min-width: 1024px) {
   .pd-grid {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
     gap: var(--s-12);
     align-items: start;
   }
+  /* Ordinateur : photo entière visible dans la hauteur de l'écran, miniatures à gauche */
   .gal {
     position: sticky;
     top: calc(var(--header-h) + var(--s-4));
+  }
+  .gal.multi {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: var(--s-3);
+    align-items: start;
+  }
+  .gal-main {
+    grid-column: 2;
+    grid-row: 1;
+    aspect-ratio: auto;
+    height: min(calc(100vh - var(--header-h) - 120px), 720px);
+    max-height: none;
+  }
+  .gal-thumbs {
+    grid-column: 1;
+    grid-row: 1;
+    flex-direction: column;
+    margin-top: 0;
+    max-height: min(calc(100vh - var(--header-h) - 120px), 720px);
+    overflow-y: auto;
+    overflow-x: visible;
+  }
+  .gal-thumbs button {
+    width: 72px;
+    height: 90px;
   }
   .info {
     padding-top: var(--s-4);

@@ -159,7 +159,7 @@ const faqList = [
 
 <style scoped>
 .faq {
-  max-width: 880px;
+  max-width: 1320px;
   padding-top: var(--s-6);
   padding-bottom: var(--s-12);
 }

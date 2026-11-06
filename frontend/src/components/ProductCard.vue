@@ -24,7 +24,7 @@
 
     <router-link :to="productUrl" class="pc-in">
       <span class="pc-cat">{{ categoryLabel }}</span>
-      <h3>{{ product.name }}</h3>
+      <h3 :title="product.name">{{ shortName(product.name) }}</h3>
       <div class="pc-price tnum">
         <span>{{ formatFcfa(product.basePrice) }}</span>
         <s v-if="discount > 0">{{ formatFcfa(product.originalPrice) }}</s>
@@ -38,6 +38,7 @@
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { ArrowRight, Plus } from 'lucide-vue-next';
+import { shortName } from '../utils/text';
 import { useCartStore } from '../stores/cart';
 
 const cartStore = useCartStore();
@@ -221,10 +222,9 @@ const quickAdd = () => {
   line-height: var(--lh-snug);
   letter-spacing: 0;
   color: var(--text);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
   transition: color var(--dur-2);
 }
 .pc-in:hover h3 {

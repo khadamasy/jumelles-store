@@ -687,4 +687,11 @@ onMounted(loadProducts);
     justify-content: space-between;
   }
 }
+
+/* ----- Grand écran ----- */
+@media (min-width: 1440px) {
+  .grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
 </style>

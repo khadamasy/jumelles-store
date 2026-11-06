@@ -364,7 +364,7 @@ const formatPrice = (price: number) =>
 </script>
 <style scoped>
 .trk {
-  max-width: 760px;
+  max-width: 980px;
   padding-top: var(--s-8);
   padding-bottom: var(--s-12);
 }

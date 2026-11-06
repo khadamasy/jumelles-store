@@ -1647,7 +1647,6 @@ onMounted(async () => {
 
 .adm-main {
   padding: var(--s-5) var(--gutter) var(--s-10);
-  max-width: 1280px;
 }
 
 /* Passage d'un onglet à l'autre */

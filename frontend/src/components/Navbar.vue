@@ -33,9 +33,10 @@
           :key="l.to"
           :to="l.to"
           class="nav-a"
-          :class="{ on: isActive(l) }"
+          :class="{ on: isActive(l), 'nav-home': l.to === '/' }"
           :aria-current="isActive(l) ? 'page' : undefined"
         >
+          <component :is="l.icon" class="nav-ic" aria-hidden="true" />
           {{ l.label }}
         </router-link>
       </nav>
@@ -72,10 +73,10 @@
       </div>
 
       <nav class="menu-nav" aria-label="Navigation principale">
-        <router-link to="/" @click="closeMenu">Accueil</router-link>
-        <router-link to="/catalog?type=SAC" @click="closeMenu">Sacs</router-link>
-        <router-link to="/catalog?type=CHAUSSURE" @click="closeMenu">Chaussures</router-link>
-        <router-link to="/catalog" @click="closeMenu">Toute la collection</router-link>
+        <router-link to="/" @click="closeMenu"><Home aria-hidden="true" />Accueil</router-link>
+        <router-link to="/catalog?type=SAC" @click="closeMenu"><ShoppingBag aria-hidden="true" />Sacs</router-link>
+        <router-link to="/catalog?type=CHAUSSURE" @click="closeMenu"><Footprints aria-hidden="true" />Chaussures</router-link>
+        <router-link to="/catalog" @click="closeMenu"><LayoutGrid aria-hidden="true" />Toute la collection</router-link>
       </nav>
 
       <div class="menu-sec">
@@ -98,7 +99,19 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { ShoppingBag, Search, Phone, Truck, Banknote, Repeat, Package } from 'lucide-vue-next';
+import {
+  ShoppingBag,
+  Search,
+  Phone,
+  Truck,
+  Banknote,
+  Repeat,
+  Package,
+  Briefcase,
+  Footprints,
+  LayoutGrid,
+  Home,
+} from 'lucide-vue-next';
 import UiModal from './ui/UiModal.vue';
 import IconWhatsApp from './icons/IconWhatsApp.vue';
 import { useCartStore } from '../stores/cart';
@@ -114,11 +127,12 @@ const scrolled = ref(false);
 const waUrl = buildWhatsAppSendUrl('Bonjour Jumelles Store, je souhaite avoir des informations.');
 
 const links = [
-  { to: '/catalog?type=SAC', label: 'Sacs', type: 'SAC' },
-  { to: '/catalog?type=CHAUSSURE', label: 'Chaussures', type: 'CHAUSSURE' },
-  { to: '/catalog', label: 'Collection', type: '' },
-  { to: '/faq-livraison', label: 'Livraison', type: null },
-  { to: '/orders', label: 'Suivi de commande', type: null },
+  { to: '/', label: 'Accueil', type: null, icon: Home },
+  { to: '/catalog?type=SAC', label: 'Sacs', type: 'SAC', icon: ShoppingBag },
+  { to: '/catalog?type=CHAUSSURE', label: 'Chaussures', type: 'CHAUSSURE', icon: Footprints },
+  { to: '/catalog', label: 'Collection', type: '', icon: LayoutGrid },
+  { to: '/faq-livraison', label: 'Livraison', type: null, icon: Truck },
+  { to: '/orders', label: 'Suivi de commande', type: null, icon: Package },
 ];
 
 const isActive = (l: (typeof links)[number]) => {
@@ -295,6 +309,9 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll));
   margin-top: var(--s-8);
 }
 .menu-nav a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   font-family: var(--font-display);
   font-size: 30px;
   font-weight: 400;
@@ -304,6 +321,13 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll));
   color: var(--on-ink);
   animation: menu-in var(--dur-4) var(--ease-out) both;
   transition: color var(--dur-2), padding-left var(--dur-2) var(--ease-out);
+}
+.menu-nav a svg {
+  width: 22px;
+  height: 22px;
+  flex: none;
+  color: var(--accent-on-ink);
+  stroke-width: 1.5;
 }
 .menu-nav a:hover,
 .menu-nav a.router-link-exact-active {
@@ -415,18 +439,35 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll));
   }
   .nav-a {
     position: relative;
-    padding: 10px 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 10px 12px;
     font-size: var(--fs-sm);
     font-weight: 600;
     color: var(--text-muted);
     border-radius: var(--r-sm);
     transition: color var(--dur-2);
   }
+  .nav-ic {
+    width: 17px;
+    height: 17px;
+    stroke-width: 1.7;
+    color: var(--text-faint);
+    transition: color var(--dur-2), transform var(--dur-2) var(--ease-spring);
+  }
+  .nav-a:hover .nav-ic,
+  .nav-a.on .nav-ic {
+    color: var(--accent-text);
+  }
+  .nav-a:hover .nav-ic {
+    transform: translateY(-1px);
+  }
   .nav-a::after {
     content: '';
     position: absolute;
-    left: 14px;
-    right: 14px;
+    left: 12px;
+    right: 12px;
     bottom: 4px;
     height: 1.5px;
     background: var(--accent);
@@ -444,6 +485,23 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll));
   }
   .act-search {
     display: inline-grid;
+  }
+  /* Écran moyen : texte seul pour que tout tienne sur une ligne */
+  .nav-ic,
+  .nav-home {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .nav-ic {
+    display: inline-block !important;
+  }
+  .nav-home {
+    display: inline-flex !important;
+  }
+  .nav {
+    gap: var(--s-2);
   }
 }
 </style>

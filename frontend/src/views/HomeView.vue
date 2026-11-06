@@ -16,11 +16,6 @@
           </router-link>
           <router-link to="/catalog?type=CHAUSSURE" class="btn line lg">Voir les chaussures</router-link>
         </div>
-        <ul class="hero-proof" aria-label="Nos engagements">
-          <li><Truck aria-hidden="true" />Livré en 24 h</li>
-          <li><Banknote aria-hidden="true" />Payé à la livraison</li>
-          <li><Repeat aria-hidden="true" />Échange 48 h</li>
-        </ul>
       </div>
 
       <div class="hero-vis">
@@ -41,16 +36,18 @@
       </div>
     </section>
 
-    <!-- ================= BANDEAU DÉFILANT ================= -->
-    <div class="marq" aria-label="Nos engagements">
-      <div class="marq-in">
-        <template v-for="n in 2" :key="n">
-          <span v-for="m in marqueeItems" :key="`${n}-${m}`" :aria-hidden="n === 2 ? 'true' : undefined">
-            {{ m }}<i aria-hidden="true">✦</i>
+    <!-- ================= ENGAGEMENTS ================= -->
+    <section class="wrap" aria-label="Nos engagements">
+      <ul class="perks">
+        <li v-for="(p, i) in perks" :key="p.title" class="perk" :style="{ animationDelay: `${i * 70}ms` }">
+          <span class="perk-ic"><component :is="p.icon" aria-hidden="true" /></span>
+          <span class="perk-t">
+            <b>{{ p.title }}</b>
+            <span>{{ p.text }}</span>
           </span>
-        </template>
-      </div>
-    </div>
+        </li>
+      </ul>
+    </section>
 
     <div class="wrap">
       <!-- ================= UNIVERS ================= -->
@@ -104,7 +101,7 @@
               <img v-if="item.imageUrl" :src="item.imageUrl" :alt="item.name" loading="lazy" decoding="async" />
             </router-link>
             <div class="rc-in">
-              <router-link :to="`/product/${item.slug}`" class="rc-name">{{ item.name }}</router-link>
+              <router-link :to="`/product/${item.slug}`" class="rc-name" :title="item.name">{{ shortName(item.name) }}</router-link>
               <span class="rc-price tnum">{{ formatFcfa(item.price) }}</span>
               <button type="button" class="btn line sm block rc-add" @click="quickAddToCart(item)">
                 <component :is="item.needsChoice ? ArrowRight : Plus" aria-hidden="true" />
@@ -119,38 +116,6 @@
         </div>
       </section>
 
-      <!-- ================= CONFIANCE ================= -->
-      <section class="sec rv" aria-labelledby="trust-title">
-        <div class="sec-hd">
-          <div>
-            <h2 id="trust-title">Commander en confiance</h2>
-            <p class="sub">Simple, local, sans surprise.</p>
-          </div>
-        </div>
-        <div class="trust">
-          <div class="t">
-            <span class="t-ic"><Truck aria-hidden="true" /></span>
-            <div>
-              <b>Livraison 24 h à Dakar</b>
-              <span>Votre commande est suivie par numéro et téléphone.</span>
-            </div>
-          </div>
-          <div class="t">
-            <span class="t-ic"><Repeat aria-hidden="true" /></span>
-            <div>
-              <b>Échange de pointure 48 h</b>
-              <span>Une pointure qui ne va pas : on la change.</span>
-            </div>
-          </div>
-          <div class="t">
-            <span class="t-ic"><ShieldCheck aria-hidden="true" /></span>
-            <div>
-              <b>Règlement à la livraison</b>
-              <span>Payez au moment de la remise de votre colis.</span>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   </div>
 </template>
@@ -168,7 +133,9 @@ import {
   Repeat,
   Banknote,
   ShieldCheck,
+  MessageCircle,
 } from 'lucide-vue-next';
+import { shortName } from '../utils/text';
 import { ProductService } from '../services/api';
 import { useCartStore } from '../stores/cart';
 import { useToastStore } from '../stores/toast';
@@ -182,11 +149,11 @@ const { rescan } = useReveal();
 const products = ref<any[]>([]);
 const railRef = ref<HTMLElement | null>(null);
 
-const marqueeItems = [
-  'Livraison 24h à Dakar',
-  'Échange de pointure 48h',
-  'Confirmation sur WhatsApp',
-  'Règlement à la livraison',
+const perks = [
+  { icon: Truck, title: 'Livraison 24 h à Dakar', text: 'Suivie par numéro et téléphone' },
+  { icon: Repeat, title: 'Échange de pointure 48 h', text: 'Une pointure qui ne va pas : on la change' },
+  { icon: MessageCircle, title: 'Confirmation sur WhatsApp', text: 'Commande vérifiée avec vous, sans surprise' },
+  { icon: ShieldCheck, title: 'Règlement à la livraison', text: 'Payez à la remise de votre colis' },
 ];
 
 const fallbackRail = [
@@ -415,37 +382,64 @@ onMounted(async () => {
   color: var(--accent-on-ink);
 }
 
-/* ================= BANDEAU ================= */
-.marq {
+/* ================= ENGAGEMENTS ================= */
+.perks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  list-style: none;
+  margin: var(--s-6) 0 var(--s-2);
+  padding: 0;
+  border-radius: var(--r-lg);
   overflow: hidden;
-  margin: var(--s-6) 0 var(--s-4);
-  border-block: 1px solid var(--border);
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+.perk {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-4);
+  background: var(--surface);
+  animation: rise-in var(--dur-4) var(--ease-out) both;
+  transition: background-color var(--dur-3);
+}
+.perk:hover {
   background: var(--surface-2);
 }
-.marq-in {
-  display: flex;
-  width: max-content;
-  padding: 14px 0;
-  animation: slide 36s linear infinite;
+.perk-ic {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  box-shadow: inset 0 0 0 1px rgb(var(--c-gold-200));
+  transition: transform var(--dur-3) var(--ease-spring);
 }
-.marq:hover .marq-in {
-  animation-play-state: paused;
+.perk:hover .perk-ic {
+  transform: scale(1.08) rotate(-4deg);
 }
-.marq span {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--s-6);
-  padding-right: var(--s-6);
-  font-family: var(--font-display);
-  font-size: var(--fs-md);
-  font-style: italic;
-  white-space: nowrap;
-  color: var(--text);
+.perk-ic svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.6;
 }
-.marq i {
-  font-style: normal;
-  font-size: 10px;
-  color: var(--accent);
+.perk-t {
+  display: grid;
+  gap: 2px;
+}
+.perk-t b {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  line-height: var(--lh-snug);
+}
+.perk-t span {
+  font-size: var(--fs-xs);
+  line-height: 1.4;
+  color: var(--text-muted);
 }
 
 /* ================= SECTIONS ================= */
@@ -608,10 +602,9 @@ onMounted(async () => {
 .rc-name {
   font-size: 15px;
   line-height: var(--lh-snug);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 .rc-price {
   font-weight: 700;
@@ -657,49 +650,6 @@ onMounted(async () => {
   height: 20px;
 }
 
-/* ----- Confiance ----- */
-.trust {
-  display: grid;
-  gap: var(--s-3);
-}
-.t {
-  display: flex;
-  gap: var(--s-4);
-  align-items: flex-start;
-  padding: var(--s-5);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-}
-.t-ic {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  flex: none;
-  border-radius: var(--r-md);
-  background: var(--accent-soft);
-  color: var(--accent-text);
-}
-.t-ic svg {
-  width: 22px;
-  height: 22px;
-  stroke-width: 1.6;
-}
-.t b {
-  display: block;
-  margin-bottom: 2px;
-}
-.t span {
-  color: var(--text-muted);
-  font-size: var(--fs-sm);
-}
-
-@keyframes slide {
-  to {
-    transform: translateX(-50%);
-  }
-}
 
 /* ================= TABLETTE ================= */
 @media (min-width: 720px) {
@@ -737,8 +687,13 @@ onMounted(async () => {
   .rc-all {
     flex-basis: 200px;
   }
-  .trust {
-    grid-template-columns: repeat(3, 1fr);
+  .perks {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .perk {
+    flex-direction: row;
+    align-items: center;
+    padding: var(--s-5);
   }
   .sec {
     padding-top: var(--s-16);
@@ -751,11 +706,4 @@ onMounted(async () => {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .marq-in {
-    animation: none;
-    flex-wrap: wrap;
-    width: auto;
-  }
-}
 </style>
