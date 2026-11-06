@@ -463,10 +463,12 @@ watch(() => route.params.slug, () => void loadProduct(), { immediate: true });
 .gal-main {
   position: relative;
   display: grid;
+  /* Cadre toujours au format photo (4:5) : sa largeur découle de la hauteur disponible,
+     la photo n'est donc jamais rognée. Téléphone : 60 % de la hauteur de l'écran au plus. */
   aspect-ratio: 4 / 5;
-  /* Téléphone : la photo laisse voir le prix et les choix sans défiler */
-  max-height: 60svh;
   width: 100%;
+  max-width: calc(60svh * 0.8);
+  margin-inline: auto;
   border-radius: var(--r-xl);
   overflow: hidden;
   background: var(--bg-sunken);
@@ -476,7 +478,8 @@ watch(() => route.params.slug, () => void loadProduct(), { immediate: true });
   grid-area: 1 / 1;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* Photo entière (bandes discrètes si son format diffère légèrement du cadre) */
+  object-fit: contain;
 }
 .img-fade-enter-active,
 .img-fade-leave-active {
@@ -828,13 +831,14 @@ watch(() => route.params.slug, () => void loadProduct(), { immediate: true });
 
 @media (min-width: 720px) {
   .gal-main {
-    max-height: 70vh;
+    max-width: calc(70vh * 0.8);
   }
 }
 
 @media (min-width: 1024px) {
   .pd-grid {
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    /* La galerie prend sa largeur naturelle, les informations le reste : pas de vide entre les deux */
+    grid-template-columns: auto minmax(0, 1fr);
     gap: var(--s-12);
     align-items: start;
   }
@@ -852,9 +856,9 @@ watch(() => route.params.slug, () => void loadProduct(), { immediate: true });
   .gal-main {
     grid-column: 2;
     grid-row: 1;
-    aspect-ratio: auto;
-    height: min(calc(100vh - var(--header-h) - 120px), 720px);
-    max-height: none;
+    width: calc(min(100vh - var(--header-h) - 120px, 720px) * 0.8);
+    max-width: none;
+    margin-inline: 0;
   }
   .gal-thumbs {
     grid-column: 1;
